@@ -2,9 +2,7 @@ package codesquad.handler;
 
 import codesquad.http.HttpRequest;
 import codesquad.http.HttpResponse;
-import codesquad.http.enums.StatusCode;
 import java.net.Socket;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +21,7 @@ public class ConnectionHandler implements Runnable {
             var os = cilentSocket.getOutputStream()) {
             log.debug("Client connected");
             var request = HttpRequest.from(is);
-            var response = HttpResponse.of("HTTP/1.1", StatusCode.OK,
-                Map.of("Content-Type", "text/html"), request.getRequestUri());
+            var response = HttpResponse.from(request.getRequestUri());
             os.write(response.generateResponse());
             os.flush();
         } catch (Exception e) {

@@ -31,6 +31,22 @@ public class HttpRequest {
         return new HttpRequest(inputStream);
     }
 
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
+    public String getRequestUri() {
+        return requestUri;
+    }
+
+    public String getHttpVersion() {
+        return httpVersion;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
     private void parseRequestLine(String requestLine) {
         if (requestLine == null || requestLine.isBlank()) {
             log.error("요청 라인이 없습니다.");
@@ -65,19 +81,4 @@ public class HttpRequest {
         return headerMap;
     }
 
-    public String getHttpMethod() {
-        return httpMethod;
-    }
-
-    public String getRequestUri() {
-        return requestUri;
-    }
-
-    public String getHttpVersion() {
-        return httpVersion;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
 }
