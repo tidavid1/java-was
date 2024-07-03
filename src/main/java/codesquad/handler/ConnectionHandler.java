@@ -17,11 +17,10 @@ public class ConnectionHandler implements Runnable {
 
     @Override
     public void run() {
-        try (var is = cilentSocket.getInputStream();
-            var os = cilentSocket.getOutputStream()) {
+        try (var is = cilentSocket.getInputStream(); var os = cilentSocket.getOutputStream()) {
             log.debug("Client connected");
             var request = HttpRequest.from(is);
-            var response = HttpResponse.from(request.getRequestUri());
+            var response = HttpResponse.from(request.getRequestUri().getPath());
             os.write(response.generateResponse());
             os.flush();
         } catch (Exception e) {

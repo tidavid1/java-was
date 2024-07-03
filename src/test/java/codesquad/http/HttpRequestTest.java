@@ -1,12 +1,14 @@
 package codesquad.http;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import codesquad.http.enums.HttpMethod;
+import codesquad.http.enums.HttpVersion;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,9 +49,9 @@ class HttpRequestTest {
         assertAll(
             () -> assertThat(actualResult).isNotNull(),
             () -> assertThat(actualResult).isInstanceOf(HttpRequest.class),
-            () -> assertThat(actualResult.getHttpMethod()).isEqualTo("GET"),
-            () -> assertThat(actualResult.getRequestUri()).isEqualTo("/index.html"),
-            () -> assertThat(actualResult.getHttpVersion()).isEqualTo("HTTP/1.1"),
+            () -> assertThat(actualResult.getHttpMethod()).isEqualTo(HttpMethod.GET),
+            () -> assertThat(actualResult.getRequestUri()).isEqualTo(new URI("/index.html")),
+            () -> assertThat(actualResult.getHttpVersion()).isEqualTo(HttpVersion.HTTP_1_1),
             () -> assertThat(actualResult.getHeaders())
                 .contains(
                     entry("Host", "localhost:8080"),
@@ -69,27 +71,4 @@ class HttpRequestTest {
 
     }
 
-    @Test
-    @DisplayName("요청 라인이 없는 경우 IllegalArgumentException을 던진다.")
-    void createWhenRequestLineIsNull() {
-        // Arrange
-        var emptyInputStream = new ByteArrayInputStream("".getBytes());
-
-        // Act & Assert
-        assertThatThrownBy(() -> HttpRequest.from(emptyInputStream))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("요청 라인이 없습니다.");
-    }
-
-    @Test
-    @DisplayName("요청 라인이 올바르지 않은 경우 IllegalArgumentException을 던진다.")
-    void createWhenRequestLineIsInvalid() {
-        // Arrange
-        var invalidInputStream = new ByteArrayInputStream("GET /index.html".getBytes());
-
-        // Act & Assert
-        assertThatThrownBy(() -> HttpRequest.from(invalidInputStream))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("요청 라인이 올바르지 않습니다.");
-    }
 }

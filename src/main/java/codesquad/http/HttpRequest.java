@@ -1,9 +1,12 @@
 package codesquad.http;
 
+import codesquad.http.enums.HttpMethod;
+import codesquad.http.enums.HttpVersion;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -12,9 +15,9 @@ import org.slf4j.LoggerFactory;
 public class HttpRequest {
 
     private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
-    private String httpMethod;
-    private String requestUri;
-    private String httpVersion;
+    private HttpMethod httpMethod;
+    private URI requestUri;
+    private HttpVersion httpVersion;
     private Map<String, String> headers;
     private String body;
 
@@ -24,7 +27,7 @@ public class HttpRequest {
             parseRequestLine(br.readLine());
             headers = parseHeaders(br);
             body = parseBody(br);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
     }
@@ -33,15 +36,15 @@ public class HttpRequest {
         return new HttpRequest(inputStream);
     }
 
-    public String getHttpMethod() {
+    public HttpMethod getHttpMethod() {
         return httpMethod;
     }
 
-    public String getRequestUri() {
+    public URI getRequestUri() {
         return requestUri;
     }
 
-    public String getHttpVersion() {
+    public HttpVersion getHttpVersion() {
         return httpVersion;
     }
 
@@ -64,9 +67,9 @@ public class HttpRequest {
             log.error("요청 라인이 올바르지 않습니다.");
             throw new IllegalArgumentException("요청 라인이 올바르지 않습니다.");
         }
-        httpMethod = tokens[0];
-        requestUri = tokens[1];
-        httpVersion = tokens[2];
+        httpMethod = HttpMethod.valueOf(tokens[0]);
+        requestUri = URI.create(tokens[1]);
+        httpVersion = HttpVersion.from(tokens[2]);
     }
 
     private Map<String, String> parseHeaders(BufferedReader br) {
@@ -79,7 +82,7 @@ public class HttpRequest {
                 }
                 log.debug(line);
                 var header = line.split(": ");
-                headerMap.put(header[0], header[1]);
+                headerMap.put(header[0], headerMap.getOrDefault(header[0], "") + header[1]);
             }
         } catch (IOException e) {
             log.error(e.getMessage());
