@@ -16,12 +16,14 @@ public class HttpRequest {
     private String requestUri;
     private String httpVersion;
     private Map<String, String> headers;
+    private String body;
 
     private HttpRequest(InputStream inputStream) {
         try {
             var br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             parseRequestLine(br.readLine());
             headers = parseHeaders(br);
+            body = parseBody(br);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -29,6 +31,26 @@ public class HttpRequest {
 
     public static HttpRequest from(InputStream inputStream) {
         return new HttpRequest(inputStream);
+    }
+
+    public String getHttpMethod() {
+        return httpMethod;
+    }
+
+    public String getRequestUri() {
+        return requestUri;
+    }
+
+    public String getHttpVersion() {
+        return httpVersion;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public String getBody() {
+        return body;
     }
 
     private void parseRequestLine(String requestLine) {
@@ -65,19 +87,19 @@ public class HttpRequest {
         return headerMap;
     }
 
-    public String getHttpMethod() {
-        return httpMethod;
+    private String parseBody(BufferedReader br) {
+        var size = Integer.parseInt(headers.getOrDefault("Content-Length", "0"));
+        char[] buffer = new char[size];
+        if (size != 0) {
+            try {
+                br.read(buffer);
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
+        }
+        var result = new String(buffer);
+        log.debug(result);
+        return result;
     }
 
-    public String getRequestUri() {
-        return requestUri;
-    }
-
-    public String getHttpVersion() {
-        return httpVersion;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
 }
