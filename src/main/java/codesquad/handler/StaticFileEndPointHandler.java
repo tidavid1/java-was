@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 public class StaticFileEndPointHandler implements EndPointHandler {
 
-    private static final StaticFileEndPointHandler INSTANCE = new StaticFileEndPointHandler();
     private static final Logger log = LoggerFactory.getLogger(StaticFileEndPointHandler.class);
+    private static final StaticFileEndPointHandler INSTANCE = new StaticFileEndPointHandler();
     private static final String STATIC_PATH = "static";
 
     private final EndPointRegister endpointRegister;
@@ -49,7 +49,6 @@ public class StaticFileEndPointHandler implements EndPointHandler {
             return;
         }
         String path = file.getPath().split(STATIC_PATH)[1];
-        log.debug(path);
         endpointRegister.addEndpoint(HttpMethod.GET, generateStaticEndPoint(path, file));
     }
 

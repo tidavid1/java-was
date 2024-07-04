@@ -7,12 +7,8 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HttpResponse {
-
-    private static final Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
     private final StatusCode statusCode;
     private final Map<String, String> headers = new HashMap<>();
@@ -38,10 +34,7 @@ public class HttpResponse {
     public void addHeader(String key, String value) {
         Optional.ofNullable(headers.get(key))
             .ifPresentOrElse(
-                prev -> {
-                    log.warn("Header already exists: {}", prev);
-                    headers.put(key, prev + "\n" + value);
-                },
+                prev -> headers.put(key, prev + "\n" + value),
                 () -> headers.put(key, value)
             );
     }

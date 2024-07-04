@@ -84,8 +84,6 @@ public class HttpRequest {
         if (size != 0) {
             String value = br.lines().collect(Collectors.joining("\n"));
             if (value.length() != size) {
-                // 400
-                log.error("Content-Length와 Body의 길이가 일치하지 않습니다.");
                 throw new BadRequestException("Content-Length와 Body의 길이가 일치하지 않습니다.");
             }
             this.body = value;
@@ -94,14 +92,10 @@ public class HttpRequest {
 
     private String[] validateRequestLine(String requestLine) {
         if (requestLine == null || requestLine.isBlank()) {
-            // 400
-            log.error("요청 라인이 없습니다.");
             throw new BadRequestException("요청 라인이 없습니다.");
         }
         String[] tokens = requestLine.split(" ");
         if (tokens.length != 3) {
-            // 400
-            log.error("요청 라인이 올바르지 않습니다.");
             throw new BadRequestException("요청 라인이 올바르지 않습니다.");
         }
         return tokens;

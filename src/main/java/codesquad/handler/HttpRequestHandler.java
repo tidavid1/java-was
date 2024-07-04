@@ -29,9 +29,7 @@ public class HttpRequestHandler {
             EndPoint endPoint = endpointRegister.getEndpoint(request.getHttpMethod(),
                 request.getRequestUri().getPath());
             // Get response from endpoint
-            HttpResponse response = new HttpResponse(endPoint, request.getRequestQuery());
-            log.info(endPoint.getPath());
-            return response;
+            return new HttpResponse(endPoint, request.getRequestQuery());
         } catch (BadRequestException be) {
             return new HttpResponse(StatusCode.BAD_REQUEST);
         } catch (NotFoundException ne) {

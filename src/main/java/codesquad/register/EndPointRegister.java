@@ -5,12 +5,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Endpoint를 등록하고 관리하는 클래스 Singleton Pattern을 사용합니다.
  */
 public class EndPointRegister {
 
+    private static final Logger log = LoggerFactory.getLogger(EndPointRegister.class);
     private static final EndPointRegister INSTANCE = new EndPointRegister();
     private final Map<HttpMethod, Set<EndPoint>> endpointMap = new ConcurrentHashMap<>();
 
@@ -28,6 +31,7 @@ public class EndPointRegister {
      * @param endpoint   Endpoint
      */
     public void addEndpoint(HttpMethod httpMethod, EndPoint endpoint) {
+        log.debug("Add Endpoint: {}", endpoint.getPath());
         Set<EndPoint> endpoints = endpointMap.getOrDefault(httpMethod, new HashSet<>());
         endpoints.add(endpoint);
         endpointMap.put(httpMethod, endpoints);
