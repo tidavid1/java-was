@@ -6,9 +6,12 @@ import codesquad.register.EndPoint;
 import codesquad.register.EndPointRegister;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Objects;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +33,46 @@ public class StaticFileEndPointHandler implements EndPointHandler {
 
     @Override
     public void provideAll() {
+        boolean isJar = getClass().getClassLoader().getResource(STATIC_PATH).toString()
+            .startsWith("jar");
+        if (isJar) {
+            provideJarFile();
+        } else {
+            provideIDEFile();
+        }
+    }
+
+    private void provideJarFile() {
+        try {
+            String jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI()
+                .getPath();
+            JarFile jarFile = new JarFile(jarPath);
+            Enumeration<JarEntry> entries = jarFile.entries();
+
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+                if (entryName.startsWith(STATIC_PATH + "/") && !entry.isDirectory()) {
+                    provideFileFromJar(jarFile, entry);
+                }
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void provideFileFromJar(JarFile jarFile, JarEntry entry) {
+        try (InputStream inputStream = jarFile.getInputStream(entry)) {
+            byte[] bytes = inputStream.readAllBytes();
+            String path = "/" + entry.getName().substring(STATIC_PATH.length() + 1);
+            endpointRegister.addEndpoint(HttpMethod.GET, new EndPoint(path, query -> bytes));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void provideIDEFile() {
         try {
             Enumeration<URL> resources = getClass().getClassLoader().getResources(STATIC_PATH);
             while (resources.hasMoreElements()) {
