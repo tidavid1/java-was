@@ -1,27 +1,28 @@
-package codesquad.handler;
+package codesquad.runner;
 
-import codesquad.http.HttpRequest;
+import codesquad.handler.HttpRequestHandler;
 import codesquad.http.HttpResponse;
 import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConnectionHandler implements Runnable {
+public class ConnectionRunner implements Runnable {
 
-    private static final Logger log = LoggerFactory.getLogger(ConnectionHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(ConnectionRunner.class);
     private final Socket cilentSocket;
+    private final HttpRequestHandler requestHandler;
 
-    public ConnectionHandler(Socket cilentSocket) {
+    public ConnectionRunner(Socket cilentSocket) {
         this.cilentSocket = cilentSocket;
+        this.requestHandler = new HttpRequestHandler();
     }
 
     @Override
     public void run() {
         try (var is = cilentSocket.getInputStream(); var os = cilentSocket.getOutputStream()) {
             log.debug("Client connected");
-            HttpRequest request = new HttpRequest(is);
-            var response = HttpResponse.from(request.getRequestUri().getPath());
-            os.write(response.generateResponse());
+            HttpResponse response = requestHandler.handle(is);
+            os.write(response.toResponseBytes());
             os.flush();
         } catch (Exception e) {
             log.error(e.getMessage());

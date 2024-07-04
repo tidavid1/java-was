@@ -1,7 +1,7 @@
 package codesquad.server;
 
-import codesquad.handler.ConnectionHandler;
 import codesquad.handler.StaticFileHandler;
+import codesquad.runner.ConnectionRunner;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
@@ -31,7 +31,7 @@ public class SocketServer {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             log.debug("Listening for connection on port 8080 ....");
             while (true) {
-                executorService.execute(new ConnectionHandler(serverSocket.accept()));
+                executorService.execute(new ConnectionRunner(serverSocket.accept()));
             }
         } catch (IOException e) {
             log.error(e.getMessage());
