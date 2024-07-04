@@ -1,6 +1,7 @@
 package codesquad.register;
 
 import codesquad.formatter.ContentTypeFormatter;
+import codesquad.http.enums.StatusCode;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -8,17 +9,23 @@ public class EndPoint {
 
     private final String path;
     private final Function<String, byte[]> function;
-    private final String contentType;
+    private final StatusCode statusCode;
+    private String contentType;
+    private String redirectUri;
 
     public EndPoint(String path, Function<String, byte[]> function) {
-        this.path = path;
-        this.function = function;
-        this.contentType = ContentTypeFormatter.formatContentType(path);
+        this(path, function, ContentTypeFormatter.formatContentType(path));
     }
 
     public EndPoint(String path, Function<String, byte[]> function, String contentType) {
+        this(path, function, contentType, StatusCode.OK);
+    }
+
+    public EndPoint(String path, Function<String, byte[]> function, String contentType,
+        StatusCode statusCode) {
         this.path = path;
         this.function = function;
+        this.statusCode = statusCode;
         this.contentType = contentType;
     }
 
@@ -32,6 +39,18 @@ public class EndPoint {
 
     public String getContentType() {
         return contentType;
+    }
+
+    public StatusCode getStatusCode() {
+        return statusCode;
+    }
+
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
+    public void setRedirectUri(String redirectUri) {
+        this.redirectUri = redirectUri;
     }
 
     @Override

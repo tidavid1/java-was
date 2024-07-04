@@ -2,6 +2,7 @@ package codesquad.http;
 
 import codesquad.formatter.DateTimeResponseFormatter;
 import codesquad.http.enums.StatusCode;
+import codesquad.register.EndPoint;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,10 +18,17 @@ public class HttpResponse {
     private final Map<String, String> headers = new HashMap<>();
     private final byte[] body;
 
+    public HttpResponse(EndPoint endPoint, String query) {
+        this.statusCode = endPoint.getStatusCode();
+        this.body = endPoint.getFunction().apply(query);
+        addDefaultHeaders();
+        manageHeaders(endPoint);
+    }
+
     public HttpResponse(StatusCode statusCode, byte[] body) {
         this.statusCode = statusCode;
-        addDefaultHeaders();
         this.body = body;
+        addDefaultHeaders();
     }
 
     public HttpResponse(StatusCode statusCode) {
@@ -51,18 +59,26 @@ public class HttpResponse {
         headers.putAll(
             Map.of(
                 "Date", DateTimeResponseFormatter.formatZonedDateTime(ZonedDateTime.now()),
-                "Server", "java-was"
+                "Server", "java-was",
+                "Content-Length", String.valueOf(body.length)
             )
         );
     }
 
     private String convertResponseLineToString() {
-        return "HTTP/1.1 " + statusCode.getCode() + " " + statusCode.name() + "\r\n";
+        return "HTTP/1.1 " + statusCode.getCode() + " " + statusCode.getMessage() + "\r\n";
     }
 
     private String convertHeadersToString() {
         StringBuilder sb = new StringBuilder();
         headers.forEach((key, value) -> sb.append(key).append(": ").append(value).append("\r\n"));
         return sb.toString();
+    }
+
+    private void manageHeaders(EndPoint endPoint) {
+        Optional.ofNullable(endPoint.getContentType())
+            .ifPresent(contentType -> addHeader("Content-Type", contentType));
+        Optional.ofNullable(endPoint.getRedirectUri())
+            .ifPresent(redirectUri -> addHeader("Location", redirectUri));
     }
 }

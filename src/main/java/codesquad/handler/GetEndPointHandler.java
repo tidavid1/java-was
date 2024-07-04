@@ -2,6 +2,7 @@ package codesquad.handler;
 
 import codesquad.exception.BadRequestException;
 import codesquad.http.enums.HttpMethod;
+import codesquad.http.enums.StatusCode;
 import codesquad.model.User;
 import codesquad.register.EndPoint;
 import codesquad.register.EndPointRegister;
@@ -63,8 +64,9 @@ public class GetEndPointHandler implements EndPointHandler {
             UserRegister.getInstance().save(User.from(queryMap));
             return staticEndPoint.getFunction().apply(query);
         };
-        endPointRegister.addEndpoint(HttpMethod.GET,
-            new EndPoint("/create", function, staticEndPoint.getContentType()));
+        EndPoint endPoint = new EndPoint("/create", function, null, StatusCode.MOVED_PERMANENTLY);
+        endPoint.setRedirectUri("/");
+        endPointRegister.addEndpoint(HttpMethod.GET, endPoint);
     }
 
 }
