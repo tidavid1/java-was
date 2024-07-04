@@ -1,12 +1,15 @@
 package codesquad.http;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import codesquad.exception.BadRequestException;
 import codesquad.http.enums.HttpMethod;
 import codesquad.http.enums.HttpVersion;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,9 +44,9 @@ class HttpRequestTest {
 
     @Test
     @DisplayName("inputStream으로부터 HttpRequest 객체를 생성한다.")
-    void create() {
+    void create() throws IOException {
         // Act
-        var actualResult = HttpRequest.from(inputStream);
+        var actualResult = new HttpRequest(inputStream);
 
         // Assert
         assertAll(
@@ -68,7 +71,48 @@ class HttpRequestTest {
                     entry("Accept-Encoding", "gzip, deflate")),
             () -> assertThat(actualResult.getBody()).isEqualTo("hello?")
         );
+    }
 
+    @Test
+    @DisplayName("inputStream에서 요청 라인이 존재하지 않을 시 예외를 던진다.")
+    void createWhenRequestLineNotFound() {
+        // Arrange
+        var expectedInputStream = new ByteArrayInputStream("".getBytes());
+
+        // Act & Assert
+        assertThatThrownBy(() -> new HttpRequest(expectedInputStream))
+            .isInstanceOf(BadRequestException.class)
+            .hasMessage("요청 라인이 없습니다.");
+    }
+
+    @Test
+    @DisplayName("inputStream에서 요청 라인이 잘못된 형식일 시 예외를 던진다.")
+    void createWhenRequestLineIsInvalid() {
+        // Arrange
+        var expectedInputStream = new ByteArrayInputStream("GET /index.html".getBytes());
+
+        // Act & Assert
+        assertThatThrownBy(() -> new HttpRequest(expectedInputStream))
+            .isInstanceOf(BadRequestException.class)
+            .hasMessage("요청 라인이 올바르지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("Content-Length와 Body의 길이가 일치하지 않을 시 예외를 던진다.")
+    void createWhenContentLengthAndBodyLengthMismatch() {
+        // Arrange
+        var expectedInputStream = new ByteArrayInputStream("""
+            GET /index.html HTTP/1.1
+            Host: localhost:8080
+            Content-Length: 10
+                        
+            hello?
+            """.getBytes());
+
+        // Act & Assert
+        assertThatThrownBy(() -> new HttpRequest(expectedInputStream))
+            .isInstanceOf(BadRequestException.class)
+            .hasMessage("Content-Length와 Body의 길이가 일치하지 않습니다.");
     }
 
 }

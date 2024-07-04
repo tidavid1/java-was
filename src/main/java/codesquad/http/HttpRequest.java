@@ -1,5 +1,6 @@
 package codesquad.http;
 
+import codesquad.exception.BadRequestException;
 import codesquad.http.enums.HttpMethod;
 import codesquad.http.enums.HttpVersion;
 import java.io.BufferedReader;
@@ -7,8 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,22 +21,14 @@ public class HttpRequest {
     private HttpMethod httpMethod;
     private URI requestUri;
     private HttpVersion httpVersion;
-    private Map<String, String> headers;
+    private final Map<String, String> headers = new ConcurrentHashMap<>();
     private String body;
 
-    private HttpRequest(InputStream inputStream) {
-        try {
-            var br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-            parseRequestLine(br.readLine());
-            headers = parseHeaders(br);
-            body = parseBody(br);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    public static HttpRequest from(InputStream inputStream) {
-        return new HttpRequest(inputStream);
+    public HttpRequest(InputStream inputStream) throws IOException {
+        var br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+        parseRequestLine(br.readLine());
+        parseHeaders(br);
+        parseBody(br);
     }
 
     public HttpMethod getHttpMethod() {
@@ -57,52 +52,55 @@ public class HttpRequest {
     }
 
     private void parseRequestLine(String requestLine) {
-        if (requestLine == null || requestLine.isBlank()) {
-            log.error("요청 라인이 없습니다.");
-            throw new IllegalArgumentException("요청 라인이 없습니다.");
-        }
         log.debug(requestLine);
-        var tokens = requestLine.split(" ");
-        if (tokens.length != 3) {
-            log.error("요청 라인이 올바르지 않습니다.");
-            throw new IllegalArgumentException("요청 라인이 올바르지 않습니다.");
-        }
+        String[] tokens = validateRequestLine(requestLine);
         httpMethod = HttpMethod.valueOf(tokens[0]);
         requestUri = URI.create(tokens[1]);
         httpVersion = HttpVersion.from(tokens[2]);
     }
 
-    private Map<String, String> parseHeaders(BufferedReader br) {
-        var headerMap = new HashMap<String, String>();
+    private void parseHeaders(BufferedReader br) throws IOException {
         String line;
-        try {
-            while ((line = br.readLine()) != null) {
-                if (line.isBlank()) {
-                    break;
-                }
-                log.debug(line);
-                var header = line.split(": ");
-                headerMap.put(header[0], headerMap.getOrDefault(header[0], "") + header[1]);
+        while ((line = br.readLine()) != null) {
+            if (line.isBlank()) {
+                break;
             }
-        } catch (IOException e) {
-            log.error(e.getMessage());
+            log.debug(line);
+            String[] header = line.split(": ");
+            Optional.ofNullable(headers.get(header[0]))
+                .ifPresentOrElse(
+                    prev -> headers.put(header[0], prev + "\n" + header[1]),
+                    () -> headers.put(header[0], header[1])
+                );
         }
-        return headerMap;
     }
 
-    private String parseBody(BufferedReader br) {
-        var size = Integer.parseInt(headers.getOrDefault("Content-Length", "0"));
-        char[] buffer = new char[size];
+    private void parseBody(BufferedReader br) {
+        int size = Integer.parseInt(headers.getOrDefault("Content-Length", "0"));
         if (size != 0) {
-            try {
-                br.read(buffer);
-            } catch (IOException e) {
-                log.error(e.getMessage());
+            String value = br.lines().collect(Collectors.joining("\n"));
+            if (value.length() != size) {
+                // 400
+                log.error("Content-Length와 Body의 길이가 일치하지 않습니다.");
+                throw new BadRequestException("Content-Length와 Body의 길이가 일치하지 않습니다.");
             }
+            this.body = value;
         }
-        var result = new String(buffer);
-        log.debug(result);
-        return result;
+    }
+
+    private String[] validateRequestLine(String requestLine) {
+        if (requestLine == null || requestLine.isBlank()) {
+            // 400
+            log.error("요청 라인이 없습니다.");
+            throw new BadRequestException("요청 라인이 없습니다.");
+        }
+        String[] tokens = requestLine.split(" ");
+        if (tokens.length != 3) {
+            // 400
+            log.error("요청 라인이 올바르지 않습니다.");
+            throw new BadRequestException("요청 라인이 올바르지 않습니다.");
+        }
+        return tokens;
     }
 
 }
