@@ -47,6 +47,10 @@ public class HttpRequest {
         return headers;
     }
 
+    public String getRequestQuery() {
+        return requestUri.getQuery();
+    }
+
     public String getBody() {
         return body;
     }

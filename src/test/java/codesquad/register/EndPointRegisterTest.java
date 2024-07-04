@@ -21,7 +21,7 @@ class EndPointRegisterTest {
     @DisplayName("Endpoint를 저장한다.")
     void testAddEndpoint() {
         // Arrange
-        var expectedEndpoint = new EndPoint("/index.html", () -> new byte[0]);
+        var expectedEndpoint = new EndPoint("/index.html", query -> new byte[0]);
         // Act
         register.addEndpoint(HttpMethod.GET, expectedEndpoint);
         // Assert
@@ -32,7 +32,7 @@ class EndPointRegisterTest {
     @DisplayName("등록된 Endpoint를 반환한다.")
     void testGetEndpointSuccess() {
         // Arrange
-        var expectedEndpoint = new EndPoint("/index.html", () -> new byte[0]);
+        var expectedEndpoint = new EndPoint("/index.html", query -> new byte[0]);
         register.addEndpoint(HttpMethod.GET, expectedEndpoint);
         // Act
         var actualEndpoint = register.getEndpoint(HttpMethod.GET, "/index.html");

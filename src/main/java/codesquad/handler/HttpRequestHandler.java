@@ -2,7 +2,6 @@ package codesquad.handler;
 
 import codesquad.exception.BadRequestException;
 import codesquad.exception.NotFoundException;
-import codesquad.formatter.ContentTypeFormatter;
 import codesquad.http.HttpRequest;
 import codesquad.http.HttpResponse;
 import codesquad.http.enums.StatusCode;
@@ -30,9 +29,9 @@ public class HttpRequestHandler {
             EndPoint endPoint = endpointRegister.getEndpoint(request.getHttpMethod(),
                 request.getRequestUri().getPath());
             // Get response from endpoint
-            HttpResponse response = new HttpResponse(StatusCode.OK, endPoint.get());
-            response.addHeader("Content-Type",
-                ContentTypeFormatter.formatContentType(endPoint.getPath()));
+            HttpResponse response = new HttpResponse(StatusCode.OK,
+                endPoint.getFunction().apply(request.getRequestQuery()));
+            response.addHeader("Content-Type", endPoint.getContentType());
             log.info(endPoint.getPath());
             return response;
         } catch (BadRequestException be) {

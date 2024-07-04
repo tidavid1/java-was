@@ -3,7 +3,7 @@ package codesquad.register;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,13 +14,28 @@ class EndPointTest {
     void testCreate() {
         // Arrange
         String expectedPath = "/index.html";
-        Supplier<byte[]> expectedSupplier = () -> new byte[0];
+        Function<String, byte[]> expectedFunction = query -> new byte[0];
         // Act
-        EndPoint actualResult = new EndPoint(expectedPath, expectedSupplier);
+        EndPoint actualResult = new EndPoint(expectedPath, expectedFunction);
         // Assert
         assertThat(actualResult)
-            .extracting("path", "supplier")
-            .containsExactly(expectedPath, expectedSupplier);
+            .extracting("path", "function")
+            .containsExactly(expectedPath, expectedFunction);
+    }
+
+    @Test
+    @DisplayName("Content-Type을 지정한 Endpoint를 생성한다.")
+    void testCreateWithContentType() {
+        // Arrange
+        String expectedPath = "/index.html";
+        Function<String, byte[]> expectedFunction = query -> new byte[0];
+        String expectedContentType = "text/html";
+        // Act
+        EndPoint actualResult = new EndPoint(expectedPath, expectedFunction, expectedContentType);
+        // Assert
+        assertThat(actualResult)
+            .extracting("path", "function", "contentType")
+            .containsExactly(expectedPath, expectedFunction, expectedContentType);
     }
 
     @Test
@@ -28,10 +43,10 @@ class EndPointTest {
     void testGet() {
         // Arrange
         byte[] expectedBytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        Supplier<byte[]> supplier = () -> expectedBytes;
-        EndPoint endPoint = new EndPoint("/index.html", supplier);
+        Function<String, byte[]> function = query -> expectedBytes;
+        EndPoint endPoint = new EndPoint("/index.html", function);
         // Act
-        byte[] actualBytes = endPoint.get();
+        byte[] actualBytes = endPoint.getFunction().apply(null);
         // Assert
         assertArrayEquals(expectedBytes, actualBytes);
     }

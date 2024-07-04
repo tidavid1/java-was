@@ -12,18 +12,24 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StaticFileHandler {
+public class StaticFileEndPointHandler implements EndPointHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(StaticFileHandler.class);
+    private static final StaticFileEndPointHandler INSTANCE = new StaticFileEndPointHandler();
+    private static final Logger log = LoggerFactory.getLogger(StaticFileEndPointHandler.class);
     private static final String STATIC_PATH = "static";
 
     private final EndPointRegister endpointRegister;
 
-    public StaticFileHandler() {
+    private StaticFileEndPointHandler() {
         this.endpointRegister = EndPointRegister.getInstance();
     }
 
-    public void provideAllFiles() {
+    public static StaticFileEndPointHandler getInstance() {
+        return INSTANCE;
+    }
+
+    @Override
+    public void provideAll() {
         try {
             Enumeration<URL> resources = getClass().getClassLoader().getResources(STATIC_PATH);
             while (resources.hasMoreElements()) {
@@ -43,10 +49,11 @@ public class StaticFileHandler {
             return;
         }
         String path = file.getPath().split(STATIC_PATH)[1];
+        log.debug(path);
         endpointRegister.addEndpoint(HttpMethod.GET, generateStaticEndPoint(path, file));
     }
 
     private EndPoint generateStaticEndPoint(String path, File file) {
-        return new EndPoint(path, () -> new FileByteReader(file).readAllBytes());
+        return new EndPoint(path, query -> new FileByteReader(file).readAllBytes());
     }
 }
