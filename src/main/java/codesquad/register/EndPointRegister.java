@@ -9,15 +9,15 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Endpoint를 등록하고 관리하는 클래스 Singleton Pattern을 사용합니다.
  */
-public class EndpointRegister {
+public class EndPointRegister {
 
-    private static final EndpointRegister INSTANCE = new EndpointRegister();
+    private static final EndPointRegister INSTANCE = new EndPointRegister();
     private final Map<HttpMethod, Set<EndPoint>> endpointMap = new ConcurrentHashMap<>();
 
-    private EndpointRegister() {
+    private EndPointRegister() {
     }
 
-    public static EndpointRegister getInstance() {
+    public static EndPointRegister getInstance() {
         return INSTANCE;
     }
 

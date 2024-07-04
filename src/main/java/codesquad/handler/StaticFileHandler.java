@@ -1,0 +1,52 @@
+package codesquad.handler;
+
+import codesquad.http.enums.HttpMethod;
+import codesquad.reader.FileByteReader;
+import codesquad.register.EndPoint;
+import codesquad.register.EndPointRegister;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class StaticFileHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(StaticFileHandler.class);
+    private static final String STATIC_PATH = "static";
+
+    private final EndPointRegister endpointRegister;
+
+    public StaticFileHandler() {
+        this.endpointRegister = EndPointRegister.getInstance();
+    }
+
+    public void provideAllFiles() {
+        try {
+            Enumeration<URL> resources = getClass().getClassLoader().getResources(STATIC_PATH);
+            while (resources.hasMoreElements()) {
+                URL resource = resources.nextElement();
+                provideFile(new File(resource.getFile()));
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void provideFile(File file) {
+        if (file.isDirectory() && file.exists()) {
+            for (File subFile : Objects.requireNonNull(file.listFiles())) {
+                provideFile(subFile);
+            }
+            return;
+        }
+        String path = file.getPath().split(STATIC_PATH)[1];
+        endpointRegister.addEndpoint(HttpMethod.GET, generateStaticEndPoint(path, file));
+    }
+
+    private EndPoint generateStaticEndPoint(String path, File file) {
+        return new EndPoint(path, () -> new FileByteReader(file).readAllBytes());
+    }
+}
