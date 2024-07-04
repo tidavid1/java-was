@@ -11,10 +11,9 @@ public class UserRegister {
     private static final Logger log = LoggerFactory.getLogger(UserRegister.class);
 
     private static final UserRegister INSTANCE = new UserRegister();
-    private final Map<String, User> userRepository;
+    private final Map<String, User> userRepository = new ConcurrentHashMap<>();
 
     private UserRegister() {
-        userRepository = new ConcurrentHashMap<>();
     }
 
     public static UserRegister getInstance() {
@@ -23,6 +22,7 @@ public class UserRegister {
 
     public User save(User user) {
         log.debug("User: {}", user);
-        return userRepository.put(user.getUserId(), user);
+        userRepository.put(user.getUserId(), user);
+        return user;
     }
 }

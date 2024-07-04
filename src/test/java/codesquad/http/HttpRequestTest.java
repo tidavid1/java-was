@@ -69,7 +69,8 @@ class HttpRequestTest {
                     entry("Accept-Language", "ko-KR,ko;q=0.9"),
                     entry("Sec-Fetch-Dest", "document"),
                     entry("Accept-Encoding", "gzip, deflate")),
-            () -> assertThat(actualResult.getBody()).isEqualTo("hello?")
+            () -> assertThat(actualResult.getBody()).isEqualTo("hello?"),
+            () -> assertThat(actualResult.getRequestQuery()).isNull()
         );
     }
 
