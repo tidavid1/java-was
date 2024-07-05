@@ -31,8 +31,10 @@ public class HttpRequestHandler {
             // Get response from endpoint
             return new HttpResponse(endPoint, request.getRequestQuery());
         } catch (BadRequestException be) {
+            log.error("400: {}", be.getMessage());
             return new HttpResponse(StatusCode.BAD_REQUEST);
         } catch (NotFoundException ne) {
+            log.info("404: {}", ne.getMessage());
             return new HttpResponse(StatusCode.NOT_FOUND);
         } catch (Exception e) {
             log.error(e.getMessage());

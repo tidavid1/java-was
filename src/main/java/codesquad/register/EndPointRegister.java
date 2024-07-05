@@ -1,5 +1,6 @@
 package codesquad.register;
 
+import codesquad.exception.NotFoundException;
 import codesquad.http.enums.HttpMethod;
 import java.util.HashSet;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class EndPointRegister {
         return endpoints.stream()
             .filter(endpoint -> endpoint.getPath().equals(uri))
             .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("404 Not Found"));
+            .orElseThrow(() -> new NotFoundException("존재하지 않는 Endpoint 입니다."));
     }
 
 }

@@ -3,6 +3,7 @@ package codesquad.register;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import codesquad.exception.NotFoundException;
 import codesquad.http.enums.HttpMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +46,7 @@ class EndPointRegisterTest {
     void testGetEndpointFailWhenNotFound() {
         // Act & Assert
         assertThatThrownBy(() -> register.getEndpoint(HttpMethod.GET, "/index2.html"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("404 Not Found");
+            .isInstanceOf(NotFoundException.class)
+            .hasMessage("존재하지 않는 Endpoint 입니다.");
     }
 }
