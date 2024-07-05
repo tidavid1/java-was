@@ -6,7 +6,7 @@ public class ContentTypeFormatter {
     }
 
     public static String formatContentType(String fileExtension) {
-        return switch (fileExtension.toLowerCase()) {
+        return switch (fileExtension.substring(fileExtension.lastIndexOf("."))) {
             case ".html" -> "text/html";
             case ".css" -> "text/css";
             case ".js" -> "text/javascript";

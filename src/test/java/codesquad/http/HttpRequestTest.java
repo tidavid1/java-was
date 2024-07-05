@@ -5,8 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import codesquad.exception.BadRequestException;
+import codesquad.http.enums.HttpMethod;
+import codesquad.http.enums.HttpVersion;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,17 +44,17 @@ class HttpRequestTest {
 
     @Test
     @DisplayName("inputStream으로부터 HttpRequest 객체를 생성한다.")
-    void create() {
+    void create() throws IOException {
         // Act
-        var actualResult = HttpRequest.from(inputStream);
+        var actualResult = new HttpRequest(inputStream);
 
         // Assert
         assertAll(
             () -> assertThat(actualResult).isNotNull(),
             () -> assertThat(actualResult).isInstanceOf(HttpRequest.class),
-            () -> assertThat(actualResult.getHttpMethod()).isEqualTo("GET"),
-            () -> assertThat(actualResult.getRequestUri()).isEqualTo("/index.html"),
-            () -> assertThat(actualResult.getHttpVersion()).isEqualTo("HTTP/1.1"),
+            () -> assertThat(actualResult.getHttpMethod()).isEqualTo(HttpMethod.GET),
+            () -> assertThat(actualResult.getRequestUri()).isEqualTo(new URI("/index.html")),
+            () -> assertThat(actualResult.getHttpVersion()).isEqualTo(HttpVersion.HTTP_1_1),
             () -> assertThat(actualResult.getHeaders())
                 .contains(
                     entry("Host", "localhost:8080"),
@@ -64,32 +69,51 @@ class HttpRequestTest {
                     entry("Accept-Language", "ko-KR,ko;q=0.9"),
                     entry("Sec-Fetch-Dest", "document"),
                     entry("Accept-Encoding", "gzip, deflate")),
-            () -> assertThat(actualResult.getBody()).isEqualTo("hello?")
+            () -> assertThat(actualResult.getBody()).isEqualTo("hello?"),
+            () -> assertThat(actualResult.getRequestQuery()).isNull()
         );
-
     }
 
     @Test
-    @DisplayName("요청 라인이 없는 경우 IllegalArgumentException을 던진다.")
-    void createWhenRequestLineIsNull() {
+    @DisplayName("inputStream에서 요청 라인이 존재하지 않을 시 예외를 던진다.")
+    void createWhenRequestLineNotFound() {
         // Arrange
-        var emptyInputStream = new ByteArrayInputStream("".getBytes());
+        var expectedInputStream = new ByteArrayInputStream("".getBytes());
 
         // Act & Assert
-        assertThatThrownBy(() -> HttpRequest.from(emptyInputStream))
-            .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> new HttpRequest(expectedInputStream))
+            .isInstanceOf(BadRequestException.class)
             .hasMessage("요청 라인이 없습니다.");
     }
 
     @Test
-    @DisplayName("요청 라인이 올바르지 않은 경우 IllegalArgumentException을 던진다.")
+    @DisplayName("inputStream에서 요청 라인이 잘못된 형식일 시 예외를 던진다.")
     void createWhenRequestLineIsInvalid() {
         // Arrange
-        var invalidInputStream = new ByteArrayInputStream("GET /index.html".getBytes());
+        var expectedInputStream = new ByteArrayInputStream("GET /index.html".getBytes());
 
         // Act & Assert
-        assertThatThrownBy(() -> HttpRequest.from(invalidInputStream))
-            .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> new HttpRequest(expectedInputStream))
+            .isInstanceOf(BadRequestException.class)
             .hasMessage("요청 라인이 올바르지 않습니다.");
     }
+
+    @Test
+    @DisplayName("Content-Length와 Body의 길이가 일치하지 않을 시 예외를 던진다.")
+    void createWhenContentLengthAndBodyLengthMismatch() {
+        // Arrange
+        var expectedInputStream = new ByteArrayInputStream("""
+            GET /index.html HTTP/1.1
+            Host: localhost:8080
+            Content-Length: 10
+                        
+            hello?
+            """.getBytes());
+
+        // Act & Assert
+        assertThatThrownBy(() -> new HttpRequest(expectedInputStream))
+            .isInstanceOf(BadRequestException.class)
+            .hasMessage("Content-Length와 Body의 길이가 일치하지 않습니다.");
+    }
+
 }

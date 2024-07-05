@@ -1,18 +1,17 @@
 package codesquad.reader;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class FileByteReader {
 
-    private static final String STATIC_RESOURCES_PATH = "src/main/resources/static";
+    private final InputStream fileInputStream;
 
-    private final FileInputStream fileInputStream;
-
-    public FileByteReader(String filePath) {
+    public FileByteReader(File file) {
         try {
-            fileInputStream = new FileInputStream(STATIC_RESOURCES_PATH + filePath);
-        } catch (Exception e) {
+            fileInputStream = file.toURI().toURL().openStream();
+        } catch (IOException e) {
             throw new IllegalArgumentException("파일을 찾을 수 없습니다.");
         }
     }
