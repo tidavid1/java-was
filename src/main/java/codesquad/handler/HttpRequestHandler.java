@@ -29,13 +29,13 @@ public class HttpRequestHandler {
             return generateResponse(request);
         } catch (BadRequestException be) {
             log.error("400: {}", be.getMessage());
-            return new HttpResponse(StatusCode.BAD_REQUEST);
+            return HttpResponse.from(StatusCode.BAD_REQUEST);
         } catch (NotFoundException ne) {
             log.error("404: {}", ne.getMessage());
-            return new HttpResponse(StatusCode.NOT_FOUND);
+            return HttpResponse.from(StatusCode.NOT_FOUND);
         } catch (Exception e) {
             log.error("500: {}", e.getMessage());
-            return new HttpResponse(StatusCode.INTERNAL_SERVER_ERROR);
+            return HttpResponse.from(StatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -44,9 +44,9 @@ public class HttpRequestHandler {
         EndPoint endPoint = endpointRegister.getEndpoint(httpRequest.getHttpMethod(),
             httpRequest.getRequestUri().getPath());
         return switch (httpRequest.getHttpMethod()) {
-            case GET -> new HttpResponse(endPoint, httpRequest.getRequestQuery());
-            case POST -> new HttpResponse(endPoint, httpRequest.getBody());
-            default -> new HttpResponse(StatusCode.NOT_IMPLEMENTED);
+            case GET -> HttpResponse.of(endPoint, httpRequest.getRequestQuery());
+            case POST -> HttpResponse.of(endPoint, httpRequest.getBody());
+            default -> HttpResponse.from(StatusCode.NOT_IMPLEMENTED);
         };
     }
 }

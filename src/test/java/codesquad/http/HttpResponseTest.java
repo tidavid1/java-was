@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import codesquad.http.enums.StatusCode;
+import codesquad.register.EndPoint;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,13 +16,13 @@ class HttpResponseTest {
     void createHttpResponse() {
         // Arrange
         var statusCode = StatusCode.OK;
-        var body = new byte[0];
         // Act
-        var actualResult = new HttpResponse(statusCode, body);
+        var actualResult = HttpResponse.from(statusCode);
         // Assert
         assertAll(
             () -> assertNotNull(actualResult),
-            () -> assertThat(actualResult).isInstanceOf(HttpResponse.class)
+            () -> assertThat(actualResult).isInstanceOf(HttpResponse.class),
+            () -> assertThat(actualResult).extracting("statusCode").isEqualTo(statusCode)
         );
     }
 
@@ -29,9 +30,10 @@ class HttpResponseTest {
     @DisplayName("HttpResponse 객체를 생성한다.")
     void createHttpResponseWithoutBody() {
         // Arrange
-        var statusCode = StatusCode.OK;
+        var endPoint = new EndPoint("/index.html", query -> new byte[0]);
+        String query = null;
         // Act
-        var actualResult = new HttpResponse(statusCode);
+        var actualResult = HttpResponse.of(endPoint, query);
         // Assert
         assertAll(
             () -> assertNotNull(actualResult),
@@ -44,8 +46,7 @@ class HttpResponseTest {
     void addHeader() {
         // Arrange
         var statusCode = StatusCode.OK;
-        var body = new byte[0];
-        var httpResponse = new HttpResponse(statusCode, body);
+        var httpResponse = HttpResponse.from(statusCode);
         // Act
         httpResponse.addHeader("Content-Type", "text/html");
         // Assert
@@ -58,8 +59,7 @@ class HttpResponseTest {
     void convertToResponseBytes() {
         // Arrange
         var statusCode = StatusCode.OK;
-        var body = new byte[0];
-        var httpResponse = new HttpResponse(statusCode, body);
+        var httpResponse = HttpResponse.from(statusCode);
         // Act
         var actualResult = httpResponse.toResponseBytes();
         // Assert
