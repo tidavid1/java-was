@@ -45,7 +45,7 @@ public class HttpRequestHandler {
             httpRequest.getRequestUri().getPath());
         return switch (httpRequest.getHttpMethod()) {
             case GET -> new HttpResponse(endPoint, httpRequest.getRequestQuery());
-            case POST -> new HttpResponse(StatusCode.NOT_IMPLEMENTED);
+            case POST -> new HttpResponse(endPoint, httpRequest.getBody());
             default -> new HttpResponse(StatusCode.NOT_IMPLEMENTED);
         };
     }
