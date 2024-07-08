@@ -25,20 +25,28 @@ public class HttpRequestHandler {
         try {
             // Parse request to HttpRequest
             HttpRequest request = new HttpRequest(is);
-            // Find endpoint with request
-            EndPoint endPoint = endpointRegister.getEndpoint(request.getHttpMethod(),
-                request.getRequestUri().getPath());
             // Get response from endpoint
-            return new HttpResponse(endPoint, request.getRequestQuery());
+            return generateResponse(request);
         } catch (BadRequestException be) {
             log.error("400: {}", be.getMessage());
             return new HttpResponse(StatusCode.BAD_REQUEST);
         } catch (NotFoundException ne) {
-            log.info("404: {}", ne.getMessage());
+            log.error("404: {}", ne.getMessage());
             return new HttpResponse(StatusCode.NOT_FOUND);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("500: {}", e.getMessage());
             return new HttpResponse(StatusCode.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private HttpResponse generateResponse(HttpRequest httpRequest) {
+        // Find endpoint with request
+        EndPoint endPoint = endpointRegister.getEndpoint(httpRequest.getHttpMethod(),
+            httpRequest.getRequestUri().getPath());
+        return switch (httpRequest.getHttpMethod()) {
+            case GET -> new HttpResponse(endPoint, httpRequest.getRequestQuery());
+            case POST -> new HttpResponse(StatusCode.NOT_IMPLEMENTED);
+            default -> new HttpResponse(StatusCode.NOT_IMPLEMENTED);
+        };
     }
 }

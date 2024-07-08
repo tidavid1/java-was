@@ -64,7 +64,7 @@ public class GetEndPointHandler implements EndPointHandler {
             UserRegister.getInstance().save(User.from(queryMap));
             return staticEndPoint.getFunction().apply(query);
         };
-        EndPoint endPoint = new EndPoint("/create", function, null, StatusCode.MOVED_PERMANENTLY);
+        EndPoint endPoint = new EndPoint("/create", function, null, StatusCode.FOUND);
         endPoint.setRedirectUri("/");
         endPointRegister.addEndpoint(HttpMethod.GET, endPoint);
     }
