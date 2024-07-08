@@ -1,5 +1,6 @@
 package codesquad.model;
 
+import codesquad.model.values.Email;
 import java.util.Map;
 
 public class User {
@@ -7,13 +8,13 @@ public class User {
     private final String userId;
     private final String password;
     private final String name;
-    private final String email;
+    private final Email email;
 
     private User(String userId, String password, String name, String email) {
         this.userId = userId;
         this.password = password;
         this.name = name;
-        this.email = email;
+        this.email = Email.from(email);
     }
 
     public static User from(Map<String, String> queryMap) {
@@ -34,7 +35,7 @@ public class User {
     }
 
     public String getEmail() {
-        return email;
+        return email.getValue();
     }
 
     @Override
@@ -43,7 +44,7 @@ public class User {
             "userId='" + userId + '\'' +
             ", password='" + password + '\'' +
             ", name='" + name + '\'' +
-            ", email='" + email + '\'' +
+            ", email='" + email.getValue() + '\'' +
             '}';
     }
 }

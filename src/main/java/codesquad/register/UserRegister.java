@@ -21,6 +21,9 @@ public class UserRegister {
     }
 
     public User save(User user) {
+        if (userRepository.containsKey(user.getUserId())) {
+            throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
+        }
         log.debug("User: {}", user);
         userRepository.put(user.getUserId(), user);
         return user;

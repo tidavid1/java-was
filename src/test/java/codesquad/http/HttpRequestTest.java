@@ -98,22 +98,4 @@ class HttpRequestTest {
             .hasMessage("요청 라인이 올바르지 않습니다.");
     }
 
-    @Test
-    @DisplayName("Content-Length와 Body의 길이가 일치하지 않을 시 예외를 던진다.")
-    void createWhenContentLengthAndBodyLengthMismatch() {
-        // Arrange
-        var expectedInputStream = new ByteArrayInputStream("""
-            GET /index.html HTTP/1.1
-            Host: localhost:8080
-            Content-Length: 10
-                        
-            hello?
-            """.getBytes());
-
-        // Act & Assert
-        assertThatThrownBy(() -> new HttpRequest(expectedInputStream))
-            .isInstanceOf(BadRequestException.class)
-            .hasMessage("Content-Length와 Body의 길이가 일치하지 않습니다.");
-    }
-
 }

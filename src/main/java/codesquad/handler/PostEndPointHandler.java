@@ -41,7 +41,11 @@ public class PostEndPointHandler implements EndPointHandler {
                 }
                 queryMap.put(split[0], split[1]);
             }
-            UserRegister.getInstance().save(User.from(queryMap));
+            try {
+                UserRegister.getInstance().save(User.from(queryMap));
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException(e.getMessage());
+            }
             return new byte[0];
         };
         EndPoint endPoint = new EndPoint("/create", function, null, StatusCode.FOUND);

@@ -1,6 +1,7 @@
 package codesquad.register;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import codesquad.model.User;
@@ -20,7 +21,7 @@ class UserRegisterTest {
             "userId", "hello",
             "password", "password",
             "name", "hi",
-            "email", "hi@hi"
+            "email", "hello@gmail.com"
         );
         var exceptedUser = User.from(expectedQueryMap);
         // Act
@@ -32,5 +33,23 @@ class UserRegisterTest {
             () -> assertThat(actualResult.getName()).isEqualTo(exceptedUser.getName()),
             () -> assertThat(actualResult.getEmail()).isEqualTo(exceptedUser.getEmail())
         );
+    }
+
+    @Test
+    @DisplayName("UserRegister에 중복된 User를 저장하면 예외를 던진다.")
+    void saveFail() {
+        // Arrange
+        var queryMap = Map.of(
+            "userId", "hello2",
+            "password", "password",
+            "name", "hi",
+            "email", "hello@gmail.com");
+        var user = User.from(queryMap);
+        userRegister.save(user);
+        // Act & Assert
+        assertThatThrownBy(() -> userRegister.save(user))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("이미 존재하는 사용자입니다.");
+
     }
 }

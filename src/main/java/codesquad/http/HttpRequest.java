@@ -12,7 +12,6 @@ import java.net.URLDecoder;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +79,7 @@ public class HttpRequest {
         }
     }
 
-    private void parseBody(BufferedReader br) throws IOException{
+    private void parseBody(BufferedReader br) throws IOException {
         int size = Integer.parseInt(headers.getOrDefault("Content-Length", "0"));
         if (size != 0) {
             char[] buffer = new char[size];
