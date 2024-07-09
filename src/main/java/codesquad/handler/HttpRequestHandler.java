@@ -39,13 +39,14 @@ public class HttpRequestHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private HttpResponse generateResponse(HttpRequest httpRequest) {
         // Find endpoint with request
-        EndPoint endPoint = endpointRegister.getEndpoint(httpRequest.getHttpMethod(),
-            httpRequest.getRequestUri().getPath());
+        EndPoint<String> endPoint = (EndPoint<String>) endpointRegister.getEndpoint(
+            httpRequest.getHttpMethod(), httpRequest.getRequestUri().getPath());
         return switch (httpRequest.getHttpMethod()) {
-            case GET -> HttpResponse.of(endPoint, httpRequest.getRequestQuery());
-            case POST -> HttpResponse.of(endPoint, httpRequest.getBody());
+            case GET -> endPoint.apply(httpRequest.getRequestQuery());
+            case POST -> endPoint.apply(httpRequest.getBody());
             default -> HttpResponse.from(StatusCode.NOT_IMPLEMENTED);
         };
     }

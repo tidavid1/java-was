@@ -1,56 +1,33 @@
 package codesquad.register.model;
 
-import codesquad.http.enums.StatusCode;
-import codesquad.util.ContentTypeFormatter;
+import codesquad.http.HttpResponse;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class EndPoint {
+public class EndPoint<T> {
 
     private final String path;
-    private final Function<String, byte[]> function;
-    private final StatusCode statusCode;
-    private String contentType;
-    private String redirectUri;
+    private final Function<T, HttpResponse> function;
 
-    public EndPoint(String path, Function<String, byte[]> function) {
-        this(path, function, ContentTypeFormatter.formatContentType(path));
-    }
-
-    public EndPoint(String path, Function<String, byte[]> function, String contentType) {
-        this(path, function, contentType, StatusCode.OK);
-    }
-
-    public EndPoint(String path, Function<String, byte[]> function, String contentType,
-        StatusCode statusCode) {
+    private EndPoint(String path, Function<T, HttpResponse> function) {
         this.path = path;
-        this.function = function;
-        this.statusCode = statusCode;
-        this.contentType = contentType;
+        this.function = Objects.requireNonNull(function, "Function은 null일 수 없습니다.");
+    }
+
+    public static <T> EndPoint<T> of(String path, Function<T, HttpResponse> function) {
+        return new EndPoint<>(path, function);
     }
 
     public String getPath() {
         return path;
     }
 
-    public Function<String, byte[]> getFunction() {
+    public Function<T, HttpResponse> getFunction() {
         return function;
     }
 
-    public String getContentType() {
-        return contentType;
-    }
-
-    public StatusCode getStatusCode() {
-        return statusCode;
-    }
-
-    public String getRedirectUri() {
-        return redirectUri;
-    }
-
-    public void setRedirectUri(String redirectUri) {
-        this.redirectUri = redirectUri;
+    public HttpResponse apply(T value) {
+        return function.apply(value);
     }
 
     @Override
@@ -58,7 +35,7 @@ public class EndPoint {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof EndPoint endPoint)) {
+        if (!(o instanceof EndPoint<?> endPoint)) {
             return false;
         }
 

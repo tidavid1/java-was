@@ -1,71 +1,77 @@
 package codesquad.register.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import codesquad.http.HttpResponse;
 import codesquad.http.enums.StatusCode;
 import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class EndPointTest {
 
-    @Test
-    @DisplayName("Endpoint를 생성한다.")
-    void testCreate() {
-        // Arrange
-        String expectedPath = "/index.html";
-        Function<String, byte[]> expectedFunction = query -> new byte[0];
-        // Act
-        EndPoint actualResult = new EndPoint(expectedPath, expectedFunction);
-        // Assert
-        assertThat(actualResult)
-            .extracting("path", "function", "contentType", "statusCode", "redirectUri")
-            .containsExactly(expectedPath, expectedFunction, "text/html", StatusCode.OK, null);
+    @Nested
+    @DisplayName("EndPoint Class를 생성할 때")
+    class whenCreateEndPoint {
+
+        @Test
+        @DisplayName("정적 팩토리 메서드 of를 사용하여 생성한다.")
+        void testCreateWithOf() {
+            // Arrange
+            String expectedPath = "/index.html";
+            Function<String, HttpResponse> expectedFunction = query -> HttpResponse.from(
+                StatusCode.OK);
+            // Act
+            EndPoint<String> actualResult = EndPoint.of(expectedPath, expectedFunction);
+            // Assert
+            assertThat(actualResult)
+                .extracting("path", "function")
+                .containsExactly(expectedPath, expectedFunction);
+        }
+
+        @Test
+        @DisplayName("Function이 null인 경우 예외를 반환한다.")
+        void testWhenFunctionIsNullThenThrowException() {
+            // Arrange
+            String expectedPath = "/index.html";
+            // Act & Assert
+            assertThatThrownBy(() -> EndPoint.of(expectedPath, null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("Function은 null일 수 없습니다.");
+        }
     }
 
-    @Test
-    @DisplayName("Content-Type을 지정한 Endpoint를 생성한다.")
-    void testCreateWithContentType() {
-        // Arrange
-        String expectedPath = "/index.html";
-        Function<String, byte[]> expectedFunction = query -> new byte[0];
-        String expectedContentType = "text/html";
-        // Act
-        EndPoint actualResult = new EndPoint(expectedPath, expectedFunction, expectedContentType);
-        // Assert
-        assertThat(actualResult)
-            .extracting("path", "function", "contentType", "statusCode", "redirectUri")
-            .containsExactly(expectedPath, expectedFunction, expectedContentType, StatusCode.OK,
-                null);
+    @Nested
+    @DisplayName("생성된 EndPoint에 대해")
+    class whenCreatedEndPointExist {
+
+        @Test
+        @DisplayName("생성된 EndPoint의 Function을 실행한다.")
+        void testApply() {
+            // Arrange
+            Function<String, HttpResponse> expectedFunction = query -> HttpResponse.from(
+                StatusCode.OK);
+            EndPoint<String> endPoint = EndPoint.of("/", expectedFunction);
+            // Act
+            HttpResponse actualResult = endPoint.apply(null);
+            // Assert
+            assertThat(actualResult).hasFieldOrPropertyWithValue("statusCode", StatusCode.OK);
+        }
+
+        @Test
+        @DisplayName("path가 동일하면 같은 EndPoint로 판단한다.")
+        void testEquals() {
+            // Arrange
+            EndPoint<String> endPoint1 = EndPoint.of("/",
+                query -> HttpResponse.from(StatusCode.OK));
+            EndPoint<String> endPoint2 = EndPoint.of("/",
+                query -> HttpResponse.from(StatusCode.OK));
+            // Act & Assert
+            assertThat(endPoint1.equals(endPoint2)).isTrue();
+        }
     }
 
-    @Test
-    @DisplayName("Endpoint에 RedirectUri를 지정한다")
-    void setRedirectUri() {
-        // Arrange
-        String expectedPath = "/index.html";
-        Function<String, byte[]> expectedFunction = query -> new byte[0];
-        String expectedRedirectUri = "/";
-        EndPoint expectedEndPoint = new EndPoint(expectedPath, expectedFunction, null,
-            StatusCode.FOUND);
-        // Act
-        expectedEndPoint.setRedirectUri(expectedRedirectUri);
-        // Assert
-        assertThat(expectedEndPoint.getRedirectUri()).isEqualTo(expectedRedirectUri);
-    }
-
-    @Test
-    @DisplayName("Endpoint의 Supplier를 실행한다.")
-    void testGet() {
-        // Arrange
-        byte[] expectedBytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        Function<String, byte[]> function = query -> expectedBytes;
-        EndPoint endPoint = new EndPoint("/index.html", function);
-        // Act
-        byte[] actualBytes = endPoint.getFunction().apply(null);
-        // Assert
-        assertArrayEquals(expectedBytes, actualBytes);
-    }
 
 }

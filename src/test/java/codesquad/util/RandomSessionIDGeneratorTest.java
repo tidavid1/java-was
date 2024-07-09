@@ -19,7 +19,6 @@ class RandomSessionIDGeneratorTest {
             results.add(RandomSessionIDGenerator.generate());
         }
         // Assert
-        System.out.println(results);
         assertThat(results).size().isEqualTo(100);
     }
 

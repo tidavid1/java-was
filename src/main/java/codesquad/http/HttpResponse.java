@@ -1,12 +1,11 @@
 package codesquad.http;
 
 import codesquad.http.enums.StatusCode;
-import codesquad.register.model.EndPoint;
 import codesquad.util.DateTimeResponseFormatter;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 
 public class HttpResponse {
 
@@ -14,33 +13,26 @@ public class HttpResponse {
     private final Map<String, String> headers = new HashMap<>();
     private final byte[] body;
 
-    private HttpResponse(EndPoint endPoint, String query) {
-        this.statusCode = endPoint.getStatusCode();
-        this.body = endPoint.getFunction().apply(query);
-        addDefaultHeaders();
-        manageHeaders(endPoint);
-    }
-
-    private HttpResponse(StatusCode statusCode) {
+    public HttpResponse(StatusCode statusCode, byte[] body) {
         this.statusCode = statusCode;
-        this.body = new byte[0];
+        this.body = body;
         addDefaultHeaders();
     }
 
     public static HttpResponse from(StatusCode statusCode) {
-        return new HttpResponse(statusCode);
+        return new HttpResponse(statusCode, new byte[0]);
     }
 
-    public static HttpResponse of(EndPoint endPoint, String query) {
-        return new HttpResponse(endPoint, query);
+    public static HttpResponse of(StatusCode statusCode, byte[] body) {
+        return new HttpResponse(statusCode, body);
     }
 
     public void addHeader(String key, String value) {
-        Optional.ofNullable(headers.get(key))
-            .ifPresentOrElse(
-                prev -> headers.put(key, prev + "\n" + value),
-                () -> headers.put(key, value)
-            );
+        headers.put(Objects.requireNonNull(key), Objects.requireNonNull(value));
+    }
+
+    public void addHeaders(Map<String, String> headers) {
+        this.headers.putAll(headers);
     }
 
     public byte[] toResponseBytes() {
@@ -70,12 +62,5 @@ public class HttpResponse {
         StringBuilder sb = new StringBuilder();
         headers.forEach((key, value) -> sb.append(key).append(": ").append(value).append("\r\n"));
         return sb.toString();
-    }
-
-    private void manageHeaders(EndPoint endPoint) {
-        Optional.ofNullable(endPoint.getContentType())
-            .ifPresent(contentType -> addHeader("Content-Type", contentType));
-        Optional.ofNullable(endPoint.getRedirectUri())
-            .ifPresent(redirectUri -> addHeader("Location", redirectUri));
     }
 }

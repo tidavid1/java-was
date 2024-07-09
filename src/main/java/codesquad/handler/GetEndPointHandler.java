@@ -26,26 +26,22 @@ public class GetEndPointHandler implements EndPointHandler {
     }
 
     void home() {
-        EndPoint staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
-            "/index.html");
+        EndPoint<?> staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET, "/index.html");
         endPointRegister.addEndpoint(HttpMethod.GET,
-            new EndPoint("/", staticEndPoint.getFunction(),
-                staticEndPoint.getContentType()));
+            EndPoint.of("/", staticEndPoint.getFunction()));
     }
 
     void registration() {
-        EndPoint staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
+        EndPoint<?> staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
             "/registration/index.html");
         endPointRegister.addEndpoint(HttpMethod.GET,
-            new EndPoint("/registration", staticEndPoint.getFunction(),
-                staticEndPoint.getContentType()));
+            EndPoint.of("/registration", staticEndPoint.getFunction()));
     }
 
     void login() {
-        EndPoint staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
+        EndPoint<?> staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
             "/login/index.html");
         endPointRegister.addEndpoint(HttpMethod.GET,
-            new EndPoint("/login", staticEndPoint.getFunction(),
-                staticEndPoint.getContentType()));
+            EndPoint.of("/login", staticEndPoint.getFunction()));
     }
 }
