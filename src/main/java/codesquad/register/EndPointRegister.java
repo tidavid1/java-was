@@ -2,6 +2,7 @@ package codesquad.register;
 
 import codesquad.exception.NotFoundException;
 import codesquad.http.enums.HttpMethod;
+import codesquad.register.model.EndPoint;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;

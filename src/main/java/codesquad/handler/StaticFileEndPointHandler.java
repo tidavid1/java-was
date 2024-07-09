@@ -2,8 +2,8 @@ package codesquad.handler;
 
 import codesquad.http.enums.HttpMethod;
 import codesquad.reader.FileByteReader;
-import codesquad.register.EndPoint;
 import codesquad.register.EndPointRegister;
+import codesquad.register.model.EndPoint;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

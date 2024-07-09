@@ -1,7 +1,7 @@
 package codesquad.http;
 
 import codesquad.http.enums.StatusCode;
-import codesquad.register.EndPoint;
+import codesquad.register.model.EndPoint;
 import codesquad.util.DateTimeResponseFormatter;
 import java.time.ZonedDateTime;
 import java.util.HashMap;

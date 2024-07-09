@@ -1,8 +1,8 @@
 package codesquad.handler;
 
 import codesquad.http.enums.HttpMethod;
-import codesquad.register.EndPoint;
 import codesquad.register.EndPointRegister;
+import codesquad.register.model.EndPoint;
 
 public class GetEndPointHandler implements EndPointHandler {
 

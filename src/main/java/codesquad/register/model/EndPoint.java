@@ -1,4 +1,4 @@
-package codesquad.register;
+package codesquad.register.model;
 
 import codesquad.http.enums.StatusCode;
 import codesquad.util.ContentTypeFormatter;
