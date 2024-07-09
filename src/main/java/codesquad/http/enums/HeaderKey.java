@@ -2,7 +2,7 @@ package codesquad.http.enums;
 
 public enum HeaderKey {
     LOCATION("Location"), CONTENT_TYPE("Content-Type"), CONTENT_LENGTH("Content-Length"),
-    DATE("Date"), SET_COOKIE("Set-Cookie"), SERVER("Server");
+    DATE("Date"), SET_COOKIE("Set-Cookie"), SERVER("Server"), COOKIE("Cookie");
 
     private final String value;
 

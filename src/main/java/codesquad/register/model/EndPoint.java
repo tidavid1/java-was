@@ -1,33 +1,35 @@
 package codesquad.register.model;
 
 import codesquad.http.HttpResponse;
+import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public class EndPoint<T> {
 
     private final String path;
-    private final Function<T, HttpResponse> function;
+    private final BiFunction<Map<String, String>, T, HttpResponse> biFunction;
 
-    private EndPoint(String path, Function<T, HttpResponse> function) {
+    private EndPoint(String path, BiFunction<Map<String, String>, T, HttpResponse> biFunction) {
         this.path = path;
-        this.function = Objects.requireNonNull(function, "Function은 null일 수 없습니다.");
+        this.biFunction = Objects.requireNonNull(biFunction, "BiFunction은 null일 수 없습니다.");
     }
 
-    public static <T> EndPoint<T> of(String path, Function<T, HttpResponse> function) {
-        return new EndPoint<>(path, function);
+    public static <T> EndPoint<T> of(String path,
+        BiFunction<Map<String, String>, T, HttpResponse> biFunction) {
+        return new EndPoint<>(path, biFunction);
     }
 
     public String getPath() {
         return path;
     }
 
-    public Function<T, HttpResponse> getFunction() {
-        return function;
+    public BiFunction<Map<String, String>, T, HttpResponse> getBiFunction() {
+        return biFunction;
     }
 
-    public HttpResponse apply(T value) {
-        return function.apply(value);
+    public HttpResponse apply(Map<String, String> headers, T value) {
+        return biFunction.apply(headers, value);
     }
 
     @Override

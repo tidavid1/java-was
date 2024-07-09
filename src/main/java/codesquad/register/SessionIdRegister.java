@@ -1,5 +1,6 @@
 package codesquad.register;
 
+import codesquad.exception.UnauthorizedException;
 import codesquad.model.User;
 import codesquad.util.RandomSessionIDGenerator;
 import java.util.Map;
@@ -23,6 +24,18 @@ public class SessionIdRegister {
         String sessionId = RandomSessionIDGenerator.generate();
         sessionIdRepository.put(sessionId, user);
         return sessionId;
+    }
+
+    public User getUser(String sessionId) {
+        return Optional.ofNullable(sessionIdRepository.get(sessionId))
+            .orElseThrow(() -> new UnauthorizedException("잘못된 쿠키입니다. : " + sessionId));
+    }
+
+    public void unregister(String sessionId) {
+        if (sessionId == null || !sessionIdRepository.containsKey(sessionId)) {
+            throw new UnauthorizedException("잘못된 쿠키입니다. : " + sessionId);
+        }
+        sessionIdRepository.remove(sessionId);
     }
 
     public Optional<User> findBySessionId(String sessionId) {

@@ -1,6 +1,7 @@
 package codesquad.handler;
 
 import codesquad.exception.BadRequestException;
+import codesquad.exception.UnauthorizedException;
 import codesquad.http.HttpResponse;
 import codesquad.http.enums.HeaderKey;
 import codesquad.http.enums.HttpMethod;
@@ -13,7 +14,8 @@ import codesquad.register.model.EndPoint;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 public class PostEndPointHandler implements EndPointHandler {
 
@@ -33,27 +35,29 @@ public class PostEndPointHandler implements EndPointHandler {
     public void provideAll() {
         create();
         login();
+        logout();
     }
 
     void create() {
-        EndPoint<String> endPoint = EndPoint.of(
-            "/create", body -> {
-                Map<String, String> map = parseBody(body);
-                try {
-                    UserRegister.getInstance().save(User.from(map));
-                } catch (IllegalArgumentException e) {
-                    throw new BadRequestException(e.getMessage());
-                }
-                HttpResponse response = HttpResponse.from(StatusCode.FOUND);
-                response.addHeader(HeaderKey.LOCATION, "/index.html");
-                return response;
+        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, body) -> {
+            Map<String, String> map = parseBody(body);
+            try {
+                UserRegister.getInstance().save(User.from(map));
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException(e.getMessage());
             }
+            HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+            response.addHeader(HeaderKey.LOCATION, "/index.html");
+            return response;
+        };
+        EndPoint<String> endPoint = EndPoint.of(
+            "/create", biFunction
         );
         endPointRegister.addEndpoint(HttpMethod.POST, endPoint);
     }
 
     void login() {
-        Function<String, HttpResponse> function = body -> {
+        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, body) -> {
             HttpResponse response = HttpResponse.from(StatusCode.FOUND);
             Map<String, String> map = parseBody(body);
             UserRegister.getInstance().findById(Objects.requireNonNull(map.get("userId")))
@@ -70,14 +74,36 @@ public class PostEndPointHandler implements EndPointHandler {
                         response.addHeader(HeaderKey.SET_COOKIE,
                             "SID=" + sessionId + "; Path=/; httpOnly");
                         // Set Redirect Location
-                        response.addHeader(HeaderKey.LOCATION, "/index.html");
+                        response.addHeader(HeaderKey.LOCATION, "/main");
 
                     },
                     () -> response.addHeader(HeaderKey.LOCATION, "/login/login_failed.html")
                 );
             return response;
         };
-        EndPoint<String> endPoint = EndPoint.of("/login", function);
+        EndPoint<String> endPoint = EndPoint.of("/login", biFunction);
+        endPointRegister.addEndpoint(HttpMethod.POST, endPoint);
+    }
+
+    void logout() {
+        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, body) -> {
+            HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+            Optional.ofNullable(headers.get(HeaderKey.COOKIE.getValue()))
+                .ifPresentOrElse(
+                    cookie -> {
+                        cookie = cookie.split("=")[1];
+                        SessionIdRegister.getInstance().unregister(cookie);
+                        response.addHeader(HeaderKey.SET_COOKIE,
+                            "SID=" + cookie + "; Path=/; httpOnly; Max-Age=0");
+                    },
+                    () -> {
+                        throw new UnauthorizedException("로그인 세션이 존재하지 않습니다.");
+                    }
+                );
+            response.addHeader(HeaderKey.LOCATION, "/");
+            return response;
+        };
+        EndPoint<String> endPoint = EndPoint.of("/logout", biFunction);
         endPointRegister.addEndpoint(HttpMethod.POST, endPoint);
     }
 

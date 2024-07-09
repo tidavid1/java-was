@@ -5,7 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import codesquad.http.HttpResponse;
 import codesquad.http.enums.StatusCode;
-import java.util.function.Function;
+import java.util.Map;
+import java.util.function.BiFunction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,14 +22,14 @@ class EndPointTest {
         void testCreateWithOf() {
             // Arrange
             String expectedPath = "/index.html";
-            Function<String, HttpResponse> expectedFunction = query -> HttpResponse.from(
+            BiFunction<Map<String, String>, String, HttpResponse> expectedBiFunction = (header, query) -> HttpResponse.from(
                 StatusCode.OK);
             // Act
-            EndPoint<String> actualResult = EndPoint.of(expectedPath, expectedFunction);
+            EndPoint<String> actualResult = EndPoint.of(expectedPath, expectedBiFunction);
             // Assert
             assertThat(actualResult)
-                .extracting("path", "function")
-                .containsExactly(expectedPath, expectedFunction);
+                .extracting("path", "biFunction")
+                .containsExactly(expectedPath, expectedBiFunction);
         }
 
         @Test
@@ -39,7 +40,7 @@ class EndPointTest {
             // Act & Assert
             assertThatThrownBy(() -> EndPoint.of(expectedPath, null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("Function은 null일 수 없습니다.");
+                .hasMessage("BiFunction은 null일 수 없습니다.");
         }
     }
 
@@ -51,11 +52,11 @@ class EndPointTest {
         @DisplayName("생성된 EndPoint의 Function을 실행한다.")
         void testApply() {
             // Arrange
-            Function<String, HttpResponse> expectedFunction = query -> HttpResponse.from(
+            BiFunction<Map<String, String>, String, HttpResponse> expectedBiFunction = (header, query) -> HttpResponse.from(
                 StatusCode.OK);
-            EndPoint<String> endPoint = EndPoint.of("/", expectedFunction);
+            EndPoint<String> endPoint = EndPoint.of("/", expectedBiFunction);
             // Act
-            HttpResponse actualResult = endPoint.apply(null);
+            HttpResponse actualResult = endPoint.apply(Map.of(), null);
             // Assert
             assertThat(actualResult).hasFieldOrPropertyWithValue("statusCode", StatusCode.OK);
         }
@@ -65,9 +66,9 @@ class EndPointTest {
         void testEquals() {
             // Arrange
             EndPoint<String> endPoint1 = EndPoint.of("/",
-                query -> HttpResponse.from(StatusCode.OK));
+                (headers, query) -> HttpResponse.from(StatusCode.OK));
             EndPoint<String> endPoint2 = EndPoint.of("/",
-                query -> HttpResponse.from(StatusCode.OK));
+                (headers, query) -> HttpResponse.from(StatusCode.OK));
             // Act & Assert
             assertThat(endPoint1.equals(endPoint2)).isTrue();
         }

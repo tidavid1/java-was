@@ -2,6 +2,7 @@ package codesquad.handler;
 
 import codesquad.exception.BadRequestException;
 import codesquad.exception.NotFoundException;
+import codesquad.exception.UnauthorizedException;
 import codesquad.http.HttpRequest;
 import codesquad.http.HttpResponse;
 import codesquad.http.enums.StatusCode;
@@ -33,6 +34,9 @@ public class HttpRequestHandler {
         } catch (NotFoundException ne) {
             log.error("404: {}", ne.getMessage());
             return HttpResponse.from(StatusCode.NOT_FOUND);
+        } catch (UnauthorizedException ue) {
+            log.error("401: {}", ue.getMessage());
+            return HttpResponse.from(StatusCode.UNAUTHORIZED);
         } catch (Exception e) {
             log.error("500: {}", e.getMessage());
             return HttpResponse.from(StatusCode.INTERNAL_SERVER_ERROR);
@@ -45,8 +49,8 @@ public class HttpRequestHandler {
         EndPoint<String> endPoint = (EndPoint<String>) endpointRegister.getEndpoint(
             httpRequest.getHttpMethod(), httpRequest.getRequestUri().getPath());
         return switch (httpRequest.getHttpMethod()) {
-            case GET -> endPoint.apply(httpRequest.getRequestQuery());
-            case POST -> endPoint.apply(httpRequest.getBody());
+            case GET -> endPoint.apply(httpRequest.getHeaders(), httpRequest.getRequestQuery());
+            case POST -> endPoint.apply(httpRequest.getHeaders(), httpRequest.getBody());
             default -> HttpResponse.from(StatusCode.NOT_IMPLEMENTED);
         };
     }

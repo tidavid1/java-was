@@ -26,7 +26,7 @@ class EndPointRegisterTest {
     void testAddEndpoint() {
         // Arrange
         var expectedEndpoint = EndPoint.of("/index.html",
-            query -> HttpResponse.from(StatusCode.OK));
+            (headers, value) -> HttpResponse.from(StatusCode.OK));
         // Act
         register.addEndpoint(HttpMethod.GET, expectedEndpoint);
         // Assert
@@ -38,7 +38,7 @@ class EndPointRegisterTest {
     void testGetEndpointSuccess() {
         // Arrange
         var expectedEndpoint = EndPoint.of("/index.html",
-            query -> HttpResponse.from(StatusCode.OK));
+            (headers, value) -> HttpResponse.from(StatusCode.OK));
         register.addEndpoint(HttpMethod.GET, expectedEndpoint);
         // Act
         var actualEndpoint = register.getEndpoint(HttpMethod.GET, "/index.html");
