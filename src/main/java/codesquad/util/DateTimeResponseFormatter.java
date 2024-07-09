@@ -1,4 +1,4 @@
-package codesquad.formatter;
+package codesquad.util;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;

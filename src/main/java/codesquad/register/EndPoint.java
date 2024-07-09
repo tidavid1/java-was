@@ -1,7 +1,7 @@
 package codesquad.register;
 
-import codesquad.formatter.ContentTypeFormatter;
 import codesquad.http.enums.StatusCode;
+import codesquad.util.ContentTypeFormatter;
 import java.util.Objects;
 import java.util.function.Function;
 
