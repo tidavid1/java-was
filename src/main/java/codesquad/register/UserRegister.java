@@ -2,6 +2,7 @@ package codesquad.register;
 
 import codesquad.model.User;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,5 +28,9 @@ public class UserRegister {
         log.debug("User: {}", user);
         userRepository.put(user.getUserId(), user);
         return user;
+    }
+
+    public Optional<User> findById(String userId) {
+        return Optional.ofNullable(userRepository.get(userId));
     }
 }

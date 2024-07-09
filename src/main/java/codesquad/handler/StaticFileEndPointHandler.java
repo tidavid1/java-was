@@ -1,6 +1,7 @@
 package codesquad.handler;
 
 import codesquad.http.HttpResponse;
+import codesquad.http.enums.HeaderKey;
 import codesquad.http.enums.HttpMethod;
 import codesquad.http.enums.StatusCode;
 import codesquad.reader.FileByteReader;
@@ -72,7 +73,7 @@ public class StaticFileEndPointHandler implements EndPointHandler {
             String path = "/" + entry.getName().substring(STATIC_PATH.length() + 1);
             Function<String, HttpResponse> function = query -> {
                 HttpResponse response = HttpResponse.of(StatusCode.OK, bytes);
-                response.addHeader("Content-Type",
+                response.addHeader(HeaderKey.CONTENT_TYPE,
                     ContentTypeFormatter.formatContentType(path));
                 return response;
             };
@@ -109,7 +110,7 @@ public class StaticFileEndPointHandler implements EndPointHandler {
         return EndPoint.of(path, query -> {
             byte[] body = new FileByteReader(file).readAllBytes();
             HttpResponse response = HttpResponse.of(StatusCode.OK, body);
-            response.addHeader("Content-Type",
+            response.addHeader(HeaderKey.CONTENT_TYPE,
                 ContentTypeFormatter.formatContentType(file.getName()));
             return response;
         });

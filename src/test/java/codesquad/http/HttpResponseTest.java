@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import codesquad.http.enums.HeaderKey;
 import codesquad.http.enums.StatusCode;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -62,7 +63,7 @@ class HttpResponseTest {
             var statusCode = StatusCode.OK;
             var httpResponse = HttpResponse.from(statusCode);
             // Act
-            httpResponse.addHeader("Content-Type", "text/html");
+            httpResponse.addHeader(HeaderKey.CONTENT_TYPE, "text/html");
             // Assert
             assertThat(httpResponse).extracting("headers")
                 .hasFieldOrPropertyWithValue("Content-Type", "text/html");
@@ -77,8 +78,8 @@ class HttpResponseTest {
             // Act
             httpResponse.addHeaders(
                 Map.of(
-                    "Content-Type", "text/html",
-                    "Content-Length", "100"
+                    HeaderKey.CONTENT_TYPE, "text/html",
+                    HeaderKey.CONTENT_LENGTH, "100"
                 )
             );
             // Assert
