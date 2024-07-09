@@ -22,9 +22,10 @@ public class GetEndPointHandler implements EndPointHandler {
     public void provideAll() {
         home();
         registration();
+        login();
     }
 
-    public void home() {
+    void home() {
         EndPoint staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
             "/index.html");
         endPointRegister.addEndpoint(HttpMethod.GET,
@@ -32,7 +33,7 @@ public class GetEndPointHandler implements EndPointHandler {
                 staticEndPoint.getContentType()));
     }
 
-    public void registration() {
+    void registration() {
         EndPoint staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
             "/registration/index.html");
         endPointRegister.addEndpoint(HttpMethod.GET,
@@ -40,4 +41,11 @@ public class GetEndPointHandler implements EndPointHandler {
                 staticEndPoint.getContentType()));
     }
 
+    void login() {
+        EndPoint staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
+            "/login/index.html");
+        endPointRegister.addEndpoint(HttpMethod.GET,
+            new EndPoint("/login", staticEndPoint.getFunction(),
+                staticEndPoint.getContentType()));
+    }
 }
