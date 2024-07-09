@@ -87,10 +87,20 @@ public class GetEndPointHandler implements EndPointHandler {
             EndPoint.of("/registration", staticEndPoint.getBiFunction()));
     }
 
+    @SuppressWarnings("unchecked")
     void login() {
-        EndPoint<?> staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
+        EndPoint<String> staticEndPoint = (EndPoint<String>) endPointRegister.getEndpoint(
+            HttpMethod.GET,
             "/login/index.html");
+        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
+            if (Optional.ofNullable(headers.get(HeaderKey.COOKIE.getValue())).isPresent()) {
+                HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+                response.addHeader(HeaderKey.LOCATION, "/main");
+                return response;
+            }
+            return staticEndPoint.apply(headers, query);
+        };
         endPointRegister.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/login", staticEndPoint.getBiFunction()));
+            EndPoint.of("/login", biFunction));
     }
 }
