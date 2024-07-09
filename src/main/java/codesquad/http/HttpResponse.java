@@ -14,21 +14,25 @@ public class HttpResponse {
     private final Map<String, String> headers = new HashMap<>();
     private final byte[] body;
 
-    public HttpResponse(EndPoint endPoint, String query) {
+    private HttpResponse(EndPoint endPoint, String query) {
         this.statusCode = endPoint.getStatusCode();
         this.body = endPoint.getFunction().apply(query);
         addDefaultHeaders();
         manageHeaders(endPoint);
     }
 
-    public HttpResponse(StatusCode statusCode, byte[] body) {
+    private HttpResponse(StatusCode statusCode) {
         this.statusCode = statusCode;
-        this.body = body;
+        this.body = new byte[0];
         addDefaultHeaders();
     }
 
-    public HttpResponse(StatusCode statusCode) {
-        this(statusCode, new byte[0]);
+    public static HttpResponse from(StatusCode statusCode) {
+        return new HttpResponse(statusCode);
+    }
+
+    public static HttpResponse of(EndPoint endPoint, String query) {
+        return new HttpResponse(endPoint, query);
     }
 
     public void addHeader(String key, String value) {

@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,14 +79,12 @@ public class HttpRequest {
         }
     }
 
-    private void parseBody(BufferedReader br) {
+    private void parseBody(BufferedReader br) throws IOException {
         int size = Integer.parseInt(headers.getOrDefault("Content-Length", "0"));
         if (size != 0) {
-            String value = br.lines().collect(Collectors.joining("\n"));
-            if (value.length() != size) {
-                throw new BadRequestException("Content-Length와 Body의 길이가 일치하지 않습니다.");
-            }
-            this.body = value;
+            char[] buffer = new char[size];
+            br.read(buffer, 0, size);
+            body = URLDecoder.decode(new String(buffer), "UTF-8");
         }
     }
 

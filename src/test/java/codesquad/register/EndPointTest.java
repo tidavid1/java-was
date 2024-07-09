@@ -48,7 +48,7 @@ class EndPointTest {
         Function<String, byte[]> expectedFunction = query -> new byte[0];
         String expectedRedirectUri = "/";
         EndPoint expectedEndPoint = new EndPoint(expectedPath, expectedFunction, null,
-            StatusCode.MOVED_PERMANENTLY);
+            StatusCode.FOUND);
         // Act
         expectedEndPoint.setRedirectUri(expectedRedirectUri);
         // Assert

@@ -2,10 +2,11 @@ package codesquad.http.enums;
 
 public enum StatusCode {
     OK(200, "OK"),
-    MOVED_PERMANENTLY(301, "Moved Permanently"),
+    FOUND(302, "Found"),
     BAD_REQUEST(400, "Bad Request"),
     NOT_FOUND(404, "Not Found"),
-    INTERNAL_SERVER_ERROR(500, "Internal Server Error");
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
+    NOT_IMPLEMENTED(501, "Not Implemented");
 
     private final int code;
     private final String message;
