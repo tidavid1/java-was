@@ -1,5 +1,6 @@
 package codesquad.server;
 
+import codesquad.handler.StaticFileProvider;
 import codesquad.handler.endpoint.EndPointHandler;
 import codesquad.runner.ConnectionRunner;
 import java.io.IOException;
@@ -19,6 +20,7 @@ public class SocketServer {
     public SocketServer(int port) {
         this.port = port;
         this.executorService = Executors.newCachedThreadPool();
+        StaticFileProvider.init();
         EndPointHandler.handleAllHandler();
     }
 

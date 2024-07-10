@@ -3,6 +3,7 @@ package codesquad.handler.endpoint;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import codesquad.handler.StaticFileProvider;
 import codesquad.http.enums.HttpMethod;
 import codesquad.register.EndPointRegister;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,7 @@ class GetEndPointHandlerTest {
     void provideAll() {
         // Arrange
         EndPointRegister register = EndPointRegister.getInstance();
+        StaticFileProvider.init();
         StaticFileEndPointHandler.getInstance().provideAll();
         // Act
         GetEndPointHandler.getInstance().provideAll();
