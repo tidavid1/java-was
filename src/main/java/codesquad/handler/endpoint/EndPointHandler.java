@@ -1,4 +1,4 @@
-package codesquad.handler;
+package codesquad.handler.endpoint;
 
 import java.util.List;
 

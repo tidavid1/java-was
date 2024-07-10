@@ -1,4 +1,4 @@
-package codesquad.handler;
+package codesquad.handler.endpoint;
 
 import codesquad.exception.UnauthorizedException;
 import codesquad.http.HttpResponse;

@@ -1,6 +1,6 @@
 package codesquad.server;
 
-import codesquad.handler.EndPointHandler;
+import codesquad.handler.endpoint.EndPointHandler;
 import codesquad.runner.ConnectionRunner;
 import java.io.IOException;
 import java.net.ServerSocket;

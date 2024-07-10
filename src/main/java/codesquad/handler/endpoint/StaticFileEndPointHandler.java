@@ -1,13 +1,13 @@
-package codesquad.handler;
+package codesquad.handler.endpoint;
 
 import codesquad.http.HttpResponse;
 import codesquad.http.enums.HeaderKey;
 import codesquad.http.enums.HttpMethod;
 import codesquad.http.enums.StatusCode;
-import codesquad.reader.FileByteReader;
 import codesquad.register.EndPointRegister;
 import codesquad.register.model.EndPoint;
 import codesquad.util.ContentTypeFormatter;
+import codesquad.util.FileByteReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,7 +109,7 @@ public class StaticFileEndPointHandler implements EndPointHandler {
 
     private EndPoint<String> generateStaticEndPoint(String path, File file) {
         return EndPoint.of(path, (headers, query) -> {
-            byte[] body = new FileByteReader(file).readAllBytes();
+            byte[] body = FileByteReader.readAllBytes(file);
             HttpResponse response = HttpResponse.of(StatusCode.OK, body);
             response.addHeader(HeaderKey.CONTENT_TYPE,
                 ContentTypeFormatter.formatContentType(file.getName()));

@@ -1,4 +1,4 @@
-package codesquad.handler;
+package codesquad.handler.endpoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
