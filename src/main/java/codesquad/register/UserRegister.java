@@ -1,6 +1,7 @@
 package codesquad.register;
 
 import codesquad.model.User;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,5 +33,9 @@ public class UserRegister {
 
     public Optional<User> findById(String userId) {
         return Optional.ofNullable(userRepository.get(userId));
+    }
+
+    public List<User> findAll() {
+        return userRepository.values().stream().toList();
     }
 }

@@ -32,6 +32,9 @@ public class StaticFileEndPointHandler implements EndPointHandler {
         Set<Entry<String, byte[]>> staticFiles = staticFileRegister.getAllData();
         staticFiles.forEach(entry -> {
             String path = entry.getKey();
+            if (path.contains(".html")) {
+                return;
+            }
             byte[] bytes = entry.getValue();
             endpointRegister.addEndpoint(HttpMethod.GET,
                 EndPoint.of(path, (headers, query) -> {

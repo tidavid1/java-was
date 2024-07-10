@@ -73,7 +73,7 @@ public class PostEndPointHandler implements EndPointHandler {
                         response.addHeader(HeaderKey.SET_COOKIE,
                             "SID=" + sessionId + "; Path=/; httpOnly");
                         // Set Redirect Location
-                        response.addHeader(HeaderKey.LOCATION, "/main");
+                        response.addHeader(HeaderKey.LOCATION, "/index.html");
 
                     },
                     () -> response.addHeader(HeaderKey.LOCATION, "/login/login_failed.html")

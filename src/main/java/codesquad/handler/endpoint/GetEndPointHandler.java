@@ -8,7 +8,10 @@ import codesquad.http.enums.StatusCode;
 import codesquad.model.User;
 import codesquad.register.EndPointRegister;
 import codesquad.register.SessionIdRegister;
+import codesquad.register.StaticFileRegister;
+import codesquad.register.UserRegister;
 import codesquad.register.model.EndPoint;
+import codesquad.template.HTMLConvertor;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -18,9 +21,13 @@ public class GetEndPointHandler implements EndPointHandler {
     private static final GetEndPointHandler INSTANCE = new GetEndPointHandler();
 
     private final EndPointRegister endPointRegister;
+    private final StaticFileRegister staticFileRegister;
+    private final HTMLConvertor htmlConvertor;
 
     private GetEndPointHandler() {
         this.endPointRegister = EndPointRegister.getInstance();
+        this.staticFileRegister = StaticFileRegister.getInstance();
+        this.htmlConvertor = new HTMLConvertor();
     }
 
     public static GetEndPointHandler getInstance() {
@@ -30,80 +37,88 @@ public class GetEndPointHandler implements EndPointHandler {
     @Override
     public void provideAll() {
         home();
-        loginHome();
+        userList();
+        homeRedirect();
         registration();
         login();
     }
 
-    @SuppressWarnings("unchecked")
     void home() {
-        EndPoint<String> staticEndPoint = (EndPoint<String>) endPointRegister.getEndpoint(
-            HttpMethod.GET, "/index.html");
         BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
             try {
-                Optional.ofNullable(headers.get(HeaderKey.COOKIE.getValue()))
-                    .ifPresentOrElse(
-                        cookie -> {
-                        }
-                        , () -> {
-                            throw new HttpCommonException("세션이 존재하지 않습니다.",
-                                StatusCode.UNAUTHORIZED);
-                        });
-                HttpResponse response = HttpResponse.from(StatusCode.FOUND);
-                response.addHeader(HeaderKey.LOCATION, "/main");
-                return response;
-            } catch (HttpCommonException ue) {
-                return staticEndPoint.apply(headers, query);
+                String sessionId = verifyCookie(headers.get(HeaderKey.COOKIE.getValue()));
+                User user = verifySession(sessionId);
+                byte[] mainHtmlBytes = staticFileRegister.getFileBytes("/main/index.html");
+                return HttpResponse.of(StatusCode.OK,
+                    htmlConvertor.renderUsername(mainHtmlBytes, user.getName()));
+            } catch (HttpCommonException hce) {
+                byte[] indexHtmlBytes = staticFileRegister.getFileBytes("/index.html");
+                return HttpResponse.of(StatusCode.OK, indexHtmlBytes);
             }
         };
-        endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/", biFunction));
+        endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/index.html", biFunction));
     }
 
-    @SuppressWarnings("unchecked")
-    void loginHome() {
-        EndPoint<String> staticEndPoint = (EndPoint<String>) endPointRegister.getEndpoint(
-            HttpMethod.GET, "/main/index.html");
+    void homeRedirect() {
         BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
-            try {
-                String cookie = Optional.ofNullable(headers.get(HeaderKey.COOKIE.getValue()))
-                    .orElseThrow(
-                        () -> new HttpCommonException("세션이 존재하지 않습니다.", StatusCode.UNAUTHORIZED));
-                cookie = cookie.split("=")[1];
-                // TODO:  User 정보 등록을 위한 데이터 추출
-                User user = SessionIdRegister.getInstance().findBySessionId(cookie)
-                    .orElseThrow(() -> new HttpCommonException("일치하지 않는 세션 ID입니다.",
-                        StatusCode.UNAUTHORIZED));
-                return staticEndPoint.apply(headers, query);
-            } catch (HttpCommonException ue) {
-                HttpResponse response = HttpResponse.from(StatusCode.FOUND);
-                response.addHeader(HeaderKey.LOCATION, "/");
-                return response;
-            }
+            HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+            response.addHeader(HeaderKey.LOCATION, "/index.html");
+            return response;
         };
+        endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/", biFunction));
         endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/main", biFunction));
     }
 
     void registration() {
-        EndPoint<?> staticEndPoint = endPointRegister.getEndpoint(HttpMethod.GET,
-            "/registration/index.html");
-        endPointRegister.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/registration", staticEndPoint.getBiFunction()));
+        byte[] registrationHtmlBytes = staticFileRegister.getFileBytes("/registration/index.html");
+        endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/registration",
+            (headers, query) -> HttpResponse.of(StatusCode.OK, registrationHtmlBytes)));
+        endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/registration/index.html",
+            (headers, query) -> HttpResponse.of(StatusCode.OK, registrationHtmlBytes)));
     }
 
-    @SuppressWarnings("unchecked")
-    void login() {
-        EndPoint<String> staticEndPoint = (EndPoint<String>) endPointRegister.getEndpoint(
-            HttpMethod.GET,
-            "/login/index.html");
+    void userList() {
         BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
-            if (Optional.ofNullable(headers.get(HeaderKey.COOKIE.getValue())).isPresent()) {
+            try {
+                String sessionId = verifyCookie(headers.get(HeaderKey.COOKIE.getValue()));
+                User user = verifySession(sessionId);
+                byte[] userListHtmlBytes = staticFileRegister.getFileBytes("/user/user_list.html");
+                return HttpResponse.of(StatusCode.OK,
+                    htmlConvertor.renderUserList(userListHtmlBytes, user.getName(),
+                        UserRegister.getInstance().findAll()));
+            } catch (HttpCommonException hce) {
                 HttpResponse response = HttpResponse.from(StatusCode.FOUND);
-                response.addHeader(HeaderKey.LOCATION, "/main");
+                response.addHeader(HeaderKey.LOCATION, "/login");
                 return response;
             }
-            return staticEndPoint.apply(headers, query);
         };
-        endPointRegister.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/login", biFunction));
+        endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/user/list", biFunction));
+    }
+
+    void login() {
+        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
+            try {
+                verifyCookie(headers.get(HeaderKey.COOKIE.getValue()));
+                HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+                response.addHeader(HeaderKey.LOCATION, "/index.html");
+                return response;
+            } catch (HttpCommonException hce) {
+                byte[] loginHtml = staticFileRegister.getFileBytes("/login/index.html");
+                return HttpResponse.of(StatusCode.OK, loginHtml);
+            }
+        };
+        endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/login", biFunction));
+        endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/login/index.html", biFunction));
+    }
+
+    private String verifyCookie(String cookie) {
+        String value = Optional.ofNullable(cookie)
+            .orElseThrow(() -> new HttpCommonException("세션이 존재하지 않습니다.", StatusCode.UNAUTHORIZED));
+        return value.replace("SID=", "");
+    }
+
+    private User verifySession(String sessionId) {
+        return SessionIdRegister.getInstance().findBySessionId(sessionId)
+            .orElseThrow(() -> new HttpCommonException("세션이 존재하지 않습니다.", StatusCode.UNAUTHORIZED));
     }
 }
