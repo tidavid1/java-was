@@ -1,7 +1,6 @@
 package codesquad.handler.endpoint;
 
-import codesquad.exception.BadRequestException;
-import codesquad.exception.UnauthorizedException;
+import codesquad.exception.HttpCommonException;
 import codesquad.http.HttpResponse;
 import codesquad.http.enums.HeaderKey;
 import codesquad.http.enums.HttpMethod;
@@ -44,7 +43,7 @@ public class PostEndPointHandler implements EndPointHandler {
             try {
                 UserRegister.getInstance().save(User.from(map));
             } catch (IllegalArgumentException e) {
-                throw new BadRequestException(e.getMessage());
+                throw new HttpCommonException(e.getMessage(), StatusCode.BAD_REQUEST);
             }
             HttpResponse response = HttpResponse.from(StatusCode.FOUND);
             response.addHeader(HeaderKey.LOCATION, "/index.html");
@@ -97,7 +96,8 @@ public class PostEndPointHandler implements EndPointHandler {
                             "SID=" + cookie + "; Path=/; httpOnly; Max-Age=0");
                     },
                     () -> {
-                        throw new UnauthorizedException("로그인 세션이 존재하지 않습니다.");
+                        throw new HttpCommonException("로그인 세션이 존재하지 않습니다.",
+                            StatusCode.UNAUTHORIZED);
                     }
                 );
             response.addHeader(HeaderKey.LOCATION, "/");
@@ -113,7 +113,8 @@ public class PostEndPointHandler implements EndPointHandler {
         for (String value : values) {
             String[] split = value.split("=");
             if (split.length != 2) {
-                throw new BadRequestException("요청 값을 찾을 수 없습니다: " + split[0]);
+                throw new HttpCommonException("요청 값을 찾을 수 없습니다: " + split[0],
+                    StatusCode.BAD_REQUEST);
             }
             queryMap.put(split[0], split[1]);
         }

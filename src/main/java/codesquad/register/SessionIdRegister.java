@@ -1,6 +1,7 @@
 package codesquad.register;
 
-import codesquad.exception.UnauthorizedException;
+import codesquad.exception.HttpCommonException;
+import codesquad.http.enums.StatusCode;
 import codesquad.model.User;
 import codesquad.util.RandomSessionIDGenerator;
 import java.util.Map;
@@ -28,12 +29,13 @@ public class SessionIdRegister {
 
     public User getUser(String sessionId) {
         return Optional.ofNullable(sessionIdRepository.get(sessionId))
-            .orElseThrow(() -> new UnauthorizedException("잘못된 쿠키입니다. : " + sessionId));
+            .orElseThrow(() -> new HttpCommonException("잘못된 쿠키입니다. : " + sessionId,
+                StatusCode.UNAUTHORIZED));
     }
 
     public void unregister(String sessionId) {
         if (sessionId == null || !sessionIdRepository.containsKey(sessionId)) {
-            throw new UnauthorizedException("잘못된 쿠키입니다. : " + sessionId);
+            throw new HttpCommonException("잘못된 쿠키입니다. : " + sessionId, StatusCode.UNAUTHORIZED);
         }
         sessionIdRepository.remove(sessionId);
     }

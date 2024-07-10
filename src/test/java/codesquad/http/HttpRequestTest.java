@@ -5,9 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import codesquad.exception.BadRequestException;
+import codesquad.exception.HttpCommonException;
 import codesquad.http.enums.HttpMethod;
 import codesquad.http.enums.HttpVersion;
+import codesquad.http.enums.StatusCode;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,7 +83,8 @@ class HttpRequestTest {
 
         // Act & Assert
         assertThatThrownBy(() -> new HttpRequest(expectedInputStream))
-            .isInstanceOf(BadRequestException.class)
+            .isInstanceOf(HttpCommonException.class)
+            .hasFieldOrPropertyWithValue("statusCode", StatusCode.BAD_REQUEST)
             .hasMessage("요청 라인이 없습니다.");
     }
 
@@ -94,7 +96,8 @@ class HttpRequestTest {
 
         // Act & Assert
         assertThatThrownBy(() -> new HttpRequest(expectedInputStream))
-            .isInstanceOf(BadRequestException.class)
+            .isInstanceOf(HttpCommonException.class)
+            .hasFieldOrPropertyWithValue("statusCode", StatusCode.BAD_REQUEST)
             .hasMessage("요청 라인이 올바르지 않습니다.");
     }
 

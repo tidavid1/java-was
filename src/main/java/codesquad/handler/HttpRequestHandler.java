@@ -1,8 +1,6 @@
 package codesquad.handler;
 
-import codesquad.exception.BadRequestException;
-import codesquad.exception.NotFoundException;
-import codesquad.exception.UnauthorizedException;
+import codesquad.exception.HttpCommonException;
 import codesquad.http.HttpRequest;
 import codesquad.http.HttpResponse;
 import codesquad.http.enums.StatusCode;
@@ -28,15 +26,9 @@ public class HttpRequestHandler {
             HttpRequest request = new HttpRequest(is);
             // Get response from endpoint
             return generateResponse(request);
-        } catch (BadRequestException be) {
-            log.error("400: {}", be.getMessage());
-            return HttpResponse.from(StatusCode.BAD_REQUEST);
-        } catch (NotFoundException ne) {
-            log.error("404: {}", ne.getMessage());
-            return HttpResponse.from(StatusCode.NOT_FOUND);
-        } catch (UnauthorizedException ue) {
-            log.error("401: {}", ue.getMessage());
-            return HttpResponse.from(StatusCode.UNAUTHORIZED);
+        } catch (HttpCommonException hce) {
+            log.error("{}: {}", hce.getStatusCode(), hce.getMessage());
+            return HttpResponse.from(hce.getStatusCode());
         } catch (Exception e) {
             log.error("500: {}", e.getMessage());
             return HttpResponse.from(StatusCode.INTERNAL_SERVER_ERROR);

@@ -1,6 +1,7 @@
 package codesquad.register;
 
-import codesquad.exception.NotFoundException;
+import codesquad.exception.HttpCommonException;
+import codesquad.http.enums.StatusCode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,7 +27,7 @@ public class StaticFileRegister {
 
     public byte[] getFileBytes(String path) {
         return Optional.of(staticFiles.get(path))
-            .orElseThrow(() -> new NotFoundException("존재하지 않는 파일입니다."));
+            .orElseThrow(() -> new HttpCommonException("존재하지 않는 파일입니다.", StatusCode.NOT_FOUND));
     }
 
     public Set<Entry<String, byte[]>> getAllData() {

@@ -1,8 +1,9 @@
 package codesquad.http;
 
-import codesquad.exception.BadRequestException;
+import codesquad.exception.HttpCommonException;
 import codesquad.http.enums.HttpMethod;
 import codesquad.http.enums.HttpVersion;
+import codesquad.http.enums.StatusCode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,11 +91,11 @@ public class HttpRequest {
 
     private String[] validateRequestLine(String requestLine) {
         if (requestLine == null || requestLine.isBlank()) {
-            throw new BadRequestException("요청 라인이 없습니다.");
+            throw new HttpCommonException("요청 라인이 없습니다.", StatusCode.BAD_REQUEST);
         }
         String[] tokens = requestLine.split(" ");
         if (tokens.length != 3) {
-            throw new BadRequestException("요청 라인이 올바르지 않습니다.");
+            throw new HttpCommonException("요청 라인이 올바르지 않습니다.", StatusCode.BAD_REQUEST);
         }
         return tokens;
     }

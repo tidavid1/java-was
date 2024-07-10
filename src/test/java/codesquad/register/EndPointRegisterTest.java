@@ -3,7 +3,7 @@ package codesquad.register;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import codesquad.exception.NotFoundException;
+import codesquad.exception.HttpCommonException;
 import codesquad.http.HttpResponse;
 import codesquad.http.enums.HttpMethod;
 import codesquad.http.enums.StatusCode;
@@ -51,7 +51,8 @@ class EndPointRegisterTest {
     void testGetEndpointFailWhenNotFound() {
         // Act & Assert
         assertThatThrownBy(() -> register.getEndpoint(HttpMethod.GET, "/index2.html"))
-            .isInstanceOf(NotFoundException.class)
+            .isInstanceOf(HttpCommonException.class)
+            .hasFieldOrPropertyWithValue("statusCode", StatusCode.NOT_FOUND)
             .hasMessage("존재하지 않는 Endpoint 입니다.");
     }
 }

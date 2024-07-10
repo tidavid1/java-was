@@ -3,7 +3,8 @@ package codesquad.register;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import codesquad.exception.UnauthorizedException;
+import codesquad.exception.HttpCommonException;
+import codesquad.http.enums.StatusCode;
 import codesquad.model.User;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -61,13 +62,14 @@ class SessionIdRegisterTest {
         }
 
         @Test
-        @DisplayName("잘못된 sessionId로 조회하면 UnauthorizedException이 발생한다.")
-        void returnUnauthorizedException() {
+        @DisplayName("잘못된 sessionId로 조회하면 HttpCommonException이 발생한다.")
+        void returnHttpCommonException() {
             // Arrange
             String invalidSessionId = "invalidSessionId";
             // Act & Assert
             assertThatThrownBy(() -> sessionIdRegister.getUser(invalidSessionId))
-                .isInstanceOf(UnauthorizedException.class)
+                .isInstanceOf(HttpCommonException.class)
+                .hasFieldOrPropertyWithValue("statusCode", StatusCode.UNAUTHORIZED)
                 .hasMessage("잘못된 쿠키입니다. : " + invalidSessionId);
         }
 
@@ -92,18 +94,20 @@ class SessionIdRegisterTest {
             sessionIdRegister.unregister(sessionId);
             // Assert
             assertThatThrownBy(() -> sessionIdRegister.getUser(sessionId))
-                .isInstanceOf(UnauthorizedException.class)
+                .isInstanceOf(HttpCommonException.class)
+                .hasFieldOrPropertyWithValue("statusCode", StatusCode.UNAUTHORIZED)
                 .hasMessage("잘못된 쿠키입니다. : " + sessionId);
         }
 
         @Test
-        @DisplayName("잘못된 sessionId로 삭제하면 UnauthorizedException이 발생한다.")
+        @DisplayName("잘못된 sessionId로 삭제하면 HttpCommonException이 발생한다.")
         void unregisterWithInvalidSessionId() {
             // Arrange
             String invalidSessionId = "invalidSessionId";
             // Act & Assert
             assertThatThrownBy(() -> sessionIdRegister.unregister(invalidSessionId))
-                .isInstanceOf(UnauthorizedException.class)
+                .isInstanceOf(HttpCommonException.class)
+                .hasFieldOrPropertyWithValue("statusCode", StatusCode.UNAUTHORIZED)
                 .hasMessage("잘못된 쿠키입니다. : " + invalidSessionId);
         }
     }

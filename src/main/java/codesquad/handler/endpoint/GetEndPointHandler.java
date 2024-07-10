@@ -1,6 +1,6 @@
 package codesquad.handler.endpoint;
 
-import codesquad.exception.UnauthorizedException;
+import codesquad.exception.HttpCommonException;
 import codesquad.http.HttpResponse;
 import codesquad.http.enums.HeaderKey;
 import codesquad.http.enums.HttpMethod;
@@ -46,12 +46,13 @@ public class GetEndPointHandler implements EndPointHandler {
                         cookie -> {
                         }
                         , () -> {
-                            throw new UnauthorizedException("세션이 존재하지 않습니다.");
+                            throw new HttpCommonException("세션이 존재하지 않습니다.",
+                                StatusCode.UNAUTHORIZED);
                         });
                 HttpResponse response = HttpResponse.from(StatusCode.FOUND);
                 response.addHeader(HeaderKey.LOCATION, "/main");
                 return response;
-            } catch (UnauthorizedException ue) {
+            } catch (HttpCommonException ue) {
                 return staticEndPoint.apply(headers, query);
             }
         };
@@ -65,13 +66,15 @@ public class GetEndPointHandler implements EndPointHandler {
         BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
             try {
                 String cookie = Optional.ofNullable(headers.get(HeaderKey.COOKIE.getValue()))
-                    .orElseThrow(() -> new UnauthorizedException("세션이 존재하지 않습니다."));
+                    .orElseThrow(
+                        () -> new HttpCommonException("세션이 존재하지 않습니다.", StatusCode.UNAUTHORIZED));
                 cookie = cookie.split("=")[1];
                 // TODO:  User 정보 등록을 위한 데이터 추출
                 User user = SessionIdRegister.getInstance().findBySessionId(cookie)
-                    .orElseThrow(() -> new UnauthorizedException("일치하지 않는 세션 ID입니다."));
+                    .orElseThrow(() -> new HttpCommonException("일치하지 않는 세션 ID입니다.",
+                        StatusCode.UNAUTHORIZED));
                 return staticEndPoint.apply(headers, query);
-            } catch (UnauthorizedException ue) {
+            } catch (HttpCommonException ue) {
                 HttpResponse response = HttpResponse.from(StatusCode.FOUND);
                 response.addHeader(HeaderKey.LOCATION, "/");
                 return response;
