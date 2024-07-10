@@ -1,4 +1,4 @@
-package codesquad.formatter;
+package codesquad.util;
 
 public class ContentTypeFormatter {
 

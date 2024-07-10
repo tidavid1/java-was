@@ -1,15 +1,21 @@
 package codesquad.handler;
 
+import codesquad.http.HttpResponse;
+import codesquad.http.enums.HeaderKey;
 import codesquad.http.enums.HttpMethod;
+import codesquad.http.enums.StatusCode;
 import codesquad.reader.FileByteReader;
-import codesquad.register.EndPoint;
 import codesquad.register.EndPointRegister;
+import codesquad.register.model.EndPoint;
+import codesquad.util.ContentTypeFormatter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import org.slf4j.Logger;
@@ -56,7 +62,7 @@ public class StaticFileEndPointHandler implements EndPointHandler {
                     provideFileFromJar(jarFile, entry);
                 }
             }
-
+            jarFile.close();
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -66,7 +72,13 @@ public class StaticFileEndPointHandler implements EndPointHandler {
         try (InputStream inputStream = jarFile.getInputStream(entry)) {
             byte[] bytes = inputStream.readAllBytes();
             String path = "/" + entry.getName().substring(STATIC_PATH.length() + 1);
-            endpointRegister.addEndpoint(HttpMethod.GET, new EndPoint(path, query -> bytes));
+            BiFunction<Map<String, String>, String, HttpResponse> function = (headers, query) -> {
+                HttpResponse response = HttpResponse.of(StatusCode.OK, bytes);
+                response.addHeader(HeaderKey.CONTENT_TYPE,
+                    ContentTypeFormatter.formatContentType(path));
+                return response;
+            };
+            endpointRegister.addEndpoint(HttpMethod.GET, EndPoint.of(path, function));
         } catch (IOException e) {
             log.error(e.getMessage());
         }
@@ -95,7 +107,13 @@ public class StaticFileEndPointHandler implements EndPointHandler {
         endpointRegister.addEndpoint(HttpMethod.GET, generateStaticEndPoint(path, file));
     }
 
-    private EndPoint generateStaticEndPoint(String path, File file) {
-        return new EndPoint(path, query -> new FileByteReader(file).readAllBytes());
+    private EndPoint<String> generateStaticEndPoint(String path, File file) {
+        return EndPoint.of(path, (headers, query) -> {
+            byte[] body = new FileByteReader(file).readAllBytes();
+            HttpResponse response = HttpResponse.of(StatusCode.OK, body);
+            response.addHeader(HeaderKey.CONTENT_TYPE,
+                ContentTypeFormatter.formatContentType(file.getName()));
+            return response;
+        });
     }
 }

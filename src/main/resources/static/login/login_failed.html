@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="../reset.css" rel="stylesheet"/>
   <link href="../global.css" rel="stylesheet"/>
+  <title>Codestagram</title>
 </head>
 <body>
 <div class="container">
@@ -22,34 +23,16 @@
     </ul>
   </header>
   <div class="page">
-    <h2 class="page-title">로그인</h2>
-    <form class="form" action="/login" method="post">
-      <div class="textfield textfield_size_s">
-        <p class="title_textfield">아이디</p>
-        <input
-            class="input_textfield"
-            placeholder="아이디를 입력해주세요"
-            autocomplete="username"
-            name="userId"
-        />
-      </div>
-      <div class="textfield textfield_size_s">
-        <p class="title_textfield">비밀번호</p>
-        <input
-            class="input_textfield"
-            type="password"
-            placeholder="비밀번호를 입력해주세요"
-            autocomplete="current-password"
-            name="password"
-        />
-      </div>
+    <h2 class="page-title">로그인 실패</h2>
+    잘못된 로그인 요청입니다!
+    <form class="form" action="/" method="get">
       <button
           id="login-btn"
           class="btn btn_contained btn_size_m"
           style="margin-top: 24px"
           type="submit"
       >
-        로그인
+        홈으로 돌아가기
       </button>
     </form>
   </div>

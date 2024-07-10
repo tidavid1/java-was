@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import codesquad.exception.NotFoundException;
+import codesquad.http.HttpResponse;
 import codesquad.http.enums.HttpMethod;
+import codesquad.http.enums.StatusCode;
+import codesquad.register.model.EndPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +25,8 @@ class EndPointRegisterTest {
     @DisplayName("Endpoint를 저장한다.")
     void testAddEndpoint() {
         // Arrange
-        var expectedEndpoint = new EndPoint("/index.html", query -> new byte[0]);
+        var expectedEndpoint = EndPoint.of("/index.html",
+            (headers, value) -> HttpResponse.from(StatusCode.OK));
         // Act
         register.addEndpoint(HttpMethod.GET, expectedEndpoint);
         // Assert
@@ -33,7 +37,8 @@ class EndPointRegisterTest {
     @DisplayName("등록된 Endpoint를 반환한다.")
     void testGetEndpointSuccess() {
         // Arrange
-        var expectedEndpoint = new EndPoint("/index.html", query -> new byte[0]);
+        var expectedEndpoint = EndPoint.of("/index.html",
+            (headers, value) -> HttpResponse.from(StatusCode.OK));
         register.addEndpoint(HttpMethod.GET, expectedEndpoint);
         // Act
         var actualEndpoint = register.getEndpoint(HttpMethod.GET, "/index.html");

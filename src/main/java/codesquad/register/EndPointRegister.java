@@ -2,6 +2,7 @@ package codesquad.register;
 
 import codesquad.exception.NotFoundException;
 import codesquad.http.enums.HttpMethod;
+import codesquad.register.model.EndPoint;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,7 @@ public class EndPointRegister {
 
     private static final Logger log = LoggerFactory.getLogger(EndPointRegister.class);
     private static final EndPointRegister INSTANCE = new EndPointRegister();
-    private final Map<HttpMethod, Set<EndPoint>> endpointMap = new ConcurrentHashMap<>();
+    private final Map<HttpMethod, Set<EndPoint<?>>> endpointMap = new ConcurrentHashMap<>();
 
     private EndPointRegister() {
     }
@@ -31,9 +32,9 @@ public class EndPointRegister {
      * @param httpMethod HTTP Method
      * @param endpoint   Endpoint
      */
-    public void addEndpoint(HttpMethod httpMethod, EndPoint endpoint) {
+    public void addEndpoint(HttpMethod httpMethod, EndPoint<?> endpoint) {
         log.debug("Add Endpoint: {}", endpoint.getPath());
-        Set<EndPoint> endpoints = endpointMap.getOrDefault(httpMethod, new HashSet<>());
+        Set<EndPoint<?>> endpoints = endpointMap.getOrDefault(httpMethod, new HashSet<>());
         endpoints.add(endpoint);
         endpointMap.put(httpMethod, endpoints);
     }
@@ -47,8 +48,8 @@ public class EndPointRegister {
      * @return Endpoint
      * @throws IllegalArgumentException Endpoint가 없을 경우
      */
-    public EndPoint getEndpoint(HttpMethod httpMethod, String uri) {
-        Set<EndPoint> endpoints = endpointMap.getOrDefault(httpMethod, Set.of());
+    public EndPoint<?> getEndpoint(HttpMethod httpMethod, String uri) {
+        Set<EndPoint<?>> endpoints = endpointMap.getOrDefault(httpMethod, Set.of());
         return endpoints.stream()
             .filter(endpoint -> endpoint.getPath().equals(uri))
             .findFirst()
