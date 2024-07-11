@@ -1,6 +1,6 @@
 package codesquad.handler;
 
-import codesquad.register.StaticFileRegister;
+import codesquad.storage.StaticFileStorage;
 import codesquad.util.FileByteReader;
 import java.io.File;
 import java.io.IOException;
@@ -70,14 +70,14 @@ public class StaticFileProvider {
             return;
         }
         String path = file.getPath().split(STATIC_PATH)[1];
-        StaticFileRegister.getInstance().putFileBytes(path, FileByteReader.readAllBytes(file));
+        StaticFileStorage.getInstance().putFileBytes(path, FileByteReader.readAllBytes(file));
     }
 
     private static void provideFile(JarFile jarFile, JarEntry jarEntry) throws IOException {
         try (InputStream is = jarFile.getInputStream(jarEntry)) {
             byte[] bytes = FileByteReader.readAllBytes(is);
             String path = "/" + jarEntry.getName().substring(STATIC_PATH.length() + 1);
-            StaticFileRegister.getInstance().putFileBytes(path, bytes);
+            StaticFileStorage.getInstance().putFileBytes(path, bytes);
         }
     }
 

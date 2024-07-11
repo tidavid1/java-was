@@ -1,4 +1,4 @@
-package codesquad.register;
+package codesquad.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

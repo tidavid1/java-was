@@ -1,4 +1,4 @@
-package codesquad.register;
+package codesquad.storage;
 
 import codesquad.exception.HttpCommonException;
 import codesquad.http.servlet.enums.StatusCode;
@@ -7,17 +7,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class StaticFileRegister {
+public class StaticFileStorage {
 
-    private static final StaticFileRegister INSTANCE = new StaticFileRegister();
+    private static final StaticFileStorage INSTANCE = new StaticFileStorage();
 
     private final Map<String, byte[]> staticFiles = new HashMap<>();
 
-    private StaticFileRegister() {
+    private StaticFileStorage() {
     }
 
-    public static StaticFileRegister getInstance() {
+    public static StaticFileStorage getInstance() {
         return INSTANCE;
     }
 
@@ -31,7 +32,9 @@ public class StaticFileRegister {
     }
 
     public Set<Entry<String, byte[]>> getAllData() {
-        return staticFiles.entrySet();
+        return staticFiles.entrySet()
+            .stream().filter(entry -> !entry.getKey().contains(".html"))
+            .collect(Collectors.toSet());
     }
 
 

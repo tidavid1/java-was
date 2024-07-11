@@ -1,4 +1,4 @@
-package codesquad.register;
+package codesquad.storage;
 
 import codesquad.model.User;
 import java.util.List;
@@ -8,17 +8,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserRegister {
+public class UserStorage {
 
-    private static final Logger log = LoggerFactory.getLogger(UserRegister.class);
+    private static final Logger log = LoggerFactory.getLogger(UserStorage.class);
 
-    private static final UserRegister INSTANCE = new UserRegister();
+    private static final UserStorage INSTANCE = new UserStorage();
     private final Map<String, User> userRepository = new ConcurrentHashMap<>();
 
-    private UserRegister() {
+    private UserStorage() {
     }
 
-    public static UserRegister getInstance() {
+    public static UserStorage getInstance() {
         return INSTANCE;
     }
 

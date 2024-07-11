@@ -5,21 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import codesquad.handler.StaticFileProvider;
 import codesquad.http.servlet.enums.HttpMethod;
-import codesquad.register.EndPointRegister;
+import codesquad.storage.EndPointStorage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class GetEndPointHandlerTest {
+class GetEndPointRegisterTest {
 
     @Test
     @DisplayName("지정한 GET Endpoint들을 저장한다.")
     void provideAll() {
         // Arrange
-        EndPointRegister register = EndPointRegister.getInstance();
+        EndPointStorage register = EndPointStorage.getInstance();
         StaticFileProvider.init();
-        StaticFileEndPointHandler.getInstance().provideAll();
+        StaticFileEndPointRegister.getInstance().provideAll();
         // Act
-        GetEndPointHandler.getInstance().provideAll();
+        GetEndPointRegister.getInstance().provideAll();
         // Assert
         assertAll(
             () -> assertThat(register.getEndpoint(HttpMethod.GET, "/")).isNotNull(),

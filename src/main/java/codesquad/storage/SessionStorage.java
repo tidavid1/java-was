@@ -1,4 +1,4 @@
-package codesquad.register;
+package codesquad.storage;
 
 import codesquad.http.session.Session;
 import java.util.Map;

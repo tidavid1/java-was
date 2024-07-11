@@ -1,4 +1,4 @@
-package codesquad.register;
+package codesquad.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("UserRegister에")
-class UserRegisterTest {
+class UserStorageTest {
 
-    private final UserRegister userRegister = UserRegister.getInstance();
+    private final UserStorage userStorage = UserStorage.getInstance();
 
     @Nested
     @DisplayName("User를 저장할 때")
@@ -31,7 +31,7 @@ class UserRegisterTest {
             );
             var exceptedUser = User.from(expectedQueryMap);
             // Act
-            var actualResult = userRegister.save(exceptedUser);
+            var actualResult = userStorage.save(exceptedUser);
             // Assert
             assertAll(
                 () -> assertThat(actualResult.getUserId()).isEqualTo(exceptedUser.getUserId()),
@@ -51,9 +51,9 @@ class UserRegisterTest {
                 "name", "hi",
                 "email", "hello@gmail.com");
             var user = User.from(queryMap);
-            userRegister.save(user);
+            userStorage.save(user);
             // Act & Assert
-            assertThatThrownBy(() -> userRegister.save(user))
+            assertThatThrownBy(() -> userStorage.save(user))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("이미 존재하는 사용자입니다.");
 
@@ -76,9 +76,9 @@ class UserRegisterTest {
                 "name", "hi",
                 "email", "hello@gmail.com");
             var expectedResult = User.from(queryMap);
-            userRegister.save(expectedResult);
+            userStorage.save(expectedResult);
             // Act
-            var actualResult = userRegister.findById(expectedUserId);
+            var actualResult = userStorage.findById(expectedUserId);
             // Assert
             assertAll(
                 () -> assertThat(actualResult).isNotEmpty(),

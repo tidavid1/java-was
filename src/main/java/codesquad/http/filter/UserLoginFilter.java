@@ -3,7 +3,7 @@ package codesquad.http.filter;
 import codesquad.http.servlet.HttpServletRequest;
 import codesquad.http.servlet.HttpServletResponse;
 import codesquad.http.session.SessionContext;
-import codesquad.register.SessionStorage;
+import codesquad.storage.SessionStorage;
 import java.net.HttpCookie;
 import java.util.Optional;
 
