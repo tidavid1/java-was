@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated(forRemoval = true)
 public class SessionIdRegister {
 
     private static final SessionIdRegister INSTANCE = new SessionIdRegister();
