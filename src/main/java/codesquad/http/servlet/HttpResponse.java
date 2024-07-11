@@ -26,6 +26,7 @@ public class HttpResponse {
                 "Date", List.of(DateTimeResponseFormatter.formatZonedDateTime(ZonedDateTime.now())),
                 "Server", List.of("java-was")
             ));
+        this.body = new byte[0];
     }
 
     StatusCode getStatusCode() {

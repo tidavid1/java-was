@@ -6,9 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import codesquad.http.servlet.enums.StatusCode;
 import java.net.HttpCookie;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @DisplayName("HttpServletResponse는")
 class HttpServletResponseTest {
@@ -25,19 +29,27 @@ class HttpServletResponseTest {
             // Act
             httpResponse.setStatus(StatusCode.OK);
             // Assert
-            assertThat(httpResponse).extracting("httpResponse.statusCode").isEqualTo(StatusCode.OK);
+            assertThat(httpResponse.getStatus()).isPresent().get().isEqualTo(StatusCode.OK);
         }
 
-        @Test
+        @MethodSource
+        @ParameterizedTest
         @DisplayName("컨텐츠 타입을 설정할 수 있다.")
-        void setContentType() {
+        void setContentType(String contentType, String expectedContentType) {
             // Arrange
             HttpServletResponse httpResponse = new HttpServletResponse();
             // Act
-            httpResponse.setContentType("text/html");
+            httpResponse.setContentType(contentType);
             // Assert
             assertThat(httpResponse).extracting("httpResponse.headers.Content-Type").asString()
-                .isEqualTo("[text/html; charset=utf-8]");
+                .isEqualTo(expectedContentType);
+        }
+
+        private static Stream<Arguments> setContentType() {
+            return Stream.of(
+                Arguments.of("text/html", "[text/html; charset=utf-8]"),
+                Arguments.of("application/json", "[application/json]")
+            );
         }
 
         @Test
@@ -61,7 +73,7 @@ class HttpServletResponseTest {
             httpResponse.setCookie(new HttpCookie("name", "value"));
             // Assert
             assertThat(httpResponse).extracting("httpResponse.headers.Set-Cookie").asString()
-                .isEqualTo("[name=\"value\"]");
+                .isEqualTo("[name=value; Version=1]");
         }
 
         @Test

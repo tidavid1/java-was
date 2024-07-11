@@ -7,6 +7,7 @@ import java.net.HttpCookie;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,14 @@ class HttpServletRequestTest {
         Map.of("Cookie", List.of("cookie=value")),
         "");
 
+    private HttpServletRequest httpServletRequest;
+
+    @BeforeEach
+    void init() {
+        httpServletRequest = new HttpServletRequest();
+        httpServletRequest.setRequest(httpRequest);
+    }
+
     @Nested
     @DisplayName("생성 후")
     class whenCreated {
@@ -26,8 +35,6 @@ class HttpServletRequestTest {
         @Test
         @DisplayName("HttpRequest 객체를 반환한다.")
         void getRequest() {
-            // Arrange
-            HttpServletRequest httpServletRequest = new HttpServletRequest(httpRequest);
             // Act
             HttpRequest actualResult = httpServletRequest.getRequest();
             // Assert
@@ -37,8 +44,6 @@ class HttpServletRequestTest {
         @Test
         @DisplayName("쿠키를 반환한다.")
         void getCookie() {
-            // Arrange
-            HttpServletRequest httpServletRequest = new HttpServletRequest(httpRequest);
             // Act
             Optional<HttpCookie> actualResult = httpServletRequest.getCookie("cookie");
             // Assert
@@ -52,7 +57,6 @@ class HttpServletRequestTest {
             // Arrange
             String expectedKey = "key";
             String expectedValue = "value";
-            HttpServletRequest httpServletRequest = new HttpServletRequest(httpRequest);
             // Act
             httpServletRequest.setAttribute(expectedKey, expectedValue);
             // Assert
@@ -66,7 +70,6 @@ class HttpServletRequestTest {
             // Arrange
             String expectedKey = "key";
             String expectedValue = "value";
-            HttpServletRequest httpServletRequest = new HttpServletRequest(httpRequest);
             httpServletRequest.setAttribute(expectedKey, expectedValue);
             // Act
             Object actualResult = httpServletRequest.getAttribute(expectedKey);

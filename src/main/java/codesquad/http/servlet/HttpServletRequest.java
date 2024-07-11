@@ -2,17 +2,21 @@ package codesquad.http.servlet;
 
 import java.net.HttpCookie;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class HttpServletRequest {
 
-    private final HttpRequest request;
+    private HttpRequest request;
     private final Map<String, Object> attributes;
 
-    public HttpServletRequest(HttpRequest request) {
-        this.request = request;
+    public HttpServletRequest() {
         this.attributes = new HashMap<>();
+    }
+
+    public void setRequest(HttpRequest request) {
+        this.request = request;
     }
 
     public HttpRequest getRequest() {
@@ -20,7 +24,7 @@ public class HttpServletRequest {
     }
 
     public Optional<HttpCookie> getCookie(String name) {
-        return request.getHeaders().get("Cookie").stream()
+        return request.getHeaders().getOrDefault("Cookie", List.of()).stream()
             .flatMap(cookie -> HttpCookie.parse(cookie).stream())
             .filter(httpCookie -> httpCookie.getName().equals(name))
             .findFirst();

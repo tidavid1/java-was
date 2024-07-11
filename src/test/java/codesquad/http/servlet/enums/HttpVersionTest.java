@@ -21,7 +21,7 @@ class HttpVersionTest {
             // Assert
             assertThat(actualResult)
                 .isEqualTo(HttpVersion.HTTP_1_1)
-                .hasFieldOrPropertyWithValue("version", "HTTP/1.1");
+                .hasFieldOrPropertyWithValue("value", "HTTP/1.1");
         }
 
         @Test

@@ -1,7 +1,11 @@
 package codesquad.http.servlet;
 
 import codesquad.http.servlet.enums.StatusCode;
+import codesquad.util.HttpCookieReader;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpCookie;
+import java.util.Optional;
 
 public class HttpServletResponse {
 
@@ -12,6 +16,10 @@ public class HttpServletResponse {
             contentType += "; charset=utf-8";
         }
         httpResponse.addHeader("Content-Type", contentType);
+    }
+
+    public Optional<StatusCode> getStatus() {
+        return Optional.ofNullable(httpResponse.getStatusCode());
     }
 
     public void setStatus(StatusCode statusCode) {
@@ -26,7 +34,7 @@ public class HttpServletResponse {
     }
 
     public void setCookie(HttpCookie cookie) {
-        httpResponse.addHeader("Set-Cookie", cookie.toString());
+        httpResponse.addHeader("Set-Cookie", HttpCookieReader.readCookie(cookie));
     }
 
     public void sendRedirect(String path) {
@@ -45,4 +53,10 @@ public class HttpServletResponse {
     public byte[] toResponseBytes() {
         return httpResponse.toResponseBytes();
     }
+
+    public void flush(OutputStream os) throws IOException {
+        os.write(toResponseBytes());
+        os.flush();
+    }
+
 }
