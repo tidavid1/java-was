@@ -31,15 +31,17 @@ public class UserLoginFilter implements Filter {
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response,
         FilterChain chain) {
-        Optional<HttpCookie> cookie = request.getCookie("SID");
-        cookie.ifPresent(
-            httpCookie -> {
-                // 세션 ID 조회
-                String sessionId = httpCookie.getValue();
-                // 세션 검증 및 세션 저장
-                sessionStorage.getSession(sessionId).ifPresent(SessionContext::setSession);
-            }
-        );
+        if (request.getRequest() != null) {
+            Optional<HttpCookie> cookie = request.getCookie("SID");
+            cookie.ifPresent(
+                httpCookie -> {
+                    // 세션 ID 조회
+                    String sessionId = httpCookie.getValue();
+                    // 세션 검증 및 세션 저장
+                    sessionStorage.getSession(sessionId).ifPresent(SessionContext::setSession);
+                }
+            );
+        }
         chain.doFilter(request, response);
     }
 }

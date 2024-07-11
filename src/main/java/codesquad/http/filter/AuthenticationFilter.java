@@ -14,26 +14,18 @@ import java.util.List;
  */
 public class AuthenticationFilter implements Filter {
 
-    // TODO: 자동주입
     private static AuthenticationFilter instance;
 
     private final List<String> authenticationPathList;
 
-    private AuthenticationFilter(String... paths) {
-        this.authenticationPathList = List.of(paths);
-    }
-
-    public static AuthenticationFilter createInstance(String... paths) {
-        if (instance != null) {
-            throw new IllegalStateException("이미 존재하는 인스턴스가 있습니다.");
-        }
-        instance = new AuthenticationFilter(paths);
-        return instance;
+    // TODO: 자동 주입 해보까?
+    private AuthenticationFilter() {
+        this.authenticationPathList = List.of("/user/list", "/logout");
     }
 
     public static AuthenticationFilter getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("존재하지 않는 인스턴스입니다.");
+            instance = new AuthenticationFilter();
         }
         return instance;
     }
@@ -41,12 +33,14 @@ public class AuthenticationFilter implements Filter {
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response,
         FilterChain chain) {
-        String path = request.getRequest().getUri().getPath();
-        // 검증하기
-        if (authenticationPathList.contains(path)) {
-            Session session = SessionContext.getSession();
-            if (session == null) {
-                response.sendRedirect("/login");
+        if (request.getRequest() != null) {
+            String path = request.getRequest().getUri().getPath();
+            // 검증하기
+            if (authenticationPathList.contains(path)) {
+                Session session = SessionContext.getSession();
+                if (session == null) {
+                    response.sendRedirect("/login");
+                }
             }
         }
         chain.doFilter(request, response);
