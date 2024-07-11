@@ -1,9 +1,9 @@
 package codesquad.storage;
 
-import codesquad.exception.HttpCommonException;
-import codesquad.http.servlet.enums.StatusCode;
 import codesquad.model.User;
-import codesquad.util.RandomSessionIDGenerator;
+import codesquad.server.http.exception.HttpCommonException;
+import codesquad.server.http.servlet.enums.StatusCode;
+import codesquad.server.util.RandomSessionIDGenerator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,8 +1,8 @@
 package codesquad.server;
 
-import codesquad.handler.StaticFileProvider;
-import codesquad.handler.endpoint.EndPointRegister;
-import codesquad.runner.ConnectionRunner;
+import codesquad.server.endpoint.handler.EndPointRegister;
+import codesquad.server.provider.StaticFileProvider;
+import codesquad.server.runner.ConnectionRunner;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
