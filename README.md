@@ -17,29 +17,37 @@
     - 예시 이미지에서는 `8080` 포트를 사용합니다.
 - HTTP 요청이 들어오면 `ServerSocket`은 요청에 대한 `ConnectionRunner`를 스레드로 실행합니다.
     - `ConnectionRunner`는 HTTP 요청 `InputStream`을 `HttpRequestHandler`에 위임합니다.
-    - `HttpRequestHandler`는 `InputStream`을 파싱해 `HttpRequest` 객체를 생성합니다.
-    - 파싱한 `HttpRequest` 객체를 기반으로 `EndPoint`를 찾아 `HttpResponse`를 생성 및 `ConnectionRunner`에게 반환합니다.
-- `ConnectionRunner`는 `HttpResponse`를 `OutputStream`에 쓰고, `Socket`을 닫습니다.
+    - `ConnectionHandler`는 `HttpRequestParser`로 `HttpServletRequest` 객체를 생성합니다.
+    - `ConnectionHandler`는 응답을 담기 위한 `HttpServletResponse` 객체를 생성한 후 `HttpServletRequest`
+      객체와 `HttpServletResponse`객체를 `FilterChain`에 전달합니다.
+    - `FilterChain`을 통과하며 `HttpServletResponse` 객체에 응답을 담습니다.
+        - `FilterChain`의 필터 중 `EndPointProviderFilter`는 `HttpServletRequest` 객체의 Path를 통해 `EndPoint`
+          를 찾아 결과값을 `HttpServletResponse` 객체에 응답을 담습니다.
+        - 동적인 HTML 파일을 응답하기 위해 특정 `EndPoint`는 `HTMLConvertor` 를 활용해 동적으로 값을 전달합니다.
+- `ConnectionRunner`는 완성된 `HttpServletResponse` 객체에 `OutputStream`을 위임해 응답을 전송합니다.
+
+### 🔍 `Filter`, `FilterChain` 살펴보기
+
+- 작성중
 
 ### 🔍 `EndPoint` 살펴보기
 
 ```java
 
+import java.util.function.BiConsumer;
+
 public class EndPoint {
 
     private final String path;
-    private final BiFunction<Map<String, String>, T, HttpResponse> biFunction;
+    private final BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer;
 }
 
 ```
 
-- `EndPoint` 객체는 응답 Path, 요청에 대한 동작인 `BiFunction` 함수형 인터페이스를 가지고 있습니다.
-- `Function` 인터페이스는 `Map<String, String>` 타입의 Header 값들과, `String` 타입의 쿼리(GET) or Body(POST)를
-  받아 `HttpResponse` 타입의 응답을 반환합니다.
-- 예를 들어 `/api/v1/hello` 라는 GET 요청에 Json 형식으로 안녕하세요라는 데이터를 반환한다면, 아래와 같이 `EndPoint`를 생성할 수 있습니다.
+- `EndPoint` 객체는 응답 Path, 요청에 대한 동작인 `BiConsumer` 함수형 인터페이스를 가지고 있습니다.
+- `BiConsumer` 인터페이스는 `HttpServletRequest` 객체와 `HttpServletResponse` 객체를 인자로 받아 동작합니다.
+    - `HttpServletRequest`에 담긴 정보를 통해 `HttpServletResponse`에 동적으로 응답을 담습니다.
 
-```java
-EndPoint endPoint = new EndPoint("/api/v1/hello", (header, body) -> HttpResponse.from(
-    HttpStatus.OK, "{\"message\": \"안녕하세요\"}".getBytes()));
-```
+### 🔍 `HTMLConvertor` 살펴보기
 
+- 작성중
