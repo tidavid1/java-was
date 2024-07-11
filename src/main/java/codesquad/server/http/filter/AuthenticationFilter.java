@@ -5,6 +5,8 @@ import codesquad.server.http.servlet.HttpServletResponse;
 import codesquad.server.http.session.Session;
 import codesquad.server.http.session.SessionContext;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AuthenticationFilter
@@ -14,11 +16,11 @@ import java.util.List;
  */
 public class AuthenticationFilter implements Filter {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationFilter.class);
     private static AuthenticationFilter instance;
 
     private final List<String> authenticationPathList;
 
-    // TODO: 자동 주입 해보까?
     private AuthenticationFilter() {
         this.authenticationPathList = List.of("/user/list", "/logout");
     }
@@ -35,6 +37,7 @@ public class AuthenticationFilter implements Filter {
         FilterChain chain) {
         if (request.getRequest() != null) {
             String path = request.getRequest().getUri().getPath();
+            log.debug("path: {}", path);
             // 검증하기
             if (authenticationPathList.contains(path)) {
                 Session session = SessionContext.getSession();

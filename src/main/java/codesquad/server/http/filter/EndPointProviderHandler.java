@@ -6,9 +6,12 @@ import codesquad.server.http.servlet.HttpRequest;
 import codesquad.server.http.servlet.HttpServletRequest;
 import codesquad.server.http.servlet.HttpServletResponse;
 import codesquad.server.http.servlet.enums.StatusCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EndPointProviderHandler implements Filter {
 
+    private static final Logger log = LoggerFactory.getLogger(EndPointProviderHandler.class);
     private static EndPointProviderHandler instance;
 
     private final EndPointStorage endPointStorage;
@@ -37,6 +40,7 @@ public class EndPointProviderHandler implements Filter {
                             httpRequest.getUri().getPath())
                         .ifPresentOrElse(
                             endPoint -> {
+                                log.debug("EndPoint: {}", endPoint);
                                 switch (httpRequest.getMethod()) {
                                     case GET, POST -> endPoint.accept(request, response);
                                     default -> request.setAttribute("exception",

@@ -3,6 +3,8 @@ package codesquad.server.http.filter;
 import codesquad.server.http.exception.HttpCommonException;
 import codesquad.server.http.servlet.HttpServletRequest;
 import codesquad.server.http.servlet.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ExceptionHandlerFilter
@@ -11,6 +13,7 @@ import codesquad.server.http.servlet.HttpServletResponse;
  */
 public class ExceptionHandlerFilter implements Filter {
 
+    private static final Logger log = LoggerFactory.getLogger(ExceptionHandlerFilter.class);
     private static ExceptionHandlerFilter instance;
 
     private ExceptionHandlerFilter() {
@@ -29,6 +32,8 @@ public class ExceptionHandlerFilter implements Filter {
         HttpCommonException commonException = (HttpCommonException) request.getAttribute(
             "exception");
         if (commonException != null) {
+            log.debug("Exception-> {}: {}", commonException.getStatusCode(),
+                commonException.getMessage());
             response.setStatus(commonException.getStatusCode());
         }
         chain.doFilter(request, response);

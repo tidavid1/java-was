@@ -6,6 +6,8 @@ import codesquad.server.http.session.SessionContext;
 import codesquad.server.http.session.SessionStorage;
 import java.net.HttpCookie;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * UserLoginFilter
@@ -14,6 +16,7 @@ import java.util.Optional;
  */
 public class UserLoginFilter implements Filter {
 
+    private static final Logger log = LoggerFactory.getLogger(UserLoginFilter.class);
     private static UserLoginFilter instance;
 
     private final SessionStorage sessionStorage = SessionStorage.getInstance();
@@ -33,6 +36,7 @@ public class UserLoginFilter implements Filter {
         FilterChain chain) {
         if (request.getRequest() != null) {
             Optional<HttpCookie> cookie = request.getCookie("SID");
+            log.debug("Cookie: {}", cookie);
             cookie.ifPresent(
                 httpCookie -> {
                     // 세션 ID 조회

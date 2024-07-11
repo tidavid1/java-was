@@ -44,4 +44,12 @@ public class EndPoint {
     public int hashCode() {
         return Objects.hashCode(getPath());
     }
+
+    @Override
+    public String toString() {
+        return "EndPoint{" +
+            "path='" + path + '\'' +
+            ", biConsumer=" + biConsumer +
+            '}';
+    }
 }
