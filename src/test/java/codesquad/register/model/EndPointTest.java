@@ -3,7 +3,7 @@ package codesquad.register.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.HttpResponseDeprecated;
 import codesquad.http.servlet.enums.StatusCode;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -22,7 +22,7 @@ class EndPointTest {
         void testCreateWithOf() {
             // Arrange
             String expectedPath = "/index.html";
-            BiFunction<Map<String, String>, String, HttpResponse> expectedBiFunction = (header, query) -> HttpResponse.from(
+            BiFunction<Map<String, String>, String, HttpResponseDeprecated> expectedBiFunction = (header, query) -> HttpResponseDeprecated.from(
                 StatusCode.OK);
             // Act
             EndPoint<String> actualResult = EndPoint.of(expectedPath, expectedBiFunction);
@@ -52,11 +52,11 @@ class EndPointTest {
         @DisplayName("생성된 EndPoint의 Function을 실행한다.")
         void testApply() {
             // Arrange
-            BiFunction<Map<String, String>, String, HttpResponse> expectedBiFunction = (header, query) -> HttpResponse.from(
+            BiFunction<Map<String, String>, String, HttpResponseDeprecated> expectedBiFunction = (header, query) -> HttpResponseDeprecated.from(
                 StatusCode.OK);
             EndPoint<String> endPoint = EndPoint.of("/", expectedBiFunction);
             // Act
-            HttpResponse actualResult = endPoint.apply(Map.of(), null);
+            HttpResponseDeprecated actualResult = endPoint.apply(Map.of(), null);
             // Assert
             assertThat(actualResult).hasFieldOrPropertyWithValue("statusCode", StatusCode.OK);
         }
@@ -66,9 +66,9 @@ class EndPointTest {
         void testEquals() {
             // Arrange
             EndPoint<String> endPoint1 = EndPoint.of("/",
-                (headers, query) -> HttpResponse.from(StatusCode.OK));
+                (headers, query) -> HttpResponseDeprecated.from(StatusCode.OK));
             EndPoint<String> endPoint2 = EndPoint.of("/",
-                (headers, query) -> HttpResponse.from(StatusCode.OK));
+                (headers, query) -> HttpResponseDeprecated.from(StatusCode.OK));
             // Act & Assert
             assertThat(endPoint1.equals(endPoint2)).isTrue();
         }

@@ -1,7 +1,7 @@
 package codesquad.runner;
 
 import codesquad.handler.HttpRequestHandler;
-import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.HttpResponseDeprecated;
 import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class ConnectionRunner implements Runnable {
     public void run() {
         try (var is = clientSocket.getInputStream(); var os = clientSocket.getOutputStream()) {
             log.debug("Client connected");
-            HttpResponse response = requestHandler.handle(is);
+            HttpResponseDeprecated response = requestHandler.handle(is);
             os.write(response.toResponseBytes());
             os.flush();
         } catch (Exception e) {

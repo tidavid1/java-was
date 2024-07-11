@@ -1,6 +1,6 @@
 package codesquad.register.model;
 
-import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.HttpResponseDeprecated;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -8,15 +8,16 @@ import java.util.function.BiFunction;
 public class EndPoint<T> {
 
     private final String path;
-    private final BiFunction<Map<String, String>, T, HttpResponse> biFunction;
+    private final BiFunction<Map<String, String>, T, HttpResponseDeprecated> biFunction;
 
-    private EndPoint(String path, BiFunction<Map<String, String>, T, HttpResponse> biFunction) {
+    private EndPoint(String path,
+        BiFunction<Map<String, String>, T, HttpResponseDeprecated> biFunction) {
         this.path = path;
         this.biFunction = Objects.requireNonNull(biFunction, "BiFunction은 null일 수 없습니다.");
     }
 
     public static <T> EndPoint<T> of(String path,
-        BiFunction<Map<String, String>, T, HttpResponse> biFunction) {
+        BiFunction<Map<String, String>, T, HttpResponseDeprecated> biFunction) {
         return new EndPoint<>(path, biFunction);
     }
 
@@ -24,11 +25,11 @@ public class EndPoint<T> {
         return path;
     }
 
-    public BiFunction<Map<String, String>, T, HttpResponse> getBiFunction() {
+    public BiFunction<Map<String, String>, T, HttpResponseDeprecated> getBiFunction() {
         return biFunction;
     }
 
-    public HttpResponse apply(Map<String, String> headers, T value) {
+    public HttpResponseDeprecated apply(Map<String, String> headers, T value) {
         return biFunction.apply(headers, value);
     }
 

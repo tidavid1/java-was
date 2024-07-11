@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.HttpResponseDeprecated;
 import codesquad.http.servlet.enums.HttpMethod;
 import codesquad.http.servlet.enums.StatusCode;
 import codesquad.register.model.EndPoint;
@@ -26,7 +26,7 @@ class EndPointRegisterTest {
     void testAddEndpoint() {
         // Arrange
         var expectedEndpoint = EndPoint.of("/index.html",
-            (headers, value) -> HttpResponse.from(StatusCode.OK));
+            (headers, value) -> HttpResponseDeprecated.from(StatusCode.OK));
         // Act
         register.addEndpoint(HttpMethod.GET, expectedEndpoint);
         // Assert
@@ -38,7 +38,7 @@ class EndPointRegisterTest {
     void testGetEndpointSuccess() {
         // Arrange
         var expectedEndpoint = EndPoint.of("/index.html",
-            (headers, value) -> HttpResponse.from(StatusCode.OK));
+            (headers, value) -> HttpResponseDeprecated.from(StatusCode.OK));
         register.addEndpoint(HttpMethod.GET, expectedEndpoint);
         // Act
         var actualEndpoint = register.getEndpoint(HttpMethod.GET, "/index.html");

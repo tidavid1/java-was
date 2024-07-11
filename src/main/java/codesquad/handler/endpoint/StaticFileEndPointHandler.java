@@ -1,6 +1,6 @@
 package codesquad.handler.endpoint;
 
-import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.HttpResponseDeprecated;
 import codesquad.http.servlet.enums.HeaderKey;
 import codesquad.http.servlet.enums.HttpMethod;
 import codesquad.http.servlet.enums.StatusCode;
@@ -38,10 +38,11 @@ public class StaticFileEndPointHandler implements EndPointHandler {
             byte[] bytes = entry.getValue();
             endpointRegister.addEndpoint(HttpMethod.GET,
                 EndPoint.of(path, (headers, query) -> {
-                    HttpResponse httpResponse = HttpResponse.of(StatusCode.OK, bytes);
-                    httpResponse.addHeader(HeaderKey.CONTENT_TYPE,
+                    HttpResponseDeprecated httpResponseDeprecated = HttpResponseDeprecated.of(
+                        StatusCode.OK, bytes);
+                    httpResponseDeprecated.addHeader(HeaderKey.CONTENT_TYPE,
                         ContentTypeFormatter.formatContentType(path));
-                    return httpResponse;
+                    return httpResponseDeprecated;
                 }));
         });
     }

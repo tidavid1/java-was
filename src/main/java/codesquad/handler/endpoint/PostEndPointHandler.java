@@ -1,7 +1,7 @@
 package codesquad.handler.endpoint;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.HttpResponseDeprecated;
 import codesquad.http.servlet.enums.HeaderKey;
 import codesquad.http.servlet.enums.HttpMethod;
 import codesquad.http.servlet.enums.StatusCode;
@@ -38,14 +38,14 @@ public class PostEndPointHandler implements EndPointHandler {
     }
 
     void create() {
-        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, body) -> {
+        BiFunction<Map<String, String>, String, HttpResponseDeprecated> biFunction = (headers, body) -> {
             Map<String, String> map = parseBody(body);
             try {
                 UserRegister.getInstance().save(User.from(map));
             } catch (IllegalArgumentException e) {
                 throw new HttpCommonException(e.getMessage(), StatusCode.BAD_REQUEST);
             }
-            HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+            HttpResponseDeprecated response = HttpResponseDeprecated.from(StatusCode.FOUND);
             response.addHeader(HeaderKey.LOCATION, "/index.html");
             return response;
         };
@@ -56,8 +56,8 @@ public class PostEndPointHandler implements EndPointHandler {
     }
 
     void login() {
-        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, body) -> {
-            HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+        BiFunction<Map<String, String>, String, HttpResponseDeprecated> biFunction = (headers, body) -> {
+            HttpResponseDeprecated response = HttpResponseDeprecated.from(StatusCode.FOUND);
             Map<String, String> map = parseBody(body);
             UserRegister.getInstance().findById(Objects.requireNonNull(map.get("userId")))
                 .ifPresentOrElse(
@@ -85,8 +85,8 @@ public class PostEndPointHandler implements EndPointHandler {
     }
 
     void logout() {
-        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, body) -> {
-            HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+        BiFunction<Map<String, String>, String, HttpResponseDeprecated> biFunction = (headers, body) -> {
+            HttpResponseDeprecated response = HttpResponseDeprecated.from(StatusCode.FOUND);
             Optional.ofNullable(headers.get(HeaderKey.COOKIE.getValue()))
                 .ifPresentOrElse(
                     cookie -> {

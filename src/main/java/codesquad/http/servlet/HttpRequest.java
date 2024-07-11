@@ -1,103 +1,45 @@
 package codesquad.http.servlet;
 
-import codesquad.exception.HttpCommonException;
 import codesquad.http.servlet.enums.HttpMethod;
 import codesquad.http.servlet.enums.HttpVersion;
-import codesquad.http.servlet.enums.StatusCode;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HttpRequest {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
-    private HttpMethod httpMethod;
-    private URI requestUri;
-    private HttpVersion httpVersion;
-    private final Map<String, String> headers = new ConcurrentHashMap<>();
-    private String body;
+    private final HttpMethod method;
+    private final URI uri;
+    private final HttpVersion version;
+    private final Map<String, List<String>> headers = new HashMap<>();
+    private final String body;
 
-    public HttpRequest(InputStream inputStream) throws IOException {
-        var br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-        parseRequestLine(br.readLine());
-        parseHeaders(br);
-        parseBody(br);
+    public HttpRequest(String[] requestLineParts, Map<String, List<String>> headers, String body) {
+        this.method = HttpMethod.valueOf(requestLineParts[0]);
+        this.uri = URI.create(requestLineParts[1]);
+        this.version = HttpVersion.from(requestLineParts[2]);
+        this.headers.putAll(headers);
+        this.body = body;
     }
 
-    public HttpMethod getHttpMethod() {
-        return httpMethod;
+    public HttpMethod getMethod() {
+        return method;
     }
 
-    public URI getRequestUri() {
-        return requestUri;
+    public URI getUri() {
+        return uri;
     }
 
-    public HttpVersion getHttpVersion() {
-        return httpVersion;
+    public HttpVersion getVersion() {
+        return version;
     }
 
-    public Map<String, String> getHeaders() {
+    public Map<String, List<String>> getHeaders() {
         return headers;
-    }
-
-    public String getRequestQuery() {
-        return requestUri.getQuery();
     }
 
     public String getBody() {
         return body;
     }
-
-    private void parseRequestLine(String requestLine) {
-        log.debug(requestLine);
-        String[] tokens = validateRequestLine(requestLine);
-        httpMethod = HttpMethod.valueOf(tokens[0]);
-        requestUri = URI.create(tokens[1]);
-        httpVersion = HttpVersion.from(tokens[2]);
-    }
-
-    private void parseHeaders(BufferedReader br) throws IOException {
-        String line;
-        while ((line = br.readLine()) != null) {
-            if (line.isBlank()) {
-                break;
-            }
-            log.debug(line);
-            String[] header = line.split(": ");
-            Optional.ofNullable(headers.get(header[0]))
-                .ifPresentOrElse(
-                    prev -> headers.put(header[0], prev + "\n" + header[1]),
-                    () -> headers.put(header[0], header[1])
-                );
-        }
-    }
-
-    private void parseBody(BufferedReader br) throws IOException {
-        int size = Integer.parseInt(headers.getOrDefault("Content-Length", "0"));
-        if (size != 0) {
-            char[] buffer = new char[size];
-            br.read(buffer, 0, size);
-            body = URLDecoder.decode(new String(buffer), "UTF-8");
-        }
-    }
-
-    private String[] validateRequestLine(String requestLine) {
-        if (requestLine == null || requestLine.isBlank()) {
-            throw new HttpCommonException("요청 라인이 없습니다.", StatusCode.BAD_REQUEST);
-        }
-        String[] tokens = requestLine.split(" ");
-        if (tokens.length != 3) {
-            throw new HttpCommonException("요청 라인이 올바르지 않습니다.", StatusCode.BAD_REQUEST);
-        }
-        return tokens;
-    }
-
 }

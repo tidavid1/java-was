@@ -1,7 +1,7 @@
 package codesquad.handler.endpoint;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.HttpResponseDeprecated;
 import codesquad.http.servlet.enums.HeaderKey;
 import codesquad.http.servlet.enums.HttpMethod;
 import codesquad.http.servlet.enums.StatusCode;
@@ -44,24 +44,24 @@ public class GetEndPointHandler implements EndPointHandler {
     }
 
     void home() {
-        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
+        BiFunction<Map<String, String>, String, HttpResponseDeprecated> biFunction = (headers, query) -> {
             try {
                 String sessionId = verifyCookie(headers.get(HeaderKey.COOKIE.getValue()));
                 User user = verifySession(sessionId);
                 byte[] mainHtmlBytes = staticFileRegister.getFileBytes("/main/index.html");
-                return HttpResponse.of(StatusCode.OK,
+                return HttpResponseDeprecated.of(StatusCode.OK,
                     htmlConvertor.renderUsername(mainHtmlBytes, user.getName()));
             } catch (HttpCommonException hce) {
                 byte[] indexHtmlBytes = staticFileRegister.getFileBytes("/index.html");
-                return HttpResponse.of(StatusCode.OK, indexHtmlBytes);
+                return HttpResponseDeprecated.of(StatusCode.OK, indexHtmlBytes);
             }
         };
         endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/index.html", biFunction));
     }
 
     void homeRedirect() {
-        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
-            HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+        BiFunction<Map<String, String>, String, HttpResponseDeprecated> biFunction = (headers, query) -> {
+            HttpResponseDeprecated response = HttpResponseDeprecated.from(StatusCode.FOUND);
             response.addHeader(HeaderKey.LOCATION, "/index.html");
             return response;
         };
@@ -72,22 +72,22 @@ public class GetEndPointHandler implements EndPointHandler {
     void registration() {
         byte[] registrationHtmlBytes = staticFileRegister.getFileBytes("/registration/index.html");
         endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/registration",
-            (headers, query) -> HttpResponse.of(StatusCode.OK, registrationHtmlBytes)));
+            (headers, query) -> HttpResponseDeprecated.of(StatusCode.OK, registrationHtmlBytes)));
         endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/registration/index.html",
-            (headers, query) -> HttpResponse.of(StatusCode.OK, registrationHtmlBytes)));
+            (headers, query) -> HttpResponseDeprecated.of(StatusCode.OK, registrationHtmlBytes)));
     }
 
     void userList() {
-        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
+        BiFunction<Map<String, String>, String, HttpResponseDeprecated> biFunction = (headers, query) -> {
             try {
                 String sessionId = verifyCookie(headers.get(HeaderKey.COOKIE.getValue()));
                 User user = verifySession(sessionId);
                 byte[] userListHtmlBytes = staticFileRegister.getFileBytes("/user/user_list.html");
-                return HttpResponse.of(StatusCode.OK,
+                return HttpResponseDeprecated.of(StatusCode.OK,
                     htmlConvertor.renderUserList(userListHtmlBytes, user.getName(),
                         UserRegister.getInstance().findAll()));
             } catch (HttpCommonException hce) {
-                HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+                HttpResponseDeprecated response = HttpResponseDeprecated.from(StatusCode.FOUND);
                 response.addHeader(HeaderKey.LOCATION, "/login");
                 return response;
             }
@@ -96,15 +96,15 @@ public class GetEndPointHandler implements EndPointHandler {
     }
 
     void login() {
-        BiFunction<Map<String, String>, String, HttpResponse> biFunction = (headers, query) -> {
+        BiFunction<Map<String, String>, String, HttpResponseDeprecated> biFunction = (headers, query) -> {
             try {
                 verifyCookie(headers.get(HeaderKey.COOKIE.getValue()));
-                HttpResponse response = HttpResponse.from(StatusCode.FOUND);
+                HttpResponseDeprecated response = HttpResponseDeprecated.from(StatusCode.FOUND);
                 response.addHeader(HeaderKey.LOCATION, "/index.html");
                 return response;
             } catch (HttpCommonException hce) {
                 byte[] loginHtml = staticFileRegister.getFileBytes("/login/index.html");
-                return HttpResponse.of(StatusCode.OK, loginHtml);
+                return HttpResponseDeprecated.of(StatusCode.OK, loginHtml);
             }
         };
         endPointRegister.addEndpoint(HttpMethod.GET, EndPoint.of("/login", biFunction));

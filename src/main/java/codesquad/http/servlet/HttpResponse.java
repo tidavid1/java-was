@@ -1,69 +1,67 @@
 package codesquad.http.servlet;
 
-import codesquad.http.servlet.enums.HeaderKey;
 import codesquad.http.servlet.enums.StatusCode;
 import codesquad.util.DateTimeResponseFormatter;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class HttpResponse {
 
-    private final StatusCode statusCode;
-    private final Map<String, String> headers = new HashMap<>();
-    private final byte[] body;
+    private static final String HTTP_VERSION = "HTTP/1.1";
+    private static final String CRLF = "\r\n";
+    private static final String SP = " ";
+    private static final String COLON = ": ";
 
-    public HttpResponse(StatusCode statusCode, byte[] body) {
+    private StatusCode statusCode;
+    private final Map<String, List<String>> headers;
+    private byte[] body;
+
+    HttpResponse() {
+        this.headers = new HashMap<>(
+            Map.of(
+                "Content-Length", List.of("0"),
+                "Date", List.of(DateTimeResponseFormatter.formatZonedDateTime(ZonedDateTime.now())),
+                "Server", List.of("java-was")
+            ));
+    }
+
+    StatusCode getStatusCode() {
+        return statusCode;
+    }
+
+    void setStatusCode(StatusCode statusCode) {
         this.statusCode = statusCode;
+    }
+
+    void setBody(byte[] body) {
         this.body = body;
-        addDefaultHeaders();
+        headers.put("Content-Length", List.of(String.valueOf(body.length)));
     }
 
-    public static HttpResponse from(StatusCode statusCode) {
-        return new HttpResponse(statusCode, new byte[0]);
+    void addHeader(String key, String value) {
+        headers.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
     }
 
-    public static HttpResponse of(StatusCode statusCode, byte[] body) {
-        return new HttpResponse(statusCode, body);
-    }
-
-    public void addHeader(HeaderKey key, String value) {
-        headers.put(Objects.requireNonNull(key.getValue()), Objects.requireNonNull(value));
-    }
-
-    public void addHeaders(Map<HeaderKey, String> headers) {
-        for (Map.Entry<HeaderKey, String> entry : headers.entrySet()) {
-            addHeader(entry.getKey(), entry.getValue());
-        }
-    }
-
-    public byte[] toResponseBytes() {
+    byte[] toResponseBytes() {
         byte[] responseLineWithHeaders = (convertResponseLineToString() + convertHeadersToString()
-            + "\r\n").getBytes();
+            + CRLF).getBytes();
         byte[] response = new byte[responseLineWithHeaders.length + body.length];
         System.arraycopy(responseLineWithHeaders, 0, response, 0, responseLineWithHeaders.length);
         System.arraycopy(body, 0, response, responseLineWithHeaders.length, body.length);
         return response;
     }
 
-    private void addDefaultHeaders() {
-        addHeaders(
-            Map.of(
-                HeaderKey.DATE, DateTimeResponseFormatter.formatZonedDateTime(ZonedDateTime.now()),
-                HeaderKey.SERVER, "java-was",
-                HeaderKey.CONTENT_LENGTH, String.valueOf(body.length)
-            )
-        );
-    }
-
     private String convertResponseLineToString() {
-        return "HTTP/1.1 " + statusCode.getCode() + " " + statusCode.getMessage() + "\r\n";
+        return HTTP_VERSION + SP + statusCode.getCode() + SP + statusCode.getMessage() + CRLF;
     }
 
     private String convertHeadersToString() {
         StringBuilder sb = new StringBuilder();
-        headers.forEach((key, value) -> sb.append(key).append(": ").append(value).append("\r\n"));
+        headers.forEach((key, values) -> values.forEach(
+            value -> sb.append(key).append(COLON).append(value).append(CRLF)));
         return sb.toString();
     }
 }
