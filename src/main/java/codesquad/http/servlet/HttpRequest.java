@@ -1,9 +1,9 @@
-package codesquad.http;
+package codesquad.http.servlet;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.enums.HttpMethod;
-import codesquad.http.enums.HttpVersion;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.enums.HttpMethod;
+import codesquad.http.servlet.enums.HttpVersion;
+import codesquad.http.servlet.enums.StatusCode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

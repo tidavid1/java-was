@@ -1,7 +1,7 @@
-package codesquad.http;
+package codesquad.http.servlet;
 
-import codesquad.http.enums.HeaderKey;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.enums.HeaderKey;
+import codesquad.http.servlet.enums.StatusCode;
 import codesquad.util.DateTimeResponseFormatter;
 import java.time.ZonedDateTime;
 import java.util.HashMap;

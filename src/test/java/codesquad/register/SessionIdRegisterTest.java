@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.enums.StatusCode;
 import codesquad.model.User;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;

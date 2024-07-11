@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.HttpResponse;
-import codesquad.http.enums.HttpMethod;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.enums.HttpMethod;
+import codesquad.http.servlet.enums.StatusCode;
 import codesquad.register.model.EndPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

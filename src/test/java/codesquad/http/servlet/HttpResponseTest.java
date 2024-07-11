@@ -1,11 +1,11 @@
-package codesquad.http;
+package codesquad.http.servlet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import codesquad.http.enums.HeaderKey;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.enums.HeaderKey;
+import codesquad.http.servlet.enums.StatusCode;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

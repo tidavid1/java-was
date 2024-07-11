@@ -1,7 +1,7 @@
 package codesquad.register;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.enums.StatusCode;
 import codesquad.model.User;
 import codesquad.util.RandomSessionIDGenerator;
 import java.util.Map;

@@ -1,9 +1,9 @@
 package codesquad.handler;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.HttpRequest;
-import codesquad.http.HttpResponse;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.HttpRequest;
+import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.enums.StatusCode;
 import codesquad.register.EndPointRegister;
 import codesquad.register.model.EndPoint;
 import java.io.InputStream;

@@ -1,7 +1,7 @@
 package codesquad.register;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.enums.StatusCode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;

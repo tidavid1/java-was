@@ -1,10 +1,10 @@
 package codesquad.handler.endpoint;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.HttpResponse;
-import codesquad.http.enums.HeaderKey;
-import codesquad.http.enums.HttpMethod;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.enums.HeaderKey;
+import codesquad.http.servlet.enums.HttpMethod;
+import codesquad.http.servlet.enums.StatusCode;
 import codesquad.model.User;
 import codesquad.register.EndPointRegister;
 import codesquad.register.SessionIdRegister;

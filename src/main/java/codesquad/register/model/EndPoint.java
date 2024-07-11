@@ -1,6 +1,6 @@
 package codesquad.register.model;
 
-import codesquad.http.HttpResponse;
+import codesquad.http.servlet.HttpResponse;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;

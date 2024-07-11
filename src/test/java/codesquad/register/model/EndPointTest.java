@@ -3,8 +3,8 @@ package codesquad.register.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import codesquad.http.HttpResponse;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.HttpResponse;
+import codesquad.http.servlet.enums.StatusCode;
 import java.util.Map;
 import java.util.function.BiFunction;
 import org.junit.jupiter.api.DisplayName;

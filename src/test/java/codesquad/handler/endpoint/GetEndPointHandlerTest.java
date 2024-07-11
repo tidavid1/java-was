@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import codesquad.handler.StaticFileProvider;
-import codesquad.http.enums.HttpMethod;
+import codesquad.http.servlet.enums.HttpMethod;
 import codesquad.register.EndPointRegister;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

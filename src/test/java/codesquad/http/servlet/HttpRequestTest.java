@@ -1,4 +1,4 @@
-package codesquad.http;
+package codesquad.http.servlet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -6,9 +6,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import codesquad.exception.HttpCommonException;
-import codesquad.http.enums.HttpMethod;
-import codesquad.http.enums.HttpVersion;
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.enums.HttpMethod;
+import codesquad.http.servlet.enums.HttpVersion;
+import codesquad.http.servlet.enums.StatusCode;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

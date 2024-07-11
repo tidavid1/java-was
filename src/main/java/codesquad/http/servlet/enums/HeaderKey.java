@@ -1,4 +1,4 @@
-package codesquad.http.enums;
+package codesquad.http.servlet.enums;
 
 public enum HeaderKey {
     LOCATION("Location"), CONTENT_TYPE("Content-Type"), CONTENT_LENGTH("Content-Length"),

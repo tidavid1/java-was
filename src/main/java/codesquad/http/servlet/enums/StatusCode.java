@@ -1,4 +1,4 @@
-package codesquad.http.enums;
+package codesquad.http.servlet.enums;
 
 public enum StatusCode {
     OK(200, "OK"),

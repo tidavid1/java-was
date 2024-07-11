@@ -1,6 +1,6 @@
 package codesquad.exception;
 
-import codesquad.http.enums.StatusCode;
+import codesquad.http.servlet.enums.StatusCode;
 
 public class HttpCommonException extends RuntimeException {
 

@@ -2,7 +2,7 @@ package codesquad.handler.endpoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import codesquad.http.enums.HttpMethod;
+import codesquad.http.servlet.enums.HttpMethod;
 import codesquad.register.EndPointRegister;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

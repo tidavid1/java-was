@@ -1,7 +1,7 @@
 package codesquad.runner;
 
 import codesquad.handler.HttpRequestHandler;
-import codesquad.http.HttpResponse;
+import codesquad.http.servlet.HttpResponse;
 import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
