@@ -38,6 +38,7 @@ public class GetEndPointRegister implements EndPointRegister {
         userList();
         registration();
         login();
+        loginFail();
     }
 
     void home() {
@@ -111,5 +112,17 @@ public class GetEndPointRegister implements EndPointRegister {
                 (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
                     "/login/index.html")));
     }
+
+
+    void loginFail() {
+        byte[] loginFailHtml = staticFileStorage.getFileBytes("/login/login_failed.html");
+        endPointStorage.addEndpoint(HttpMethod.GET,
+            EndPoint.of("/login/login_failed.html", (httpServletRequest, httpServletResponse) -> {
+                httpServletResponse.setStatus(StatusCode.OK);
+                httpServletResponse.setHeader("Content-Type", "text/html");
+                httpServletResponse.setBody(loginFailHtml);
+            }));
+    }
+
 
 }
