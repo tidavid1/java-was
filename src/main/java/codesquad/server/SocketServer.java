@@ -1,7 +1,8 @@
 package codesquad.server;
 
-import codesquad.handler.EndPointHandler;
-import codesquad.runner.ConnectionRunner;
+import codesquad.server.endpoint.handler.EndPointRegister;
+import codesquad.server.provider.StaticFileProvider;
+import codesquad.server.runner.ConnectionRunner;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
@@ -19,7 +20,8 @@ public class SocketServer {
     public SocketServer(int port) {
         this.port = port;
         this.executorService = Executors.newCachedThreadPool();
-        EndPointHandler.handleAllHandler();
+        StaticFileProvider.init();
+        EndPointRegister.handleAllHandler();
     }
 
     public SocketServer() {

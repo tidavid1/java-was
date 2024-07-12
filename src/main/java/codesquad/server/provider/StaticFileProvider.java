@@ -1,0 +1,84 @@
+package codesquad.server.provider;
+
+import codesquad.server.util.FileByteReader;
+import codesquad.storage.StaticFileStorage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.Objects;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class StaticFileProvider {
+
+    private static final Logger log = LoggerFactory.getLogger(StaticFileProvider.class);
+    private static final String STATIC_PATH = "static";
+
+    private StaticFileProvider() {
+    }
+
+    public static void init() {
+        try {
+            if (Objects.requireNonNull(
+                    StaticFileProvider.class.getClassLoader().getResource(STATIC_PATH)).toString()
+                .startsWith("jar")) {
+                provideJarFile();
+            } else {
+                provideIDEFile();
+            }
+        } catch (Exception e) {
+            log.error("Failed to provide static files: {}", e.getMessage());
+        }
+
+    }
+
+    private static void provideJarFile() throws IOException, URISyntaxException {
+        String jarPath = StaticFileProvider.class.getProtectionDomain().getCodeSource()
+            .getLocation().toURI()
+            .getPath();
+        try (JarFile jarFile = new JarFile(jarPath)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+                if (entryName.startsWith(STATIC_PATH + "/") && !entry.isDirectory()) {
+                    provideFile(jarFile, entry);
+                }
+            }
+        }
+    }
+
+    private static void provideIDEFile() throws IOException {
+        Enumeration<URL> resources = StaticFileProvider.class.getClassLoader()
+            .getResources(STATIC_PATH);
+        while (resources.hasMoreElements()) {
+            URL resource = resources.nextElement();
+            provideFile(new File(resource.getFile()));
+        }
+    }
+
+    private static void provideFile(File file) {
+        if (file.isDirectory() && file.exists()) {
+            for (File subFile : Objects.requireNonNull(file.listFiles())) {
+                provideFile(subFile);
+            }
+            return;
+        }
+        String path = file.getPath().split(STATIC_PATH)[1];
+        StaticFileStorage.getInstance().putFileBytes(path, FileByteReader.readAllBytes(file));
+    }
+
+    private static void provideFile(JarFile jarFile, JarEntry jarEntry) throws IOException {
+        try (InputStream is = jarFile.getInputStream(jarEntry)) {
+            byte[] bytes = FileByteReader.readAllBytes(is);
+            String path = "/" + jarEntry.getName().substring(STATIC_PATH.length() + 1);
+            StaticFileStorage.getInstance().putFileBytes(path, bytes);
+        }
+    }
+
+}
