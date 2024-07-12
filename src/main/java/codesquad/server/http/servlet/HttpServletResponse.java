@@ -23,9 +23,6 @@ public class HttpServletResponse {
     }
 
     public void setStatus(StatusCode statusCode) {
-        if (httpResponse.getStatusCode() != null) {
-            throw new IllegalStateException("상태 코드는 한 번만 설정할 수 있습니다.");
-        }
         httpResponse.setStatusCode(statusCode);
     }
 

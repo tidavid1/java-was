@@ -1,7 +1,6 @@
 package codesquad.server.http.servlet;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import codesquad.server.http.servlet.enums.StatusCode;
@@ -107,19 +106,6 @@ class HttpServletResponseTest {
             );
         }
 
-    }
-
-    @Test
-    @DisplayName("이미 설정한 상태 코드를 변경하려고 할 때 예외를 발생시킨다.")
-    void setStatusCodeTwice() {
-        // Arrange
-        HttpServletResponse httpResponse = new HttpServletResponse();
-        // Act
-        httpResponse.setStatus(StatusCode.OK);
-        // Assert
-        assertThatThrownBy(() -> httpResponse.setStatus(StatusCode.BAD_REQUEST))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("상태 코드는 한 번만 설정할 수 있습니다.");
     }
 
     @Test

@@ -35,7 +35,15 @@ public class ExceptionHandlerFilter implements Filter {
             log.debug("Exception-> {}: {}", commonException.getStatusCode(),
                 commonException.getMessage());
             response.setStatus(commonException.getStatusCode());
+            response.setHeader("Content-Type", "text/html;charset=utf-8");
+            response.setBody(generateErrorPage(commonException));
         }
         chain.doFilter(request, response);
+    }
+
+    private String generateErrorPage(HttpCommonException hce) {
+        return "<h1>" + hce.getStatusCode().getCode() + " " + hce.getStatusCode().getMessage()
+            + "</h1>\n" + "<h2>" + hce.getMessage() + "</h2>\n"
+            + "<button onclick=\"history.back()\">뒤로가기</button>";
     }
 }
