@@ -4,7 +4,7 @@
 
 ## 🖥️ 배포 주소
 
-- [AWS EC2 - 제 IP만 접속이 가능합니다](http://13.124.250.27:8080/)
+- [AWS EC2 - 제 IP만 접속이 가능합니다](http://13.124.168.217:8080/)
 
 ## 📚 구현 설명
 
@@ -28,7 +28,31 @@
 
 ### 🔍 `Filter`, `FilterChain` 살펴보기
 
-- 작성중
+- `Filter` 인터페이스는 `HttpServletRequest` 객체와 `HttpServletResponse` 객체를 인자로 받아 동작합니다.
+- `FilterChain`은 `Filter` 인터페이스를 구현한 객체를 저장하고 순차적으로 실행합니다.
+
+#### `UserLoginFilter`, `SessionContextClearFilter`
+
+![img_1.png](img_1.png)
+
+- `UserLoginFilter`는 `HttpServletRequest` 객체의 `Cookie`를 통해 로그인 여부를 확인합니다.
+    - 로그인이 되어 있다면 SessionContext에 로그인 정보를 저장합니다.
+- `SessionContextClearFilter`는 모든 요청을 처리한 이후 `ThreadLocal`에 저장된 `SessionContext`를 초기화합니다.
+
+#### `AuthenticationFilter`
+
+![img_2.png](img_2.png)
+
+- `AuthenticationFilter`는 HTTP 요청 URI Path가 리스트에 포함되어 있는지 확인합니다.
+    - 포함되어 있다면 로그인이 필요한 요청이므로 `Context`에 저장된 로그인 정보를 확인합니다.
+    - 로그인이 되어 있지 않다면 `HttpServletResponse` 객체에 `/login`으로 리다이렉트 요청을 담습니다.
+
+#### `EndPointProviderFilter`, `ExceptionHandlerFilter`
+
+![img_3.png](img_3.png)
+
+- `EndPointProviderFilter`는 `EndPoint`를 찾아 `HttpServletResponse` 객체에 응답을 담습니다.
+- `ExceptionHandlerFilter`는 예외가 발생했을 때 `HttpServletResponse` 객체에 예외에 따른 응답을 담습니다.
 
 ### 🔍 `EndPoint` 살펴보기
 
@@ -47,7 +71,3 @@ public class EndPoint {
 - `EndPoint` 객체는 응답 Path, 요청에 대한 동작인 `BiConsumer` 함수형 인터페이스를 가지고 있습니다.
 - `BiConsumer` 인터페이스는 `HttpServletRequest` 객체와 `HttpServletResponse` 객체를 인자로 받아 동작합니다.
     - `HttpServletRequest`에 담긴 정보를 통해 `HttpServletResponse`에 동적으로 응답을 담습니다.
-
-### 🔍 `HTMLConvertor` 살펴보기
-
-- 작성중
