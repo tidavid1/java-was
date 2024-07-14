@@ -9,8 +9,8 @@ import codesquad.server.http.servlet.enums.HttpMethod;
 import codesquad.server.http.servlet.enums.StatusCode;
 import codesquad.server.http.session.Session;
 import codesquad.server.http.session.SessionContext;
+import codesquad.server.storage.StaticFileStorage;
 import codesquad.server.template.HTMLConvertor;
-import codesquad.storage.StaticFileStorage;
 import codesquad.storage.UserStorage;
 import java.util.function.BiConsumer;
 

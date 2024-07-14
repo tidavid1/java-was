@@ -20,7 +20,7 @@ public class HttpRequestParser {
 
     private static final Logger log = LoggerFactory.getLogger(HttpRequestParser.class);
     private static final String REQUEST_LINE_DELIMITER = " ";
-    private static final String HEADER_DELIMITER = ": ";
+    private static final String HEADER_DELIMITER = ":";
 
     public HttpServletRequest parse(InputStream is) throws IOException {
         HttpServletRequest servletRequest = new HttpServletRequest();
@@ -55,13 +55,15 @@ public class HttpRequestParser {
         Map<String, List<String>> headers = new HashMap<>();
         while ((line = br.readLine()) != null && !line.isBlank()) {
             log.debug("Header: {}", line);
-            String[] headerParts = line.split(HEADER_DELIMITER);
-            if (headerParts.length != 2) {
+            int idx = line.indexOf(HEADER_DELIMITER);
+            if (idx == -1) {
                 throw new HttpCommonException("헤더가 올바르지 않습니다.", StatusCode.BAD_REQUEST);
             }
-            String key = headerParts[0].trim();
-            String value = headerParts[1].trim();
-            headers.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
+            String key = line.substring(0, idx).trim();
+            String[] values = line.substring(idx + 1).trim().split(",");
+            for (String value : values) {
+                headers.computeIfAbsent(key, k -> new ArrayList<>()).add(value.trim());
+            }
         }
         return headers;
     }
@@ -73,5 +75,4 @@ public class HttpRequestParser {
         }
         return URLDecoder.decode(new String(buffer), "UTF-8");
     }
-
 }

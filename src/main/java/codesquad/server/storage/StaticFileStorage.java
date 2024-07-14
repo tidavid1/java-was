@@ -1,4 +1,4 @@
-package codesquad.storage;
+package codesquad.server.storage;
 
 import codesquad.server.http.exception.HttpCommonException;
 import codesquad.server.http.servlet.enums.StatusCode;

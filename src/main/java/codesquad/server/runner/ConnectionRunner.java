@@ -1,7 +1,7 @@
 package codesquad.server.runner;
 
 import codesquad.server.http.filter.AuthenticationFilter;
-import codesquad.server.http.filter.EndPointProviderHandler;
+import codesquad.server.http.filter.EndPointProvideFilter;
 import codesquad.server.http.filter.ExceptionHandlerFilter;
 import codesquad.server.http.filter.FilterChain;
 import codesquad.server.http.filter.SecurityFilterChain;
@@ -27,7 +27,7 @@ public class ConnectionRunner implements Runnable {
         this.clientSocket = clientSocket;
         this.httpRequestParser = new HttpRequestParser();
         this.filterChain = new SecurityFilterChain(UserLoginFilter.getInstance(),
-            AuthenticationFilter.getInstance(), EndPointProviderHandler.getInstance(),
+            AuthenticationFilter.getInstance(), EndPointProvideFilter.getInstance(),
             ExceptionHandlerFilter.getInstance(), SessionContextClearFilter.getInstance());
     }
 

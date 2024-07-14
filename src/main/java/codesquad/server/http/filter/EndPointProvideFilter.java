@@ -9,20 +9,20 @@ import codesquad.server.http.servlet.enums.StatusCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EndPointProviderHandler implements Filter {
+public class EndPointProvideFilter implements Filter {
 
-    private static final Logger log = LoggerFactory.getLogger(EndPointProviderHandler.class);
-    private static EndPointProviderHandler instance;
+    private static final Logger log = LoggerFactory.getLogger(EndPointProvideFilter.class);
+    private static EndPointProvideFilter instance;
 
     private final EndPointStorage endPointStorage;
 
-    private EndPointProviderHandler() {
+    private EndPointProvideFilter() {
         this.endPointStorage = EndPointStorage.getInstance();
     }
 
-    public static EndPointProviderHandler getInstance() {
+    public static EndPointProvideFilter getInstance() {
         if (instance == null) {
-            instance = new EndPointProviderHandler();
+            instance = new EndPointProvideFilter();
         }
         return instance;
     }

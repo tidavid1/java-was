@@ -1,5 +1,6 @@
 package codesquad.server.endpoint.handler;
 
+import codesquad.server.endpoint.StaticFileEndPointRegister;
 import java.util.List;
 
 public interface EndPointRegister {

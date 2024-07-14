@@ -1,11 +1,10 @@
-package codesquad.server.endpoint.handler;
+package codesquad.server.endpoint;
 
-import codesquad.server.endpoint.EndPoint;
-import codesquad.server.endpoint.EndPointStorage;
+import codesquad.server.endpoint.handler.EndPointRegister;
 import codesquad.server.http.servlet.enums.HttpMethod;
 import codesquad.server.http.servlet.enums.StatusCode;
+import codesquad.server.storage.StaticFileStorage;
 import codesquad.server.util.ContentTypeFormatter;
-import codesquad.storage.StaticFileStorage;
 import java.util.Map.Entry;
 import java.util.Set;
 
