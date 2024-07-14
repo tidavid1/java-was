@@ -6,6 +6,7 @@ import codesquad.server.endpoint.EndPointStorage;
 import codesquad.server.http.exception.HttpCommonException;
 import codesquad.server.http.servlet.HttpServletRequest;
 import codesquad.server.http.servlet.HttpServletResponse;
+import codesquad.server.http.servlet.SingleHttpRequest;
 import codesquad.server.http.servlet.enums.HttpMethod;
 import codesquad.server.http.servlet.enums.StatusCode;
 import codesquad.server.http.session.Session;
@@ -42,8 +43,9 @@ public class PostEndPointRegister implements EndPointRegister {
 
     void create() {
         BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
-            Map<String, String> bodyMap = parseBody(httpServletRequest.getRequest().getBody());
+            SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
             try {
+                Map<String, String> bodyMap = parseBody(httpRequest.getBody());
                 UserStorage.getInstance().save(User.from(bodyMap));
             } catch (IllegalArgumentException e) {
                 httpServletRequest.setAttribute("exception",
@@ -57,7 +59,8 @@ public class PostEndPointRegister implements EndPointRegister {
 
     void login() {
         BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
-            Map<String, String> bodyMap = parseBody(httpServletRequest.getRequest().getBody());
+            SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
+            Map<String, String> bodyMap = parseBody(httpRequest.getBody());
             UserStorage.getInstance().findById(Objects.requireNonNull(bodyMap.get("userId")))
                 .ifPresentOrElse(
                     user -> {
@@ -98,8 +101,7 @@ public class PostEndPointRegister implements EndPointRegister {
         for (String value : values) {
             String[] split = value.split("=");
             if (split.length != 2) {
-                throw new HttpCommonException("요청 값을 찾을 수 없습니다: " + split[0],
-                    StatusCode.BAD_REQUEST);
+                throw new IllegalArgumentException("요청 값을 찾을 수 없습니다: " + split[0]);
             }
             queryMap.put(split[0], split[1]);
         }

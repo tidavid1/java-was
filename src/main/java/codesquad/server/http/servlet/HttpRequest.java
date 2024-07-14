@@ -1,45 +1,29 @@
 package codesquad.server.http.servlet;
 
-import codesquad.server.http.servlet.enums.HttpMethod;
-import codesquad.server.http.servlet.enums.HttpVersion;
-import java.net.URI;
-import java.util.HashMap;
+import codesquad.server.http.servlet.values.HttpHeaders;
+import codesquad.server.http.servlet.values.HttpRequestLine;
 import java.util.List;
-import java.util.Map;
 
-public class HttpRequest {
+public abstract class HttpRequest {
 
-    private final HttpMethod method;
-    private final URI uri;
-    private final HttpVersion version;
-    private final Map<String, List<String>> headers = new HashMap<>();
-    private final String body;
+    protected HttpRequestLine requestLine;
+    protected HttpHeaders headers;
 
-    public HttpRequest(String[] requestLineParts, Map<String, List<String>> headers, String body) {
-        this.method = HttpMethod.valueOf(requestLineParts[0]);
-        this.uri = URI.create(requestLineParts[1]);
-        this.version = HttpVersion.from(requestLineParts[2]);
-        this.headers.putAll(headers);
-        this.body = body;
+    protected HttpRequest(HttpRequestLine requestLine, HttpHeaders headers) {
+        this.requestLine = requestLine;
+        this.headers = headers;
     }
 
-    public HttpMethod getMethod() {
-        return method;
+    public HttpRequestLine getRequestLine() {
+        return requestLine;
     }
 
-    public URI getUri() {
-        return uri;
-    }
-
-    public HttpVersion getVersion() {
-        return version;
-    }
-
-    public Map<String, List<String>> getHeaders() {
+    public HttpHeaders getHeaders() {
         return headers;
     }
 
-    public String getBody() {
-        return body;
+    public List<String> getHeader(String key) {
+        return headers.getAllHeaders().getOrDefault(key, List.of());
     }
+
 }

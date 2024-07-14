@@ -6,6 +6,7 @@ import codesquad.server.http.servlet.HttpRequest;
 import codesquad.server.http.servlet.HttpServletRequest;
 import codesquad.server.http.servlet.HttpServletResponse;
 import codesquad.server.http.servlet.enums.StatusCode;
+import codesquad.server.http.servlet.values.HttpRequestLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +37,12 @@ public class EndPointProvideFilter implements Filter {
                 },
                 () -> {
                     HttpRequest httpRequest = request.getRequest();
-                    endPointStorage.getEndpoint(httpRequest.getMethod(),
-                            httpRequest.getUri().getPath())
+                    HttpRequestLine requestLine = httpRequest.getRequestLine();
+                    endPointStorage.getEndpoint(requestLine.getMethod(), requestLine.getPath())
                         .ifPresentOrElse(
                             endPoint -> {
                                 log.debug("EndPoint: {}", endPoint);
-                                switch (httpRequest.getMethod()) {
+                                switch (requestLine.getMethod()) {
                                     case GET, POST -> endPoint.accept(request, response);
                                     default -> request.setAttribute("exception",
                                         new HttpCommonException("Not implemented",

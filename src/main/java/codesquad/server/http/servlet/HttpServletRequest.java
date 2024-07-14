@@ -24,7 +24,8 @@ public class HttpServletRequest {
     }
 
     public Optional<HttpCookie> getCookie(String name) {
-        return request.getHeaders().getOrDefault("Cookie", List.of()).stream()
+        List<String> cookies = request.getHeader("Cookie");
+        return cookies.stream()
             .flatMap(cookie -> HttpCookie.parse(cookie).stream())
             .filter(httpCookie -> httpCookie.getName().equals(name))
             .findFirst();

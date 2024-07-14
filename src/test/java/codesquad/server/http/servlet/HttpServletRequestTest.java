@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 @DisplayName("HttpServletRequest는")
 class HttpServletRequestTest {
 
-    private final HttpRequest httpRequest = new HttpRequest(
+    private final SingleHttpRequest httpRequest = SingleHttpRequest.of(
         new String[]{"GET", "/index.html", "HTTP/1.1"},
         Map.of("Cookie", List.of("cookie=value")),
         "");

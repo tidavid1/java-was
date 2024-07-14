@@ -36,7 +36,7 @@ public class AuthenticationFilter implements Filter {
     public void doFilter(HttpServletRequest request, HttpServletResponse response,
         FilterChain chain) {
         if (request.getRequest() != null) {
-            String path = request.getRequest().getUri().getPath();
+            String path = request.getRequest().getRequestLine().getPath();
             log.debug("path: {}", path);
             // 검증하기
             if (authenticationPathList.contains(path)) {
