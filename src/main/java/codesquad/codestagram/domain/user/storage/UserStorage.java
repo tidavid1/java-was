@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +42,9 @@ public class UserStorage {
             preparedStatement.setString(3, user.getName());
             preparedStatement.setString(4, user.getEmail());
             preparedStatement.executeUpdate();
+        } catch (JdbcSQLIntegrityConstraintViolationException jsicve) {
+            throw new IllegalArgumentException("이미 존재하는 사용자명입니다");
         } catch (SQLException e) {
-            // TODO: HOW Convert Duplicated User?
             log.error(e.getMessage());
         }
     }
