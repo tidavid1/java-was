@@ -15,23 +15,24 @@ import org.slf4j.LoggerFactory;
 public class H2ConnectManager {
 
     // TODO: 싱글턴 객체 관리 방식 진짜 구현 필요할듯 ㄹㅇ 빈으로라도...
-    private static final H2ConnectManager INSTANCE = new H2ConnectManager("jdbc:h2./db/java-was",
-        "sa", "");
+    private static H2ConnectManager instance;
     private static final String INIT_SQL_PATH = "/sql/init.sql";
     private static final Logger log = LoggerFactory.getLogger(H2ConnectManager.class);
 
-    private final ConnectionPoolDataSource connectionPoolDataSource;
     private final JdbcConnectionPool jdbcConnectionPool;
 
     private H2ConnectManager(String jdbcUrl, String username, String password) {
-        this.connectionPoolDataSource = generateConnectionPoolDataSource(jdbcUrl, username,
-            password);
+        ConnectionPoolDataSource connectionPoolDataSource = generateConnectionPoolDataSource(
+            jdbcUrl, username, password);
         this.jdbcConnectionPool = JdbcConnectionPool.create(connectionPoolDataSource);
         init();
     }
 
     public static H2ConnectManager getInstance() {
-        return INSTANCE;
+        if (instance == null) {
+            instance = new H2ConnectManager("jdbc:h2:./db/java-was", "sa", "");
+        }
+        return instance;
     }
 
     public Connection getConnection() throws SQLException {
@@ -42,7 +43,7 @@ public class H2ConnectManager {
         String username, String password) {
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setURL(jdbcUrl);
-        dataSource.setURL(username);
+        dataSource.setUser(username);
         dataSource.setPassword(password);
         return dataSource;
     }
