@@ -50,7 +50,9 @@ public class CommentDao {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                Comment comment = new Comment(resultSet.getLong("id"), resultSet.getString("body"),
+                Comment comment = new Comment(
+                    resultSet.getLong("id"),
+                    resultSet.getString("body"),
                     resultSet.getLong("article_id"));
                 return Optional.of(comment);
             }
@@ -68,7 +70,9 @@ public class CommentDao {
             preparedStatement.setLong(1, articleId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Comment comment = new Comment(resultSet.getLong("id"), resultSet.getString("body"),
+                Comment comment = new Comment(
+                    resultSet.getLong("id"),
+                    resultSet.getString("body"),
                     resultSet.getLong("article_id"));
                 comments.add(comment);
             }

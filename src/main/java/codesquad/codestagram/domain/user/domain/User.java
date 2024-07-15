@@ -1,11 +1,12 @@
-package codesquad.model;
+package codesquad.codestagram.domain.user.domain;
 
-import codesquad.model.values.Email;
+import codesquad.codestagram.domain.user.domain.values.Email;
 import java.util.Map;
 import java.util.Objects;
 
 public class User {
 
+    private Long id;
     private final String userId;
     private final String password;
     private final String name;
@@ -18,6 +19,18 @@ public class User {
         this.email = Email.from(email);
     }
 
+    private User(Long id, String userId, String password, String name, Email email) {
+        this.id = id;
+        this.userId = userId;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+    }
+
+    public static User from(Long id, String userId, String password, String name, String email) {
+        return new User(id, userId, password, name, Email.from(email));
+    }
+
     public static User from(Map<String, String> queryMap) {
         return new User(queryMap.get("userId"), queryMap.get("password"), queryMap.get("name"),
             queryMap.get("email"));
@@ -25,6 +38,10 @@ public class User {
 
     public boolean verifyPassword(String password) {
         return this.password.equals(password);
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getUserId() {

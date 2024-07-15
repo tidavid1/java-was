@@ -1,6 +1,7 @@
 package codesquad.server.endpoint.handler;
 
-import codesquad.model.User;
+import codesquad.codestagram.domain.user.domain.User;
+import codesquad.codestagram.domain.user.storage.UserStorage;
 import codesquad.server.endpoint.EndPoint;
 import codesquad.server.endpoint.EndPointStorage;
 import codesquad.server.http.exception.HttpCommonException;
@@ -13,7 +14,6 @@ import codesquad.server.http.session.Session;
 import codesquad.server.http.session.SessionContext;
 import codesquad.server.http.session.SessionStorage;
 import codesquad.server.util.RandomSessionIDGenerator;
-import codesquad.storage.UserStorage;
 import java.net.HttpCookie;
 import java.util.HashMap;
 import java.util.Map;

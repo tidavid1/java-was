@@ -1,6 +1,6 @@
 package codesquad.server.template;
 
-import codesquad.model.User;
+import codesquad.codestagram.domain.user.domain.User;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 

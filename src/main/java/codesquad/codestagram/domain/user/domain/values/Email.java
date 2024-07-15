@@ -1,4 +1,4 @@
-package codesquad.model.values;
+package codesquad.codestagram.domain.user.domain.values;
 
 import java.util.regex.Pattern;
 

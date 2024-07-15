@@ -1,4 +1,4 @@
-package codesquad.model.values;
+package codesquad.codestagram.domain.user.domain.values;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

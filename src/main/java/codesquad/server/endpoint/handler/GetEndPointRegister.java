@@ -1,6 +1,7 @@
 package codesquad.server.endpoint.handler;
 
-import codesquad.model.User;
+import codesquad.codestagram.domain.user.domain.User;
+import codesquad.codestagram.domain.user.storage.UserStorage;
 import codesquad.server.endpoint.EndPoint;
 import codesquad.server.endpoint.EndPointStorage;
 import codesquad.server.http.servlet.HttpServletRequest;
@@ -11,7 +12,6 @@ import codesquad.server.http.session.Session;
 import codesquad.server.http.session.SessionContext;
 import codesquad.server.storage.StaticFileStorage;
 import codesquad.server.template.HTMLConvertor;
-import codesquad.storage.UserStorage;
 import java.util.function.BiConsumer;
 
 public class GetEndPointRegister implements EndPointRegister {
