@@ -3,6 +3,7 @@ package codesquad.server.database;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Objects;
@@ -21,16 +22,19 @@ public class H2ConnectManager {
 
     private final JdbcConnectionPool jdbcConnectionPool;
 
-    private H2ConnectManager(String jdbcUrl, String username, String password) {
+    private H2ConnectManager(String h2FileUrl, String jdbcUrl, String username, String password) {
+        init(h2FileUrl, username, password);
         ConnectionPoolDataSource connectionPoolDataSource = generateConnectionPoolDataSource(
             jdbcUrl, username, password);
         this.jdbcConnectionPool = JdbcConnectionPool.create(connectionPoolDataSource);
-        init();
+
     }
 
     public static H2ConnectManager getInstance() {
         if (instance == null) {
-            instance = new H2ConnectManager("jdbc:h2:./db/java-was", "sa", "");
+            instance = new H2ConnectManager("jdbc:h2:./db/java-was;AUTO_SERVER=TRUE",
+                "jdbc:h2:tcp://localhost:9092/java-was",
+                "sa", "");
         }
         return instance;
     }
@@ -48,9 +52,10 @@ public class H2ConnectManager {
         return dataSource;
     }
 
-    private void init() {
-        try (Connection connection = getConnection(); InputStream inputStream = getClass().getResourceAsStream(
-            INIT_SQL_PATH); Statement statement = connection.createStatement()) {
+    private void init(String url, String user, String password) {
+        try (Connection connection = DriverManager.getConnection(url, user, password);
+            InputStream inputStream = getClass().getResourceAsStream(INIT_SQL_PATH);
+            Statement statement = connection.createStatement()) {
             String initScript = new String(Objects.requireNonNull(inputStream).readAllBytes());
             statement.execute(initScript);
         } catch (SQLException | IOException e) {

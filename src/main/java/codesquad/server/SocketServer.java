@@ -29,6 +29,8 @@ public class SocketServer {
     }
 
     public void start() {
+        H2Server server = new H2Server();
+        executorService.execute(server);
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             log.debug("Listening for connection on port 8080 ....");
             while (true) {
