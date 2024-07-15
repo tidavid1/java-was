@@ -39,6 +39,7 @@ public class GetEndPointRegister implements EndPointRegister {
         registration();
         login();
         loginFail();
+        write();
     }
 
     void home() {
@@ -122,6 +123,24 @@ public class GetEndPointRegister implements EndPointRegister {
                 httpServletResponse.setHeader("Content-Type", "text/html");
                 httpServletResponse.setBody(loginFailHtml);
             }));
+    }
+
+    void write() {
+        byte[] writeHtmlBytes = staticFileStorage.getFileBytes("/article/index.html");
+        endPointStorage.addEndpoint(HttpMethod.GET,
+            EndPoint.of("/write/index.html", (httpServletRequest, httpServletResponse) -> {
+                httpServletResponse.setStatus(StatusCode.OK);
+                httpServletResponse.setHeader("Content-Type", "text/html");
+                httpServletResponse.setBody(writeHtmlBytes);
+            }));
+        endPointStorage.addEndpoint(HttpMethod.GET,
+            EndPoint.of("/write",
+                (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
+                    "/write/index.html")));
+        endPointStorage.addEndpoint(HttpMethod.GET,
+            EndPoint.of("/article",
+                (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
+                    "/write/index.html")));
     }
 
 

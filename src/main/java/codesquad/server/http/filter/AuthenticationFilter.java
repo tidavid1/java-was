@@ -22,7 +22,7 @@ public class AuthenticationFilter implements Filter {
     private final List<String> authenticationPathList;
 
     private AuthenticationFilter() {
-        this.authenticationPathList = List.of("/user/list", "/logout");
+        this.authenticationPathList = List.of("/user/list", "/logout", "/write.html", "/write");
     }
 
     public static AuthenticationFilter getInstance() {
