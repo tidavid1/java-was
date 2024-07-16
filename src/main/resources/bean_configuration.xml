@@ -4,8 +4,8 @@
   <bean class="codesquad.server.properties.ApplicationProperties"/>
   <bean class="codesquad.server.endpoint.StaticFileEndPointRegister"/>
   <bean class="codesquad.server.endpoint.EndPointStorage"/>
-  <bean class="codesquad.server.endpoint.handler.GetEndPointRegister"/>
-  <bean class="codesquad.server.endpoint.handler.PostEndPointRegister"/>
+  <bean class="codesquad.codestagram.endpoint.GetEndPointRegister"/>
+  <bean class="codesquad.codestagram.endpoint.PostEndPointRegister"/>
   <bean class="codesquad.server.provider.StaticFileProvider"/>
   <bean class="codesquad.server.http.filter.EndPointProvideFilter"/>
   <bean class="codesquad.server.http.filter.AuthenticationFilter"/>

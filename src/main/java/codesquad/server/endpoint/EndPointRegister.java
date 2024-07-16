@@ -1,7 +1,8 @@
-package codesquad.server.endpoint.handler;
+package codesquad.server.endpoint;
 
+import codesquad.codestagram.endpoint.GetEndPointRegister;
+import codesquad.codestagram.endpoint.PostEndPointRegister;
 import codesquad.server.bean.BeanFactory;
-import codesquad.server.endpoint.StaticFileEndPointRegister;
 import java.util.List;
 
 public interface EndPointRegister {

@@ -1,6 +1,5 @@
 package codesquad.server.endpoint;
 
-import codesquad.server.endpoint.handler.EndPointRegister;
 import codesquad.server.http.servlet.enums.HttpMethod;
 import codesquad.server.http.servlet.enums.StatusCode;
 import codesquad.server.storage.StaticFileStorage;

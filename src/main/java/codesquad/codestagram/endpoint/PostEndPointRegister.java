@@ -1,9 +1,10 @@
-package codesquad.server.endpoint.handler;
+package codesquad.codestagram.endpoint;
 
 import codesquad.codestagram.domain.user.domain.User;
 import codesquad.codestagram.domain.user.storage.UserDao;
 import codesquad.server.bean.BeanFactory;
 import codesquad.server.endpoint.EndPoint;
+import codesquad.server.endpoint.EndPointRegister;
 import codesquad.server.endpoint.EndPointStorage;
 import codesquad.server.http.exception.HttpCommonException;
 import codesquad.server.http.servlet.HttpServletRequest;

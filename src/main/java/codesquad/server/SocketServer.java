@@ -1,7 +1,7 @@
 package codesquad.server;
 
 import codesquad.server.bean.BeanFactory;
-import codesquad.server.endpoint.handler.EndPointRegister;
+import codesquad.server.endpoint.EndPointRegister;
 import codesquad.server.properties.ApplicationProperties;
 import codesquad.server.provider.StaticFileProvider;
 import codesquad.server.runner.ConnectionRunner;
