@@ -127,7 +127,7 @@ public class GetEndPointRegister implements EndPointRegister {
             User user = (User) SessionContext.getSession().getAttribute("user");
             setHtmlResponse(response, templateHtmlFactory.commentPage(user, article));
         } catch (IllegalArgumentException e) {
-            setException(request, e.getMessage(), StatusCode.NOT_FOUND);
+            setException(request, e.getMessage(), StatusCode.BAD_REQUEST);
         }
     }
 

@@ -27,7 +27,7 @@ public class User {
         this.email = email;
     }
 
-    public static User from(Long id, String userId, String password, String name, String email) {
+    public static User of(Long id, String userId, String password, String name, String email) {
         return new User(id, userId, password, name, Email.from(email));
     }
 
@@ -60,13 +60,4 @@ public class User {
         return email.getValue();
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-            "userId='" + userId + '\'' +
-            ", password='" + password + '\'' +
-            ", name='" + name + '\'' +
-            ", email='" + email.getValue() + '\'' +
-            '}';
-    }
 }

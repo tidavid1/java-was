@@ -48,7 +48,7 @@ public class UserDao {
             preparedStatement.setString(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                User user = User.from(
+                User user = User.of(
                     resultSet.getLong("id"),
                     resultSet.getString("user_id"),
                     resultSet.getString("password"),
@@ -69,7 +69,7 @@ public class UserDao {
         try (Connection connection = h2ConnectManager.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(
             findAllSql)) {
             while (resultSet.next()) {
-                User user = User.from(
+                User user = User.of(
                     resultSet.getLong("id"),
                     resultSet.getString("user_id"),
                     resultSet.getString("password"),

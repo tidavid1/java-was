@@ -118,12 +118,10 @@ public class PostEndPointRegister implements EndPointRegister {
             Map<String, String> body = parseBody(httpRequest.getBody());
             Long articleId = Long.parseLong(body.get("article_id"));
             Article article = articleDao.findById(articleId).orElseThrow(
-                () -> new HttpCommonException("존재하지 않는 아티클입니다.", StatusCode.NOT_FOUND));
+                () -> new IllegalArgumentException("존재하지 않는 아티클입니다."));
             Comment comment = new Comment(body.get("value"), getUserInSessionContext(), article);
             commentDao.save(comment);
             redirectToIndexHtml(response);
-        } catch (HttpCommonException e) {
-            setExceptionAttribute(request, e.getMessage(), e.getStatusCode());
         } catch (Exception e) {
             setExceptionAttribute(request, e.getMessage(), StatusCode.BAD_REQUEST);
         }

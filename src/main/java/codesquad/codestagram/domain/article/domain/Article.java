@@ -19,7 +19,7 @@ public class Article {
 
     public Article(Long id, String title, String body, Long userId, String username) {
         this.id = id;
-        this.title = title;
+        this.title = validateTitle(title);
         this.body = body;
         this.userId = userId;
         this.username = username;
