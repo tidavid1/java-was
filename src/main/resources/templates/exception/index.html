@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="../../static/reset.css" rel="stylesheet"/>
+  <link href="../../static/global.css" rel="stylesheet"/>
+  <title>Codestagram</title>
+</head>
+<body>
+<div class="container">
+  {{header}}
+  <div class="page">
+    <h2 class="page-title">{{exception.code}}</h2>
+    {{exception.message}}
+    <form class="form" action="/" method="get">
+      <button
+          id="login-btn"
+          class="btn btn_contained btn_size_m"
+          style="margin-top: 24px"
+          type="submit"
+      >
+        홈으로 돌아가기
+      </button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

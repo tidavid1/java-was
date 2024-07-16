@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class StaticFileStorage {
 
@@ -27,9 +26,7 @@ public class StaticFileStorage {
     }
 
     public Set<Entry<String, byte[]>> getAllData() {
-        return staticFiles.entrySet()
-            .stream().filter(entry -> !entry.getKey().contains(".html"))
-            .collect(Collectors.toSet());
+        return staticFiles.entrySet();
     }
 
 

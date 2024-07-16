@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="./reset.css" rel="stylesheet"/>
+  <link href="./global.css" rel="stylesheet"/>
+  <link href="./main.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+  {{header}}
+  <div class="wrapper">
+    {{post}}
+    {{comments}}
+    <nav class="nav">
+      <ul class="nav__menu">
+        <li class="nav__menu__item">
+          <a class="nav__menu__item__btn" href="">
+            <img
+                class="nav__menu__item__img"
+                src="./img/ci_chevron-left.svg"
+            />
+            이전 글
+          </a>
+        </li>
+        <li class="nav__menu__item">
+          <a class="btn btn_ghost btn_size_m" href="/write">글쓰기</a>
+        </li>
+        <li class="nav__menu__item">
+          <a class="btn btn_ghost btn_size_m" href="/comment">댓글 작성</a>
+        </li>
+        <li class="nav__menu__item">
+          <a class="nav__menu__item__btn" href="">
+            다음 글
+            <img
+                class="nav__menu__item__img"
+                src="./img/ci_chevron-right.svg"
+            />
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+</body>
+</html>

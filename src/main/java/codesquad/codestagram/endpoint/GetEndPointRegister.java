@@ -13,20 +13,20 @@ import codesquad.server.http.servlet.enums.StatusCode;
 import codesquad.server.http.session.Session;
 import codesquad.server.http.session.SessionContext;
 import codesquad.server.statics.StaticFileStorage;
-import codesquad.server.template.HTMLConvertor;
+import codesquad.server.template.TemplateHTMLFactory;
 import java.util.function.BiConsumer;
 
 public class GetEndPointRegister implements EndPointRegister {
 
     private final EndPointStorage endPointStorage;
     private final StaticFileStorage staticFileStorage;
-    private final HTMLConvertor htmlConvertor;
+    private final TemplateHTMLFactory templateHtmlFactory;
 
     private GetEndPointRegister(EndPointStorage endPointStorage,
         StaticFileStorage staticFileStorage) {
         this.endPointStorage = endPointStorage;
         this.staticFileStorage = staticFileStorage;
-        this.htmlConvertor = new HTMLConvertor();
+        this.templateHtmlFactory = new TemplateHTMLFactory();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class GetEndPointRegister implements EndPointRegister {
             httpServletResponse.setStatus(StatusCode.OK);
             httpServletResponse.setHeader("Content-Type", "text/html");
             httpServletResponse.setBody(
-                htmlConvertor.renderUsername(mainHtmlBytes, user.getName()));
+                templateHtmlFactory.renderUsername(mainHtmlBytes, user.getName()));
         };
         endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/index.html", biConsumer));
         endPointStorage.addEndpoint(HttpMethod.GET,
@@ -87,7 +87,7 @@ public class GetEndPointRegister implements EndPointRegister {
             httpServletResponse.setStatus(StatusCode.OK);
             httpServletResponse.setHeader("Content-Type", "text/html");
             httpServletResponse.setBody(
-                htmlConvertor.renderUserList(userListHtmlBytes, user.getName(),
+                templateHtmlFactory.renderUserList(userListHtmlBytes, user.getName(),
                     BeanFactory.getInstance().getBean(UserDao.class).findAll()));
         };
         endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/user/list", biConsumer));

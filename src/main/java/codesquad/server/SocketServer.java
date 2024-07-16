@@ -5,6 +5,7 @@ import codesquad.server.endpoint.EndPointRegister;
 import codesquad.server.properties.ApplicationProperties;
 import codesquad.server.runner.ConnectionRunner;
 import codesquad.server.statics.StaticFileProvider;
+import codesquad.server.template.TemplateFileProvider;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
@@ -25,6 +26,7 @@ public class SocketServer {
         this.executorService = Executors.newCachedThreadPool();
         this.beanFactory = BeanFactory.getInstance();
         beanFactory.getBean(StaticFileProvider.class).init();
+        beanFactory.getBean(TemplateFileProvider.class).init();
         EndPointRegister.handleAllHandler();
     }
 

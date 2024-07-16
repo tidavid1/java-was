@@ -7,6 +7,7 @@
   <bean class="codesquad.codestagram.endpoint.GetEndPointRegister"/>
   <bean class="codesquad.codestagram.endpoint.PostEndPointRegister"/>
   <bean class="codesquad.server.statics.StaticFileProvider"/>
+  <bean class="codesquad.server.template.TemplateFileProvider"/>
   <bean class="codesquad.server.http.filter.EndPointProvideFilter"/>
   <bean class="codesquad.server.http.filter.AuthenticationFilter"/>
   <bean class="codesquad.server.http.filter.ExceptionHandlerFilter"/>
@@ -17,4 +18,5 @@
   <bean class="codesquad.codestagram.domain.user.storage.UserDao"/>
   <bean class="codesquad.server.database.H2ConnectManager"/>
   <bean class="codesquad.server.http.session.SessionStorage"/>
+  <bean class="codesquad.server.template.TemplateFileStorage"/>
 </beans>
