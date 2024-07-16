@@ -24,12 +24,13 @@ public class CommentDao {
     }
 
     public void save(Comment comment) {
-        String insertSql = "INSERT INTO COMMENTS (BODY, USER_ID ,ARTICLE_ID) VALUES ( ?, ?, ? )";
+        String insertSql = "INSERT INTO COMMENTS (BODY, USER_ID, USERNAME ,ARTICLE_ID) VALUES ( ?, ?, ?, ? )";
         try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             insertSql)) {
             preparedStatement.setString(1, comment.getBody());
             preparedStatement.setLong(2, comment.getUserId());
-            preparedStatement.setLong(3, comment.getArticleId());
+            preparedStatement.setString(3, comment.getUsername());
+            preparedStatement.setLong(4, comment.getArticleId());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
@@ -37,7 +38,7 @@ public class CommentDao {
     }
 
     public Optional<Comment> findById(Long id) {
-        String findByIdSql = "select COMMENTS.ID, COMMENTS.BODY, COMMENTS.USER_ID, COMMENTS.ARTICLE_ID as AI from COMMENTS WHERE ID = ?";
+        String findByIdSql = "select COMMENTS.ID, COMMENTS.BODY, COMMENTS.USER_ID, COMMENTS.USERNAME, COMMENTS.ARTICLE_ID as AI from COMMENTS WHERE ID = ?";
         try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             findByIdSql)) {
             preparedStatement.setLong(1, id);
@@ -47,6 +48,7 @@ public class CommentDao {
                     resultSet.getLong("id"),
                     resultSet.getString("body"),
                     resultSet.getLong("user_id"),
+                    resultSet.getString("username"),
                     resultSet.getLong("article_id"));
                 return Optional.of(comment);
             }
@@ -58,7 +60,7 @@ public class CommentDao {
 
     public List<Comment> findAllByArticleId(Long articleId) {
         List<Comment> comments = new ArrayList<>();
-        String findAllByArticleIdSql = "select COMMENTS.ID, COMMENTS.BODY, COMMENTS.USER_ID, COMMENTS.ARTICLE_ID as AI from COMMENTS WHERE ARTICLE_ID = ?";
+        String findAllByArticleIdSql = "select COMMENTS.ID, COMMENTS.BODY, COMMENTS.USER_ID, COMMENTS.USERNAME, COMMENTS.ARTICLE_ID as AI from COMMENTS WHERE ARTICLE_ID = ?";
         try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             findAllByArticleIdSql)) {
             preparedStatement.setLong(1, articleId);
@@ -68,6 +70,7 @@ public class CommentDao {
                     resultSet.getLong("id"),
                     resultSet.getString("body"),
                     resultSet.getLong("user_id"),
+                    resultSet.getString("username"),
                     resultSet.getLong("article_id"));
                 comments.add(comment);
             }

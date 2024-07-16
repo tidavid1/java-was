@@ -8,18 +8,21 @@ public class Comment {
     private Long id;
     private String body;
     private Long userId;
+    private String username;
     private Long articleId;
 
     public Comment(String body, User user, Article article) {
         this.body = body;
         this.userId = user.getId();
+        this.username = user.getName();
         this.articleId = article.getId();
     }
 
-    public Comment(Long id, String body, Long userId, Long articleId) {
+    public Comment(Long id, String body, Long userId, String username, Long articleId) {
         this.id = id;
         this.body = body;
         this.userId = userId;
+        this.username = username;
         this.articleId = articleId;
     }
 
@@ -33,6 +36,10 @@ public class Comment {
 
     public Long getUserId() {
         return userId;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public Long getArticleId() {
