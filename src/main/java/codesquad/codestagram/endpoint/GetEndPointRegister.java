@@ -1,6 +1,5 @@
 package codesquad.codestagram.endpoint;
 
-import codesquad.codestagram.domain.article.domain.Article;
 import codesquad.codestagram.domain.article.storage.ArticleDao;
 import codesquad.codestagram.domain.comment.domain.Comment;
 import codesquad.codestagram.domain.comment.storage.CommentDao;
@@ -55,19 +54,25 @@ public class GetEndPointRegister implements EndPointRegister {
                 .getQueryParams();
             Long id = Long.parseLong(queryParams.getParameter("id").orElse("1"));
             Session session = SessionContext.getSession();
-            byte[] data;
-            Article article = articleDao.findById(id).orElseThrow(
-                () -> new HttpCommonException("아티클을 찾을 수 없습니다!", StatusCode.BAD_REQUEST));
-            List<Comment> comments = commentDao.findAllByArticleId(article.getId());
-            if (session == null) {
-                data = templateHtmlFactory.mainPage(article, comments);
-            } else {
-                User user = (User) session.getAttribute("user");
-                data = templateHtmlFactory.mainPage(user, article, comments);
-            }
-            httpServletResponse.setBody(data);
-            httpServletResponse.setStatus(StatusCode.OK);
-            httpServletResponse.setHeader("Content-Type", "text/html");
+            articleDao.findById(id)
+                .ifPresentOrElse(
+                    article -> {
+                        List<Comment> comments = commentDao.findAllByArticleId(article.getId());
+                        byte[] data;
+                        if (session == null) {
+                            data = templateHtmlFactory.mainPage(article, comments);
+                        } else {
+                            User user = (User) session.getAttribute("user");
+                            data = templateHtmlFactory.mainPage(user, article, comments);
+                        }
+                        httpServletResponse.setBody(data);
+                        httpServletResponse.setStatus(StatusCode.OK);
+                        httpServletResponse.setHeader("Content-Type", "text/html");
+                    },
+                    () -> httpServletRequest.setAttribute("exception",
+                        new HttpCommonException("아티클을 찾을 수 없습니다!", StatusCode.BAD_REQUEST))
+                );
+
         };
         endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/index.html", biConsumer));
         BiConsumer<HttpServletRequest, HttpServletResponse> redirection = (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(

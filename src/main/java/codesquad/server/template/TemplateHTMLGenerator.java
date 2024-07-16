@@ -87,6 +87,39 @@ public class TemplateHTMLGenerator {
             + "    </div>\n";
     }
 
+    public static String navigationBar(Article article) {
+        return "    <nav class=\"nav\">\n"
+            + "      <ul class=\"nav__menu\">\n"
+            + "        <li class=\"nav__menu__item\">\n"
+            + "          <a class=\"nav__menu__item__btn\" href=\"index.html?id=" + (
+            article.getId() - 1 < 0 ? 1 : article.getId() - 1) + "\">\n"
+            + "            <img\n"
+            + "                class=\"nav__menu__item__img\"\n"
+            + "                src=\"./img/ci_chevron-left.svg\"\n"
+            + "            />\n"
+            + "            이전 글\n"
+            + "          </a>\n"
+            + "        </li>\n"
+            + "        <li class=\"nav__menu__item\">\n"
+            + "          <a class=\"btn btn_ghost btn_size_m\" href=\"/write\">글쓰기</a>\n"
+            + "        </li>\n"
+            + "        <li class=\"nav__menu__item\">\n"
+            + "          <a class=\"btn btn_ghost btn_size_m\" href=\"/comment\">댓글 작성</a>\n"
+            + "        </li>\n"
+            + "        <li class=\"nav__menu__item\">\n"
+            + "          <a class=\"nav__menu__item__btn\" href=\"index.html?id=" + (article.getId()
+            + 1) + "\">\n"
+            + "            다음 글\n"
+            + "            <img\n"
+            + "                class=\"nav__menu__item__img\"\n"
+            + "                src=\"./img/ci_chevron-right.svg\"\n"
+            + "            />\n"
+            + "          </a>\n"
+            + "        </li>\n"
+            + "      </ul>\n"
+            + "    </nav>";
+    }
+
     public static String commentList(List<Comment> comments) {
         StringBuilder value = new StringBuilder(" <ul class=\"comment\">\n");
         for (Comment comment : comments) {

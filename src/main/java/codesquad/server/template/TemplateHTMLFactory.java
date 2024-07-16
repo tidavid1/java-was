@@ -22,6 +22,7 @@ public class TemplateHTMLFactory {
             .replace(HEADER_KEY, TemplateHTMLGenerator.anonymousUserHeader())
             .replace("{{post}}", TemplateHTMLGenerator.post(article))
             .replace("{{comments}}", TemplateHTMLGenerator.commentList(comments))
+            .replace("{{nav}}", TemplateHTMLGenerator.navigationBar(article))
             .getBytes();
     }
 
@@ -31,6 +32,7 @@ public class TemplateHTMLFactory {
             .replace(HEADER_KEY, TemplateHTMLGenerator.loginUserHeader(user.getName()))
             .replace("{{post}}", TemplateHTMLGenerator.post(article))
             .replace("{{comments}}", TemplateHTMLGenerator.commentList(comments))
+            .replace("{{nav}}", TemplateHTMLGenerator.navigationBar(article))
             .getBytes();
     }
 

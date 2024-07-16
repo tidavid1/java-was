@@ -1,8 +1,9 @@
 package codesquad.codestagram.endpoint;
 
+import codesquad.codestagram.domain.article.domain.Article;
+import codesquad.codestagram.domain.article.storage.ArticleDao;
 import codesquad.codestagram.domain.user.domain.User;
 import codesquad.codestagram.domain.user.storage.UserDao;
-import codesquad.server.bean.BeanFactory;
 import codesquad.server.endpoint.EndPoint;
 import codesquad.server.endpoint.EndPointRegister;
 import codesquad.server.endpoint.EndPointStorage;
@@ -20,76 +21,95 @@ import java.net.HttpCookie;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class PostEndPointRegister implements EndPointRegister {
 
     private final EndPointStorage endPointStorage;
+    private final UserDao userDao;
+    private final ArticleDao articleDao;
+    private final SessionStorage sessionStorage;
 
-    private PostEndPointRegister(EndPointStorage endPointStorage) {
+    private PostEndPointRegister(EndPointStorage endPointStorage, UserDao userDao,
+        ArticleDao articleDao, SessionStorage sessionStorage) {
         this.endPointStorage = endPointStorage;
+        this.userDao = userDao;
+        this.articleDao = articleDao;
+        this.sessionStorage = sessionStorage;
     }
 
     @Override
     public void provideAll() {
-        create();
-        login();
-        logout();
+        registerEndPoint("/create", this::handleCreate);
+        registerEndPoint("/login", this::handleLogin);
+        registerEndPoint("/logout", this::handleLogout);
+        registerEndPoint("/write", this::handleWrite);
     }
 
-    void create() {
-        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
-            SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
-            try {
-                Map<String, String> bodyMap = parseBody(httpRequest.getBody());
-                BeanFactory.getInstance().getBean(UserDao.class).save(User.from(bodyMap));
-            } catch (IllegalArgumentException e) {
-                httpServletRequest.setAttribute("exception",
-                    new HttpCommonException(e.getMessage(), StatusCode.BAD_REQUEST));
-            }
-            httpServletResponse.sendRedirect("/index.html");
-        };
-        EndPoint endPoint = EndPoint.of("/create", biConsumer);
-        endPointStorage.addEndpoint(HttpMethod.POST, endPoint);
-    }
-
-    void login() {
-        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
-            SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
+    public void handleCreate(HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse) {
+        SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
+        try {
             Map<String, String> bodyMap = parseBody(httpRequest.getBody());
-            BeanFactory.getInstance().getBean(UserDao.class)
-                .findById(Objects.requireNonNull(bodyMap.get("userId")))
-                .ifPresentOrElse(
-                    user -> {
-                        if (!user.verifyPassword(bodyMap.get("password"))) {
-                            httpServletResponse.sendRedirect("/login/login_failed.html");
-                            return;
-                        }
-                        String sessionId = RandomSessionIDGenerator.generate();
-                        Session session = new Session(sessionId, System.currentTimeMillis());
-                        session.setAttribute("user", user);
-                        BeanFactory.getInstance().getBean(SessionStorage.class).save(session);
-                        HttpCookie cookie = generateCookie(sessionId);
-                        httpServletResponse.setCookie(cookie);
-                        httpServletResponse.sendRedirect("/index.html");
-                    },
-                    () -> httpServletResponse.sendRedirect("/login/login_failed.html")
-                );
-        };
-        EndPoint endPoint = EndPoint.of("/login", biConsumer);
-        endPointStorage.addEndpoint(HttpMethod.POST, endPoint);
+            userDao.save(User.from(bodyMap));
+        } catch (IllegalArgumentException e) {
+            setExceptionAttribute(httpServletRequest, e.getMessage(), StatusCode.BAD_REQUEST);
+        }
+        redirectToIndexHtml(httpServletResponse);
     }
 
-    void logout() {
-        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
-            Session session = SessionContext.getSession();
-            BeanFactory.getInstance().getBean(SessionStorage.class).remove(session.getSessionId());
-            HttpCookie cookie = generateCookie(session.getSessionId(), 0);
-            httpServletResponse.setCookie(cookie);
-            httpServletResponse.sendRedirect("/index.html");
-        };
-        EndPoint endPoint = EndPoint.of("/logout", biConsumer);
-        endPointStorage.addEndpoint(HttpMethod.POST, endPoint);
+    public void handleLogin(HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse) {
+        SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
+        try {
+            Map<String, String> bodyMap = parseBody(httpRequest.getBody());
+            Optional<User> optionalUser = userDao.findById(
+                Objects.requireNonNull(bodyMap.get("userId")));
+            optionalUser.ifPresentOrElse(
+                user -> {
+                    if (!user.verifyPassword(bodyMap.get("password"))) {
+                        httpServletResponse.sendRedirect("/login/login_failed.html");
+                        return;
+                    }
+                    String sessionId = createSession(user);
+                    HttpCookie cookie = generateCookie(sessionId);
+                    httpServletResponse.setCookie(cookie);
+                    redirectToIndexHtml(httpServletResponse);
+                },
+                () -> httpServletResponse.sendRedirect("/login/login_failed.html")
+            );
+        } catch (Exception e) {
+            setExceptionAttribute(httpServletRequest, e.getMessage(), StatusCode.BAD_REQUEST);
+        }
+    }
+
+    public void handleLogout(HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse) {
+        Session session = SessionContext.getSession();
+        sessionStorage.remove(session.getSessionId());
+        HttpCookie cookie = generateCookie(session.getSessionId(), 0);
+        httpServletResponse.setCookie(cookie);
+        redirectToIndexHtml(httpServletResponse);
+    }
+
+    public void handleWrite(HttpServletRequest httpServletRequest,
+        HttpServletResponse httpServletResponse) {
+        SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
+        try {
+            Map<String, String> body = parseBody(httpRequest.getBody());
+            Article article = new Article(body.get("title"), body.get("content"),
+                getUserInSessionContext());
+            articleDao.save(article);
+            redirectToIndexHtml(httpServletResponse);
+        } catch (Exception e) {
+            setExceptionAttribute(httpServletRequest, e.getMessage(), StatusCode.BAD_REQUEST);
+        }
+    }
+
+    private void registerEndPoint(String path,
+        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer) {
+        endPointStorage.addEndpoint(HttpMethod.POST, EndPoint.of(path, biConsumer));
     }
 
     private Map<String, String> parseBody(String body) {
@@ -105,6 +125,15 @@ public class PostEndPointRegister implements EndPointRegister {
         return queryMap;
     }
 
+    private void redirectToIndexHtml(HttpServletResponse httpServletResponse) {
+        httpServletResponse.sendRedirect("/index.html");
+    }
+
+    private User getUserInSessionContext() {
+        Session session = SessionContext.getSession();
+        return (User) session.getAttribute("user");
+    }
+
     private HttpCookie generateCookie(String sessionId) {
         HttpCookie cookie = new HttpCookie("SID", sessionId);
         cookie.setPath("/");
@@ -116,5 +145,18 @@ public class PostEndPointRegister implements EndPointRegister {
         HttpCookie cookie = generateCookie(sessionId);
         cookie.setMaxAge(maxAge);
         return cookie;
+    }
+
+    private String createSession(User user) {
+        String sessionId = RandomSessionIDGenerator.generate();
+        Session session = new Session(sessionId, System.currentTimeMillis());
+        session.setAttribute("user", user);
+        sessionStorage.save(session);
+        return sessionId;
+    }
+
+    private void setExceptionAttribute(HttpServletRequest httpServletRequest, String message,
+        StatusCode statusCode) {
+        httpServletRequest.setAttribute("exception", new HttpCommonException(message, statusCode));
     }
 }
