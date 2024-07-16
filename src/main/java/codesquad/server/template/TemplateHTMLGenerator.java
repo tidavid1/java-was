@@ -104,7 +104,8 @@ public class TemplateHTMLGenerator {
             + "          <a class=\"btn btn_ghost btn_size_m\" href=\"/write\">글쓰기</a>\n"
             + "        </li>\n"
             + "        <li class=\"nav__menu__item\">\n"
-            + "          <a class=\"btn btn_ghost btn_size_m\" href=\"/comment\">댓글 작성</a>\n"
+            + "          <a class=\"btn btn_ghost btn_size_m\" href=\"/comment?articleId="
+            + article.getId() + "\">댓글 작성</a>\n"
             + "        </li>\n"
             + "        <li class=\"nav__menu__item\">\n"
             + "          <a class=\"nav__menu__item__btn\" href=\"index.html?id=" + (article.getId()

@@ -2,6 +2,8 @@ package codesquad.codestagram.endpoint;
 
 import codesquad.codestagram.domain.article.domain.Article;
 import codesquad.codestagram.domain.article.storage.ArticleDao;
+import codesquad.codestagram.domain.comment.domain.Comment;
+import codesquad.codestagram.domain.comment.storage.CommentDao;
 import codesquad.codestagram.domain.user.domain.User;
 import codesquad.codestagram.domain.user.storage.UserDao;
 import codesquad.server.endpoint.EndPoint;
@@ -29,13 +31,15 @@ public class PostEndPointRegister implements EndPointRegister {
     private final EndPointStorage endPointStorage;
     private final UserDao userDao;
     private final ArticleDao articleDao;
+    private final CommentDao commentDao;
     private final SessionStorage sessionStorage;
 
     private PostEndPointRegister(EndPointStorage endPointStorage, UserDao userDao,
-        ArticleDao articleDao, SessionStorage sessionStorage) {
+        ArticleDao articleDao, CommentDao commentDao, SessionStorage sessionStorage) {
         this.endPointStorage = endPointStorage;
         this.userDao = userDao;
         this.articleDao = articleDao;
+        this.commentDao = commentDao;
         this.sessionStorage = sessionStorage;
     }
 
@@ -45,23 +49,24 @@ public class PostEndPointRegister implements EndPointRegister {
         registerEndPoint("/login", this::handleLogin);
         registerEndPoint("/logout", this::handleLogout);
         registerEndPoint("/write", this::handleWrite);
+        registerEndPoint("/comment", this::handleComment);
     }
 
-    public void handleCreate(HttpServletRequest httpServletRequest,
-        HttpServletResponse httpServletResponse) {
-        SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
+    public void handleCreate(HttpServletRequest request,
+        HttpServletResponse response) {
+        SingleHttpRequest httpRequest = (SingleHttpRequest) request.getRequest();
         try {
             Map<String, String> bodyMap = parseBody(httpRequest.getBody());
             userDao.save(User.from(bodyMap));
         } catch (IllegalArgumentException e) {
-            setExceptionAttribute(httpServletRequest, e.getMessage(), StatusCode.BAD_REQUEST);
+            setExceptionAttribute(request, e.getMessage(), StatusCode.BAD_REQUEST);
         }
-        redirectToIndexHtml(httpServletResponse);
+        redirectToIndexHtml(response);
     }
 
-    public void handleLogin(HttpServletRequest httpServletRequest,
-        HttpServletResponse httpServletResponse) {
-        SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
+    public void handleLogin(HttpServletRequest request,
+        HttpServletResponse response) {
+        SingleHttpRequest httpRequest = (SingleHttpRequest) request.getRequest();
         try {
             Map<String, String> bodyMap = parseBody(httpRequest.getBody());
             Optional<User> optionalUser = userDao.findById(
@@ -69,41 +74,58 @@ public class PostEndPointRegister implements EndPointRegister {
             optionalUser.ifPresentOrElse(
                 user -> {
                     if (!user.verifyPassword(bodyMap.get("password"))) {
-                        httpServletResponse.sendRedirect("/login/login_failed.html");
+                        response.sendRedirect("/login/login_failed.html");
                         return;
                     }
                     String sessionId = createSession(user);
                     HttpCookie cookie = generateCookie(sessionId);
-                    httpServletResponse.setCookie(cookie);
-                    redirectToIndexHtml(httpServletResponse);
+                    response.setCookie(cookie);
+                    redirectToIndexHtml(response);
                 },
-                () -> httpServletResponse.sendRedirect("/login/login_failed.html")
+                () -> response.sendRedirect("/login/login_failed.html")
             );
         } catch (Exception e) {
-            setExceptionAttribute(httpServletRequest, e.getMessage(), StatusCode.BAD_REQUEST);
+            setExceptionAttribute(request, e.getMessage(), StatusCode.BAD_REQUEST);
         }
     }
 
-    public void handleLogout(HttpServletRequest httpServletRequest,
-        HttpServletResponse httpServletResponse) {
+    public void handleLogout(HttpServletRequest request,
+        HttpServletResponse response) {
         Session session = SessionContext.getSession();
         sessionStorage.remove(session.getSessionId());
         HttpCookie cookie = generateCookie(session.getSessionId(), 0);
-        httpServletResponse.setCookie(cookie);
-        redirectToIndexHtml(httpServletResponse);
+        response.setCookie(cookie);
+        redirectToIndexHtml(response);
     }
 
-    public void handleWrite(HttpServletRequest httpServletRequest,
-        HttpServletResponse httpServletResponse) {
-        SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
+    public void handleWrite(HttpServletRequest request,
+        HttpServletResponse response) {
+        SingleHttpRequest httpRequest = (SingleHttpRequest) request.getRequest();
         try {
             Map<String, String> body = parseBody(httpRequest.getBody());
             Article article = new Article(body.get("title"), body.get("content"),
                 getUserInSessionContext());
             articleDao.save(article);
-            redirectToIndexHtml(httpServletResponse);
+            redirectToIndexHtml(response);
         } catch (Exception e) {
-            setExceptionAttribute(httpServletRequest, e.getMessage(), StatusCode.BAD_REQUEST);
+            setExceptionAttribute(request, e.getMessage(), StatusCode.BAD_REQUEST);
+        }
+    }
+
+    public void handleComment(HttpServletRequest request, HttpServletResponse response) {
+        SingleHttpRequest httpRequest = (SingleHttpRequest) request.getRequest();
+        try {
+            Map<String, String> body = parseBody(httpRequest.getBody());
+            Long articleId = Long.parseLong(body.get("article_id"));
+            Article article = articleDao.findById(articleId).orElseThrow(
+                () -> new HttpCommonException("존재하지 않는 아티클입니다.", StatusCode.NOT_FOUND));
+            Comment comment = new Comment(body.get("value"), getUserInSessionContext(), article);
+            commentDao.save(comment);
+            redirectToIndexHtml(response);
+        } catch (HttpCommonException e) {
+            setExceptionAttribute(request, e.getMessage(), e.getStatusCode());
+        } catch (Exception e) {
+            setExceptionAttribute(request, e.getMessage(), StatusCode.BAD_REQUEST);
         }
     }
 
@@ -125,8 +147,8 @@ public class PostEndPointRegister implements EndPointRegister {
         return queryMap;
     }
 
-    private void redirectToIndexHtml(HttpServletResponse httpServletResponse) {
-        httpServletResponse.sendRedirect("/index.html");
+    private void redirectToIndexHtml(HttpServletResponse response) {
+        response.sendRedirect("/index.html");
     }
 
     private User getUserInSessionContext() {
@@ -155,8 +177,8 @@ public class PostEndPointRegister implements EndPointRegister {
         return sessionId;
     }
 
-    private void setExceptionAttribute(HttpServletRequest httpServletRequest, String message,
+    private void setExceptionAttribute(HttpServletRequest request, String message,
         StatusCode statusCode) {
-        httpServletRequest.setAttribute("exception", new HttpCommonException(message, statusCode));
+        request.setAttribute("exception", new HttpCommonException(message, statusCode));
     }
 }

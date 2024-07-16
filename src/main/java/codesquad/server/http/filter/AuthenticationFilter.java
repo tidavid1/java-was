@@ -20,7 +20,8 @@ public class AuthenticationFilter implements Filter {
     private final List<String> authenticationPathList;
 
     private AuthenticationFilter() {
-        this.authenticationPathList = List.of("/user/list", "/logout", "/write.html", "/write");
+        this.authenticationPathList = List.of("/user/list", "/logout", "/write.html", "/write",
+            "/article", "/comment", "/comment/index.html");
     }
 
     @Override

@@ -86,4 +86,12 @@ public class TemplateHTMLFactory {
             .getBytes();
     }
 
+    public byte[] commentPage(User user, Article article) {
+        String html = templateFileStorage.getFileStr("/comment/index.html");
+        return html
+            .replace(HEADER_KEY, TemplateHTMLGenerator.loginUserHeader(user.getName()))
+            .replace("{{articleId}}", String.valueOf(article.getId()))
+            .getBytes();
+    }
+
 }

@@ -1,5 +1,6 @@
 package codesquad.codestagram.endpoint;
 
+import codesquad.codestagram.domain.article.domain.Article;
 import codesquad.codestagram.domain.article.storage.ArticleDao;
 import codesquad.codestagram.domain.comment.domain.Comment;
 import codesquad.codestagram.domain.comment.storage.CommentDao;
@@ -18,6 +19,7 @@ import codesquad.server.http.session.Session;
 import codesquad.server.http.session.SessionContext;
 import codesquad.server.template.TemplateHTMLFactory;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class GetEndPointRegister implements EndPointRegister {
@@ -40,129 +42,117 @@ public class GetEndPointRegister implements EndPointRegister {
 
     @Override
     public void provideAll() {
-        home();
-        userList();
-        registration();
-        login();
-        loginFail();
-        write();
+        String mainPagePath = "/index.html";
+        String writePagePath = "/write.html";
+        registerEndPoint(mainPagePath, this::handleHome);
+        registerRedirectEndPoint("/", mainPagePath);
+        registerRedirectEndPoint("/main", mainPagePath);
+        registerRedirectEndPoint("/main/index.html", mainPagePath);
+        registerEndPoint("/registration/index.html", this::handleRegistration);
+        registerRedirectEndPoint("/registration", "/registration/index.html");
+        registerEndPoint("/user/list", this::handleUserList);
+        registerRedirectEndPoint("/user/index.html", "/user/list");
+        registerEndPoint("/login/index.html", this::handleLogin);
+        registerRedirectEndPoint("/login", "/login/index.html");
+        registerEndPoint("/login/login_failed.html", this::handleLoginFail);
+        registerEndPoint(writePagePath, this::handleWrite);
+        registerRedirectEndPoint("/write", writePagePath);
+        registerRedirectEndPoint("/write/index.html", writePagePath);
+        registerRedirectEndPoint("/article", writePagePath);
+        registerRedirectEndPoint("/article/index.html", writePagePath);
+        registerEndPoint("/comment", this::handleComment);
+        registerRedirectEndPoint("/comment/index.html", "/comment");
     }
 
-    void home() {
-        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
-            HttpQueryParams queryParams = httpServletRequest.getRequest().getRequestLine()
-                .getQueryParams();
-            Long id = Long.parseLong(queryParams.getParameter("id").orElse("1"));
-            Session session = SessionContext.getSession();
-            articleDao.findById(id)
-                .ifPresentOrElse(
-                    article -> {
-                        List<Comment> comments = commentDao.findAllByArticleId(article.getId());
-                        byte[] data;
-                        if (session == null) {
-                            data = templateHtmlFactory.mainPage(article, comments);
-                        } else {
-                            User user = (User) session.getAttribute("user");
-                            data = templateHtmlFactory.mainPage(user, article, comments);
-                        }
-                        httpServletResponse.setBody(data);
-                        httpServletResponse.setStatus(StatusCode.OK);
-                        httpServletResponse.setHeader("Content-Type", "text/html");
-                    },
-                    () -> httpServletRequest.setAttribute("exception",
-                        new HttpCommonException("아티클을 찾을 수 없습니다!", StatusCode.BAD_REQUEST))
-                );
-
-        };
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/index.html", biConsumer));
-        BiConsumer<HttpServletRequest, HttpServletResponse> redirection = (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
-            "/index.html");
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/", redirection));
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/main", redirection));
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/main/index.html", redirection));
+    public void handleHome(HttpServletRequest request, HttpServletResponse response) {
+        HttpQueryParams queryParams = request.getRequest().getRequestLine().getQueryParams();
+        Long id = Long.parseLong(queryParams.getParameter("id").orElse("1"));
+        Session session = SessionContext.getSession();
+        Optional<Article> optionalArticle = articleDao.findById(id);
+        optionalArticle.ifPresentOrElse(
+            article -> {
+                List<Comment> comments = commentDao.findAllByArticleId(article.getId());
+                byte[] data = session == null ? templateHtmlFactory.mainPage(article, comments)
+                    : templateHtmlFactory.mainPage(
+                        (User) session.getAttribute("user"), article, comments);
+                setHtmlResponse(response, data);
+            },
+            () -> setException(request, "아티클을 찾을 수 없습니다.", StatusCode.BAD_REQUEST)
+        );
     }
 
-    void registration() {
-        endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/registration/index.html", (httpServletRequest, httpServletResponse) -> {
-                Session session = SessionContext.getSession();
-                if (session != null) {
-                    redirectToMain(httpServletResponse);
-                    return;
-                }
-                httpServletResponse.setStatus(StatusCode.OK);
-                httpServletResponse.setHeader("Content-Type", "text/html");
-                httpServletResponse.setBody(templateHtmlFactory.registrationPage());
-            }));
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/registration",
-            (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
-                "/registration/index.html")));
+    public void handleRegistration(HttpServletRequest request, HttpServletResponse response) {
+        Session session = SessionContext.getSession();
+        if (session == null) {
+            redirectToMain(response);
+            return;
+        }
+        setHtmlResponse(response, templateHtmlFactory.registrationPage());
     }
 
-    void userList() {
-        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
+    public void handleUserList(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) SessionContext.getSession().getAttribute("user");
+        List<User> users = userDao.findAll();
+        setHtmlResponse(response, templateHtmlFactory.userListPage(user, users));
+    }
+
+    public void handleLogin(HttpServletRequest request, HttpServletResponse response) {
+        if (SessionContext.getSession() != null) {
+            redirectToMain(response);
+            return;
+        }
+        setHtmlResponse(response, templateHtmlFactory.loginPage());
+    }
+
+    public void handleLoginFail(HttpServletRequest request, HttpServletResponse response) {
+        if (SessionContext.getSession() != null) {
+            redirectToMain(response);
+            return;
+        }
+        setHtmlResponse(response, templateHtmlFactory.loginFailPage());
+    }
+
+    public void handleWrite(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) SessionContext.getSession().getAttribute("user");
+        setHtmlResponse(response, templateHtmlFactory.articlePage(user));
+    }
+
+    public void handleComment(HttpServletRequest request, HttpServletResponse response) {
+        HttpQueryParams queryParams = request.getRequest().getRequestLine().getQueryParams();
+        try {
+            Long articleId = Long.parseLong(queryParams.getParameter("articleId")
+                .orElseThrow(() -> new IllegalArgumentException("댓글을 달 아티클이 존재하지 않습니다.")));
+            Article article = articleDao.findById(articleId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글을 달 아티클이 존재하지 않습니다."));
             User user = (User) SessionContext.getSession().getAttribute("user");
-            List<User> users = userDao.findAll();
-            byte[] data = templateHtmlFactory.userListPage(user, users);
-            httpServletResponse.setStatus(StatusCode.OK);
-            httpServletResponse.setHeader("Content-Type", "text/html");
-            httpServletResponse.setBody(data);
-        };
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/user/list", biConsumer));
+            setHtmlResponse(response, templateHtmlFactory.commentPage(user, article));
+        } catch (IllegalArgumentException e) {
+            setException(request, e.getMessage(), StatusCode.NOT_FOUND);
+        }
     }
 
-    void login() {
-        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
-            if (SessionContext.getSession() != null) {
-                redirectToMain(httpServletResponse);
-                return;
-            }
-            httpServletResponse.setStatus(StatusCode.OK);
-            httpServletResponse.setHeader("Content-Type", "text/html");
-            httpServletResponse.setBody(templateHtmlFactory.loginPage());
-        };
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/login/index.html", biConsumer));
-        endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/login",
-                (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
-                    "/login/index.html")));
+    private void registerEndPoint(String path,
+        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer) {
+        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of(path, biConsumer));
     }
 
-
-    void loginFail() {
-        endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/login/login_failed.html", (httpServletRequest, httpServletResponse) -> {
-                if (SessionContext.getSession() != null) {
-                    redirectToMain(httpServletResponse);
-                    return;
-                }
-                httpServletResponse.setStatus(StatusCode.OK);
-                httpServletResponse.setHeader("Content-Type", "text/html");
-                httpServletResponse.setBody(templateHtmlFactory.loginFailPage());
-            }));
+    private void registerRedirectEndPoint(String path, String redirectPath) {
+        EndPoint endPoint = EndPoint.of(path, (req, res) -> res.sendRedirect(redirectPath));
+        endPointStorage.addEndpoint(HttpMethod.GET, endPoint);
     }
 
-    void write() {
-        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
-            User user = (User) SessionContext.getSession().getAttribute("user");
-            byte[] data = templateHtmlFactory.articlePage(user);
-            httpServletResponse.setStatus(StatusCode.OK);
-            httpServletResponse.setHeader("Content-Type", "text/html");
-            httpServletResponse.setBody(data);
-        };
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/write.html", biConsumer));
-        BiConsumer<HttpServletRequest, HttpServletResponse> redirectBiConsumer = (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
-            "/write.html");
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/write", redirectBiConsumer));
-        endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/write/index.html", redirectBiConsumer));
-        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/article", redirectBiConsumer));
-        endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/article/index.html", redirectBiConsumer));
+    private void setException(HttpServletRequest request, String message, StatusCode statusCode) {
+        request.setAttribute("exception", new HttpCommonException(message, statusCode));
     }
 
     private void redirectToMain(HttpServletResponse httpServletResponse) {
         httpServletResponse.sendRedirect("/index.html");
+    }
+
+    private void setHtmlResponse(HttpServletResponse response, byte[] body) {
+        response.setStatus(StatusCode.OK);
+        response.setHeader("Content-Type", "text/html");
+        response.setBody(body);
     }
 
 }
