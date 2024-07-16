@@ -92,10 +92,7 @@ public class TemplateHTMLGenerator {
         for (Comment comment : comments) {
             value.append(commentSingle(comment));
         }
-        value.append("      <button id=\"show-all-btn\" class=\"btn btn_ghost btn_size_m\">\n")
-            .append("        모든 댓글 보기(3개)\n")
-            .append("      </button>\n")
-            .append("    </ul>\n");
+        value.append("    </ul>\n");
         return value.toString();
     }
 

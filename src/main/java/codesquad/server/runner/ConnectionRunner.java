@@ -1,6 +1,7 @@
 package codesquad.server.runner;
 
 import codesquad.server.bean.BeanFactory;
+import codesquad.server.http.filter.AuthenticationFilter;
 import codesquad.server.http.filter.EndPointProvideFilter;
 import codesquad.server.http.filter.ExceptionHandlerFilter;
 import codesquad.server.http.filter.FilterChain;
@@ -29,7 +30,7 @@ public class ConnectionRunner implements Runnable {
         this.httpRequestParser = new HttpRequestParser();
         this.filterChain = new SecurityFilterChain(
             beanFactory.getBean(UserLoginFilter.class),
-            beanFactory.getBean(UserLoginFilter.class),
+            beanFactory.getBean(AuthenticationFilter.class),
             beanFactory.getBean(EndPointProvideFilter.class),
             beanFactory.getBean(ExceptionHandlerFilter.class),
             beanFactory.getBean(SessionContextClearFilter.class));
