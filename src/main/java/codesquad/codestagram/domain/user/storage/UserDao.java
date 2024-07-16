@@ -65,7 +65,7 @@ public class UserDao {
 
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        String findAllSql = "";
+        String findAllSql = "SELECT USERS.ID, USERS.USER_ID, USERS.PASSWORD, USERS.NAME, USERS.EMAIL FROM USERS";
         try (Connection connection = h2ConnectManager.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(
             findAllSql)) {
             while (resultSet.next()) {

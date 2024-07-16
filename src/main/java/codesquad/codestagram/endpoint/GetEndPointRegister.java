@@ -1,5 +1,7 @@
 package codesquad.codestagram.endpoint;
 
+import codesquad.codestagram.domain.article.domain.Article;
+import codesquad.codestagram.domain.comment.domain.Comment;
 import codesquad.codestagram.domain.user.domain.User;
 import codesquad.codestagram.domain.user.storage.UserDao;
 import codesquad.server.bean.BeanFactory;
@@ -12,21 +14,19 @@ import codesquad.server.http.servlet.enums.HttpMethod;
 import codesquad.server.http.servlet.enums.StatusCode;
 import codesquad.server.http.session.Session;
 import codesquad.server.http.session.SessionContext;
-import codesquad.server.statics.StaticFileStorage;
 import codesquad.server.template.TemplateHTMLFactory;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class GetEndPointRegister implements EndPointRegister {
 
     private final EndPointStorage endPointStorage;
-    private final StaticFileStorage staticFileStorage;
     private final TemplateHTMLFactory templateHtmlFactory;
 
     private GetEndPointRegister(EndPointStorage endPointStorage,
-        StaticFileStorage staticFileStorage) {
+        TemplateHTMLFactory templateHTMLFactory) {
         this.endPointStorage = endPointStorage;
-        this.staticFileStorage = staticFileStorage;
-        this.templateHtmlFactory = new TemplateHTMLFactory();
+        this.templateHtmlFactory = templateHTMLFactory;
     }
 
     @Override
@@ -42,38 +42,38 @@ public class GetEndPointRegister implements EndPointRegister {
     void home() {
         BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
             Session session = SessionContext.getSession();
+            byte[] data;
+            Article testArticle = new Article(2L, "title", "달은 차고 아침은 밝다", 3L, "사용자");
+            List<Comment> testComments = List.of(new Comment(1L, "굿", 3L, "사용자", 2L));
             if (session == null) {
-                byte[] indexHtmlBytes = staticFileStorage.getFileBytes("/index.html");
-                httpServletResponse.setStatus(StatusCode.OK);
-                httpServletResponse.setHeader("Content-Type", "text/html");
-                httpServletResponse.setBody(indexHtmlBytes);
-                return;
+                data = templateHtmlFactory.mainPage(testArticle, testComments);
+            } else {
+                User user = (User) session.getAttribute("user");
+                data = templateHtmlFactory.mainPage(user, testArticle, testComments);
             }
-            User user = (User) session.getAttribute("user");
-            byte[] mainHtmlBytes = staticFileStorage.getFileBytes("/main/index.html");
+            httpServletResponse.setBody(data);
             httpServletResponse.setStatus(StatusCode.OK);
             httpServletResponse.setHeader("Content-Type", "text/html");
-            httpServletResponse.setBody(
-                templateHtmlFactory.renderUsername(mainHtmlBytes, user.getName()));
         };
         endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/index.html", biConsumer));
-        endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/",
-                (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
-                    "/index.html")));
-        endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/main",
-                (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
-                    "/index.html")));
+        BiConsumer<HttpServletRequest, HttpServletResponse> redirection = (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
+            "/index.html");
+        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/", redirection));
+        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/main", redirection));
+        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/main/index.html", redirection));
     }
 
     void registration() {
-        byte[] registrationHtmlBytes = staticFileStorage.getFileBytes("/registration/index.html");
         endPointStorage.addEndpoint(HttpMethod.GET,
             EndPoint.of("/registration/index.html", (httpServletRequest, httpServletResponse) -> {
+                Session session = SessionContext.getSession();
+                if (session != null) {
+                    redirectToMain(httpServletResponse);
+                    return;
+                }
                 httpServletResponse.setStatus(StatusCode.OK);
                 httpServletResponse.setHeader("Content-Type", "text/html");
-                httpServletResponse.setBody(registrationHtmlBytes);
+                httpServletResponse.setBody(templateHtmlFactory.registrationPage());
             }));
         endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/registration",
             (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
@@ -82,13 +82,12 @@ public class GetEndPointRegister implements EndPointRegister {
 
     void userList() {
         BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
-            byte[] userListHtmlBytes = staticFileStorage.getFileBytes("/user/user_list.html");
             User user = (User) SessionContext.getSession().getAttribute("user");
+            List<User> users = BeanFactory.getInstance().getBean(UserDao.class).findAll();
+            byte[] data = templateHtmlFactory.userListPage(user, users);
             httpServletResponse.setStatus(StatusCode.OK);
             httpServletResponse.setHeader("Content-Type", "text/html");
-            httpServletResponse.setBody(
-                templateHtmlFactory.renderUserList(userListHtmlBytes, user.getName(),
-                    BeanFactory.getInstance().getBean(UserDao.class).findAll()));
+            httpServletResponse.setBody(data);
         };
         endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/user/list", biConsumer));
     }
@@ -96,13 +95,12 @@ public class GetEndPointRegister implements EndPointRegister {
     void login() {
         BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
             if (SessionContext.getSession() != null) {
-                httpServletResponse.sendRedirect("/index.html");
+                redirectToMain(httpServletResponse);
                 return;
             }
-            byte[] loginHtml = staticFileStorage.getFileBytes("/login/index.html");
             httpServletResponse.setStatus(StatusCode.OK);
             httpServletResponse.setHeader("Content-Type", "text/html");
-            httpServletResponse.setBody(loginHtml);
+            httpServletResponse.setBody(templateHtmlFactory.loginPage());
         };
         endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/login/index.html", biConsumer));
         endPointStorage.addEndpoint(HttpMethod.GET,
@@ -113,32 +111,37 @@ public class GetEndPointRegister implements EndPointRegister {
 
 
     void loginFail() {
-        byte[] loginFailHtml = staticFileStorage.getFileBytes("/login/login_failed.html");
         endPointStorage.addEndpoint(HttpMethod.GET,
             EndPoint.of("/login/login_failed.html", (httpServletRequest, httpServletResponse) -> {
+                if (SessionContext.getSession() != null) {
+                    redirectToMain(httpServletResponse);
+                    return;
+                }
                 httpServletResponse.setStatus(StatusCode.OK);
                 httpServletResponse.setHeader("Content-Type", "text/html");
-                httpServletResponse.setBody(loginFailHtml);
+                httpServletResponse.setBody(templateHtmlFactory.loginFailPage());
             }));
     }
 
     void write() {
-        byte[] writeHtmlBytes = staticFileStorage.getFileBytes("/article/index.html");
+        BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
+            User user = (User) SessionContext.getSession().getAttribute("user");
+            byte[] data = templateHtmlFactory.articlePage(user);
+            httpServletResponse.setStatus(StatusCode.OK);
+            httpServletResponse.setHeader("Content-Type", "text/html");
+            httpServletResponse.setBody(data);
+        };
+        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/write/index.html", biConsumer));
+        BiConsumer<HttpServletRequest, HttpServletResponse> redirectBiConsumer = (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
+            "/write/index.html");
+        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/write", redirectBiConsumer));
+        endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/article", redirectBiConsumer));
         endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/write/index.html", (httpServletRequest, httpServletResponse) -> {
-                httpServletResponse.setStatus(StatusCode.OK);
-                httpServletResponse.setHeader("Content-Type", "text/html");
-                httpServletResponse.setBody(writeHtmlBytes);
-            }));
-        endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/write",
-                (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
-                    "/write/index.html")));
-        endPointStorage.addEndpoint(HttpMethod.GET,
-            EndPoint.of("/article",
-                (httpServletRequest, httpServletResponse) -> httpServletResponse.sendRedirect(
-                    "/write/index.html")));
+            EndPoint.of("/article/index.html", redirectBiConsumer));
     }
 
+    private void redirectToMain(HttpServletResponse httpServletResponse) {
+        httpServletResponse.sendRedirect("/index.html");
+    }
 
 }

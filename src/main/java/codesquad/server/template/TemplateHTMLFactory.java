@@ -6,15 +6,11 @@ import codesquad.codestagram.domain.user.domain.User;
 import codesquad.server.http.exception.HttpCommonException;
 import java.util.List;
 
-// TODO: add in BeanFactory
 public class TemplateHTMLFactory {
 
-    private static final String HEADER_KEY = "{{headers}}";
+    private static final String HEADER_KEY = "{{header}}";
 
-    private TemplateFileStorage templateFileStorage;
-
-    public TemplateHTMLFactory() {
-    }
+    private final TemplateFileStorage templateFileStorage;
 
     private TemplateHTMLFactory(TemplateFileStorage templateFileStorage) {
         this.templateFileStorage = templateFileStorage;
@@ -36,6 +32,21 @@ public class TemplateHTMLFactory {
             .replace("{{post}}", TemplateHTMLGenerator.post(article))
             .replace("{{comments}}", TemplateHTMLGenerator.commentList(comments))
             .getBytes();
+    }
+
+    public byte[] registrationPage() {
+        String html = templateFileStorage.getFileStr("/registration/index.html");
+        return html.getBytes();
+    }
+
+    public byte[] loginPage() {
+        String html = templateFileStorage.getFileStr("/login/index.html");
+        return html.getBytes();
+    }
+
+    public byte[] loginFailPage() {
+        String html = templateFileStorage.getFileStr("/login/login_failed.html");
+        return html.getBytes();
     }
 
     public byte[] exceptionPage(HttpCommonException httpCommonException) {
@@ -66,32 +77,11 @@ public class TemplateHTMLFactory {
             .getBytes();
     }
 
-    @Deprecated
-    public byte[] renderUsername(byte[] htmlBytes, String username) {
-        String htmlString = convertBytesToString(htmlBytes);
-        htmlString = htmlString.replace("{{username}}", username);
-        return htmlString.getBytes();
-    }
-
-    @Deprecated
-    public byte[] renderUserList(byte[] htmlBytes, String username, List<User> userList) {
-        String htmlString = convertBytesToString(htmlBytes);
-        htmlString = htmlString.replace("{{username}}", username);
-        StringBuilder sb = new StringBuilder();
-        for (User user : userList) {
-            sb.append("<tr>\n<th class=\"btn btn_size_s btn_ghost\">").append(user.getUserId())
-                .append("</th>\n<th class=\"btn btn_size_s btn_ghost\">").append(user.getName())
-                .append("</th>\n</tr>\n");
-        }
-        int insertPointIdx = htmlString.indexOf("</tr>") + 5;
-        htmlString =
-            htmlString.substring(0, insertPointIdx) + sb + htmlString.substring(insertPointIdx);
-        return htmlString.getBytes();
-    }
-
-    @Deprecated
-    private String convertBytesToString(byte[] bytes) {
-        return new String(bytes);
+    public byte[] articlePage(User user) {
+        String html = templateFileStorage.getFileStr("/article/index.html");
+        return html
+            .replace(HEADER_KEY, TemplateHTMLGenerator.loginUserHeader(user.getName()))
+            .getBytes();
     }
 
 }

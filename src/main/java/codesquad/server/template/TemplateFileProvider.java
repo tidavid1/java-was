@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class TemplateFileProvider {
 
     private static final Logger log = LoggerFactory.getLogger(TemplateFileProvider.class);
-    private static final String STATIC_PATH = "static";
+    private static final String STATIC_PATH = "templates";
     private final TemplateFileStorage templateFileStorage;
 
     private TemplateFileProvider(TemplateFileStorage templateFileStorage) {
