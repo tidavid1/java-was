@@ -1,5 +1,6 @@
 package codesquad.server.database;
 
+import codesquad.server.properties.ApplicationProperties;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -22,19 +23,19 @@ public class H2ConnectManager {
 
     private final JdbcConnectionPool jdbcConnectionPool;
 
-    private H2ConnectManager(String h2FileUrl, String jdbcUrl, String username, String password) {
-        init(h2FileUrl, username, password);
+    private H2ConnectManager(ApplicationProperties applicationProperties) {
+        init(applicationProperties.getDBFilePath(), applicationProperties.getDBCurrentUsername(),
+            applicationProperties.getDBCurrentPassword());
         ConnectionPoolDataSource connectionPoolDataSource = generateConnectionPoolDataSource(
-            jdbcUrl, username, password);
+            applicationProperties.getDBCurrentUrl(), applicationProperties.getDBCurrentUsername(),
+            applicationProperties.getDBCurrentPassword());
         this.jdbcConnectionPool = JdbcConnectionPool.create(connectionPoolDataSource);
 
     }
 
     public static H2ConnectManager getInstance() {
         if (instance == null) {
-            instance = new H2ConnectManager("jdbc:h2:./db/java-was;AUTO_SERVER=TRUE",
-                "jdbc:h2:tcp://localhost:9092/java-was",
-                "sa", "");
+            instance = new H2ConnectManager(ApplicationProperties.getInstance());
         }
         return instance;
     }

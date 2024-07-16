@@ -1,6 +1,7 @@
 package codesquad.server;
 
 import codesquad.server.endpoint.handler.EndPointRegister;
+import codesquad.server.properties.ApplicationProperties;
 import codesquad.server.provider.StaticFileProvider;
 import codesquad.server.runner.ConnectionRunner;
 import java.io.IOException;
@@ -29,8 +30,8 @@ public class SocketServer {
     }
 
     public void start() {
-        H2Server server = new H2Server();
-        executorService.execute(server);
+        Thread server = new Thread(new H2Server(ApplicationProperties.getInstance()));
+        server.start();
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             log.debug("Listening for connection on port 8080 ....");
             while (true) {
