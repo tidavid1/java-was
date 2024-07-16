@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <beans>
-  <bean class="codesquad.server.storage.StaticFileStorage"/>
+  <bean class="codesquad.server.statics.StaticFileStorage"/>
   <bean class="codesquad.server.properties.ApplicationProperties"/>
   <bean class="codesquad.server.endpoint.StaticFileEndPointRegister"/>
   <bean class="codesquad.server.endpoint.EndPointStorage"/>
   <bean class="codesquad.codestagram.endpoint.GetEndPointRegister"/>
   <bean class="codesquad.codestagram.endpoint.PostEndPointRegister"/>
-  <bean class="codesquad.server.provider.StaticFileProvider"/>
+  <bean class="codesquad.server.statics.StaticFileProvider"/>
   <bean class="codesquad.server.http.filter.EndPointProvideFilter"/>
   <bean class="codesquad.server.http.filter.AuthenticationFilter"/>
   <bean class="codesquad.server.http.filter.ExceptionHandlerFilter"/>

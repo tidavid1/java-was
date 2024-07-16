@@ -2,7 +2,7 @@ package codesquad.server.endpoint;
 
 import codesquad.server.http.servlet.enums.HttpMethod;
 import codesquad.server.http.servlet.enums.StatusCode;
-import codesquad.server.storage.StaticFileStorage;
+import codesquad.server.statics.StaticFileStorage;
 import codesquad.server.util.ContentTypeFormatter;
 import java.util.Map.Entry;
 import java.util.Set;

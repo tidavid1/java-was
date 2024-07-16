@@ -1,6 +1,5 @@
-package codesquad.server.provider;
+package codesquad.server.statics;
 
-import codesquad.server.storage.StaticFileStorage;
 import codesquad.server.util.FileByteReader;
 import java.io.File;
 import java.io.IOException;
