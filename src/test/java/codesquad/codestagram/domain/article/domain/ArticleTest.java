@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Article은")
 class ArticleTest {
 
-    private User expectedUser = User.of(1L, "test", "test", "test", "test@gmail.com");
+    private final User expectedUser = User.of(1L, "test", "test", "test", "test@gmail.com");
 
     @Test
     @DisplayName("생성자를 통해 생성할 수 있다.")

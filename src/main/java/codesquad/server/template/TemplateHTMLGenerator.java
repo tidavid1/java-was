@@ -91,8 +91,8 @@ public class TemplateHTMLGenerator {
         return "    <nav class=\"nav\">\n"
             + "      <ul class=\"nav__menu\">\n"
             + "        <li class=\"nav__menu__item\">\n"
-            + "          <a class=\"nav__menu__item__btn\" href=\"index.html?id=" + (
-            article.getId() - 1 < 0 ? 1 : article.getId() - 1) + "\">\n"
+            + "          <a class=\"nav__menu__item__btn\" href=\"/index.html?id=" + (
+            article.getId() - 1 < 1 ? 1 : article.getId() - 1) + "\">\n"
             + "            <img\n"
             + "                class=\"nav__menu__item__img\"\n"
             + "                src=\"./img/ci_chevron-left.svg\"\n"
@@ -108,8 +108,9 @@ public class TemplateHTMLGenerator {
             + article.getId() + "\">댓글 작성</a>\n"
             + "        </li>\n"
             + "        <li class=\"nav__menu__item\">\n"
-            + "          <a class=\"nav__menu__item__btn\" href=\"index.html?id=" + (article.getId()
-            + 1) + "\">\n"
+            + "          <a class=\"nav__menu__item__btn\" href=\"/index.html?id=" + (
+            article.getId()
+                + 1) + "\">\n"
             + "            다음 글\n"
             + "            <img\n"
             + "                class=\"nav__menu__item__img\"\n"

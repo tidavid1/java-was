@@ -48,8 +48,8 @@ public class GetEndPointRegister implements EndPointRegister {
         registerRedirectEndPoint("/", mainPagePath);
         registerRedirectEndPoint("/main", mainPagePath);
         registerRedirectEndPoint("/main/index.html", mainPagePath);
-        registerEndPoint("/registration/index.html", this::handleRegistration);
-        registerRedirectEndPoint("/registration", "/registration/index.html");
+        registerEndPoint("/registration", this::handleRegistration);
+        registerRedirectEndPoint("/registration/index.html", "/registration");
         registerEndPoint("/user/list", this::handleUserList);
         registerRedirectEndPoint("/user/index.html", "/user/list");
         registerEndPoint("/login/index.html", this::handleLogin);
@@ -83,7 +83,7 @@ public class GetEndPointRegister implements EndPointRegister {
 
     public void handleRegistration(HttpServletRequest request, HttpServletResponse response) {
         Session session = SessionContext.getSession();
-        if (session == null) {
+        if (session != null) {
             redirectToMain(response);
             return;
         }

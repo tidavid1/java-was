@@ -24,14 +24,15 @@ public class BeanFactory {
 
     private final BeanStorage beanStorage;
 
-    private BeanFactory() {
-        beanStorage = BeanStorage.getInstance();
+    private BeanFactory(BeanStorage beanStorage) {
+        this.beanStorage = beanStorage;
         init();
     }
 
     public static BeanFactory getInstance() {
         if (instance == null) {
-            instance = new BeanFactory();
+            BeanStorage storage = BeanStorage.getInstance();
+            instance = new BeanFactory(storage);
         }
         return instance;
     }
