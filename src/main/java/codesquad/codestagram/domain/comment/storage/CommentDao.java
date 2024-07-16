@@ -16,19 +16,11 @@ import org.slf4j.LoggerFactory;
 public class CommentDao {
 
     private static final Logger log = LoggerFactory.getLogger(CommentDao.class);
-    private static CommentDao instance;
 
     private final H2ConnectManager h2ConnectManager;
 
-    private CommentDao() {
-        this.h2ConnectManager = H2ConnectManager.getInstance();
-    }
-
-    public static CommentDao getInstance() {
-        if (instance == null) {
-            instance = new CommentDao();
-        }
-        return instance;
+    private CommentDao(H2ConnectManager h2ConnectManager) {
+        this.h2ConnectManager = h2ConnectManager;
     }
 
     public void save(Comment comment) {

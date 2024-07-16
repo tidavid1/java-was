@@ -17,19 +17,11 @@ import org.slf4j.LoggerFactory;
 public class UserLoginFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(UserLoginFilter.class);
-    private static UserLoginFilter instance;
-
     private final SessionStorage sessionStorage = SessionStorage.getInstance();
 
     private UserLoginFilter() {
     }
 
-    public static UserLoginFilter getInstance() {
-        if (instance == null) {
-            instance = new UserLoginFilter();
-        }
-        return instance;
-    }
 
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response,

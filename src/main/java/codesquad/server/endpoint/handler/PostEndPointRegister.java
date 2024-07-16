@@ -1,7 +1,8 @@
 package codesquad.server.endpoint.handler;
 
 import codesquad.codestagram.domain.user.domain.User;
-import codesquad.codestagram.domain.user.storage.UserStorage;
+import codesquad.codestagram.domain.user.storage.UserDao;
+import codesquad.server.bean.BeanFactory;
 import codesquad.server.endpoint.EndPoint;
 import codesquad.server.endpoint.EndPointStorage;
 import codesquad.server.http.exception.HttpCommonException;
@@ -22,16 +23,10 @@ import java.util.function.BiConsumer;
 
 public class PostEndPointRegister implements EndPointRegister {
 
-    private static final PostEndPointRegister INSTANCE = new PostEndPointRegister();
-
     private final EndPointStorage endPointStorage;
 
-    public PostEndPointRegister() {
-        this.endPointStorage = EndPointStorage.getInstance();
-    }
-
-    public static PostEndPointRegister getInstance() {
-        return INSTANCE;
+    private PostEndPointRegister(EndPointStorage endPointStorage) {
+        this.endPointStorage = endPointStorage;
     }
 
     @Override
@@ -46,7 +41,7 @@ public class PostEndPointRegister implements EndPointRegister {
             SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
             try {
                 Map<String, String> bodyMap = parseBody(httpRequest.getBody());
-                UserStorage.getInstance().save(User.from(bodyMap));
+                BeanFactory.getInstance().getBean(UserDao.class).save(User.from(bodyMap));
             } catch (IllegalArgumentException e) {
                 httpServletRequest.setAttribute("exception",
                     new HttpCommonException(e.getMessage(), StatusCode.BAD_REQUEST));
@@ -61,7 +56,8 @@ public class PostEndPointRegister implements EndPointRegister {
         BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
             SingleHttpRequest httpRequest = (SingleHttpRequest) httpServletRequest.getRequest();
             Map<String, String> bodyMap = parseBody(httpRequest.getBody());
-            UserStorage.getInstance().findById(Objects.requireNonNull(bodyMap.get("userId")))
+            BeanFactory.getInstance().getBean(UserDao.class)
+                .findById(Objects.requireNonNull(bodyMap.get("userId")))
                 .ifPresentOrElse(
                     user -> {
                         if (!user.verifyPassword(bodyMap.get("password"))) {

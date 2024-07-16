@@ -14,16 +14,8 @@ import org.slf4j.LoggerFactory;
 public class ExceptionHandlerFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(ExceptionHandlerFilter.class);
-    private static ExceptionHandlerFilter instance;
 
     private ExceptionHandlerFilter() {
-    }
-
-    public static ExceptionHandlerFilter getInstance() {
-        if (instance == null) {
-            instance = new ExceptionHandlerFilter();
-        }
-        return instance;
     }
 
     @Override

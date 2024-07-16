@@ -13,19 +13,11 @@ import org.slf4j.LoggerFactory;
 public class EndPointProvideFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(EndPointProvideFilter.class);
-    private static EndPointProvideFilter instance;
 
     private final EndPointStorage endPointStorage;
 
-    private EndPointProvideFilter() {
-        this.endPointStorage = EndPointStorage.getInstance();
-    }
-
-    public static EndPointProvideFilter getInstance() {
-        if (instance == null) {
-            instance = new EndPointProvideFilter();
-        }
-        return instance;
+    private EndPointProvideFilter(EndPointStorage endPointStorage) {
+        this.endPointStorage = endPointStorage;
     }
 
     @Override

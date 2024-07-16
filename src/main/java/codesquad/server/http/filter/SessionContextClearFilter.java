@@ -15,16 +15,7 @@ public class SessionContextClearFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(SessionContextClearFilter.class);
 
-    private static SessionContextClearFilter instance;
-
     private SessionContextClearFilter() {
-    }
-
-    public static SessionContextClearFilter getInstance() {
-        if (instance == null) {
-            instance = new SessionContextClearFilter();
-        }
-        return instance;
     }
 
     @Override

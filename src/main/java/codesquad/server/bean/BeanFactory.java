@@ -3,6 +3,7 @@ package codesquad.server.bean;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -11,8 +12,6 @@ import java.util.Queue;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,19 +20,20 @@ import org.xml.sax.SAXException;
 
 public class BeanFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(BeanFactory.class);
-    private static final BeanFactory INSTANCE = new BeanFactory();
+    private static BeanFactory instance;
 
     private final BeanStorage beanStorage;
 
-    // TODO: Change Into Private
-    public BeanFactory() {
+    private BeanFactory() {
         beanStorage = BeanStorage.getInstance();
         init();
     }
 
     public static BeanFactory getInstance() {
-        return INSTANCE;
+        if (instance == null) {
+            instance = new BeanFactory();
+        }
+        return instance;
     }
 
     private void init() {
@@ -44,23 +44,23 @@ public class BeanFactory {
             }
             NodeList nodeList = parseXMLDocument(inputStream);
             processBean(nodeList);
-        } catch (IOException e) {
-            log.error(e.getMessage());
         } catch (Exception e) {
-            log.error(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
+
     }
 
     private NodeList parseXMLDocument(InputStream inputStream)
         throws IOException, SAXException, ParserConfigurationException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newDefaultInstance();
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
         Document document = documentBuilder.parse(inputStream);
         document.getDocumentElement().normalize();
         return document.getElementsByTagName("bean");
     }
 
-    private void processBean(NodeList nodeList) {
+    private void processBean(NodeList nodeList)
+        throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Queue<Class<?>> postProcessQueue = new LinkedList<>();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -69,19 +69,13 @@ public class BeanFactory {
             }
             Element element = (Element) node;
             String className = element.getAttribute("class");
-            try {
-                generateBean(Class.forName(className), postProcessQueue);
-            } catch (ClassNotFoundException e) {
-                // TODO :Raise Exception
-                log.error(e.getMessage());
-            } catch (Exception e) {
-                log.error(e.getMessage());
-            }
+            generateBean(Class.forName(className), postProcessQueue);
         }
         postProcessing(postProcessQueue);
     }
 
-    private void generateBean(Class<?> clazz, Queue<Class<?>> postProcessQueue) throws Exception {
+    private void generateBean(Class<?> clazz, Queue<Class<?>> postProcessQueue)
+        throws InvocationTargetException, InstantiationException, IllegalAccessException {
         List<Object> beanList = new ArrayList<>();
         loop:
         for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
@@ -98,15 +92,23 @@ public class BeanFactory {
         }
     }
 
-    private void postProcessing(Queue<Class<?>> queue) {
-        try {
-            while (!queue.isEmpty()) {
-                Class<?> clazz = queue.poll();
-                generateBean(clazz, queue);
-                // TODO: 순환 참조 상황 핸들링하기
+    private void postProcessing(Queue<Class<?>> queue)
+        throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        int queueSize = queue.size();
+        int count = 0;
+        while (!queue.isEmpty()) {
+            Class<?> clazz = queue.poll();
+            generateBean(clazz, queue);
+            if (queueSize == queue.size()) {
+                count += 1;
+                if (count == queueSize) {
+                    throw new IllegalArgumentException(
+                        "Circular Reference Raised!! Check your Bean Configuration");
+                }
+                continue;
             }
-        } catch (Exception e) {
-            log.error(e.getMessage());
+            queueSize = queue.size();
+            count = 0;
         }
     }
 

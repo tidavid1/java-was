@@ -1,7 +1,8 @@
 package codesquad.server.endpoint.handler;
 
 import codesquad.codestagram.domain.user.domain.User;
-import codesquad.codestagram.domain.user.storage.UserStorage;
+import codesquad.codestagram.domain.user.storage.UserDao;
+import codesquad.server.bean.BeanFactory;
 import codesquad.server.endpoint.EndPoint;
 import codesquad.server.endpoint.EndPointStorage;
 import codesquad.server.http.servlet.HttpServletRequest;
@@ -16,20 +17,15 @@ import java.util.function.BiConsumer;
 
 public class GetEndPointRegister implements EndPointRegister {
 
-    private static final GetEndPointRegister INSTANCE = new GetEndPointRegister();
-
     private final EndPointStorage endPointStorage;
     private final StaticFileStorage staticFileStorage;
     private final HTMLConvertor htmlConvertor;
 
-    private GetEndPointRegister() {
-        this.endPointStorage = EndPointStorage.getInstance();
-        this.staticFileStorage = StaticFileStorage.getInstance();
+    private GetEndPointRegister(EndPointStorage endPointStorage,
+        StaticFileStorage staticFileStorage) {
+        this.endPointStorage = endPointStorage;
+        this.staticFileStorage = staticFileStorage;
         this.htmlConvertor = new HTMLConvertor();
-    }
-
-    public static GetEndPointRegister getInstance() {
-        return INSTANCE;
     }
 
     @Override
@@ -91,7 +87,7 @@ public class GetEndPointRegister implements EndPointRegister {
             httpServletResponse.setHeader("Content-Type", "text/html");
             httpServletResponse.setBody(
                 htmlConvertor.renderUserList(userListHtmlBytes, user.getName(),
-                    UserStorage.getInstance().findAll()));
+                    BeanFactory.getInstance().getBean(UserDao.class).findAll()));
         };
         endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of("/user/list", biConsumer));
     }

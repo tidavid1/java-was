@@ -17,19 +17,11 @@ import org.slf4j.LoggerFactory;
 public class ArticleDao {
 
     private static final Logger log = LoggerFactory.getLogger(ArticleDao.class);
-    private static ArticleDao instance;
 
     private final H2ConnectManager h2ConnectManager;
 
-    private ArticleDao() {
-        this.h2ConnectManager = H2ConnectManager.getInstance();
-    }
-
-    public static ArticleDao getInstance() {
-        if (instance == null) {
-            instance = new ArticleDao();
-        }
-        return instance;
+    private ArticleDao(H2ConnectManager h2ConnectManager) {
+        this.h2ConnectManager = h2ConnectManager;
     }
 
     public void save(Article article) {

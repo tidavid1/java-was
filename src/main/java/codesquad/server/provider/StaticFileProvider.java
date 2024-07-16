@@ -18,11 +18,13 @@ public class StaticFileProvider {
 
     private static final Logger log = LoggerFactory.getLogger(StaticFileProvider.class);
     private static final String STATIC_PATH = "static";
+    private final StaticFileStorage staticFileStorage;
 
-    private StaticFileProvider() {
+    private StaticFileProvider(StaticFileStorage staticFileStorage) {
+        this.staticFileStorage = staticFileStorage;
     }
 
-    public static void init() {
+    public void init() {
         try {
             if (Objects.requireNonNull(
                     StaticFileProvider.class.getClassLoader().getResource(STATIC_PATH)).toString()
@@ -37,7 +39,7 @@ public class StaticFileProvider {
 
     }
 
-    private static void provideJarFile() throws IOException, URISyntaxException {
+    private void provideJarFile() throws IOException, URISyntaxException {
         String jarPath = StaticFileProvider.class.getProtectionDomain().getCodeSource()
             .getLocation().toURI()
             .getPath();
@@ -53,7 +55,7 @@ public class StaticFileProvider {
         }
     }
 
-    private static void provideIDEFile() throws IOException {
+    private void provideIDEFile() throws IOException {
         Enumeration<URL> resources = StaticFileProvider.class.getClassLoader()
             .getResources(STATIC_PATH);
         while (resources.hasMoreElements()) {
@@ -62,7 +64,7 @@ public class StaticFileProvider {
         }
     }
 
-    private static void provideFile(File file) {
+    private void provideFile(File file) {
         if (file.isDirectory() && file.exists()) {
             for (File subFile : Objects.requireNonNull(file.listFiles())) {
                 provideFile(subFile);
@@ -70,14 +72,14 @@ public class StaticFileProvider {
             return;
         }
         String path = file.getPath().split(STATIC_PATH)[1];
-        StaticFileStorage.getInstance().putFileBytes(path, FileByteReader.readAllBytes(file));
+        staticFileStorage.putFileBytes(path, FileByteReader.readAllBytes(file));
     }
 
-    private static void provideFile(JarFile jarFile, JarEntry jarEntry) throws IOException {
+    private void provideFile(JarFile jarFile, JarEntry jarEntry) throws IOException {
         try (InputStream is = jarFile.getInputStream(jarEntry)) {
             byte[] bytes = FileByteReader.readAllBytes(is);
             String path = "/" + jarEntry.getName().substring(STATIC_PATH.length() + 1);
-            StaticFileStorage.getInstance().putFileBytes(path, bytes);
+            staticFileStorage.putFileBytes(path, bytes);
         }
     }
 

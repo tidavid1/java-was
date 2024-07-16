@@ -12,17 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EndPointStorage {
 
-    private static EndPointStorage instance;
-    private final Map<HttpMethod, Set<EndPoint>> endpointMap = new ConcurrentHashMap<>();
+    private final Map<HttpMethod, Set<EndPoint>> endpointMap;
 
     private EndPointStorage() {
-    }
-
-    public static EndPointStorage getInstance() {
-        if (instance == null) {
-            instance = new EndPointStorage();
-        }
-        return instance;
+        this.endpointMap = new ConcurrentHashMap<>();
     }
 
     /**

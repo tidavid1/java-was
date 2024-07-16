@@ -10,18 +10,13 @@ import java.util.Set;
 
 public class StaticFileEndPointRegister implements EndPointRegister {
 
-    private static final StaticFileEndPointRegister INSTANCE = new StaticFileEndPointRegister();
-
     private final EndPointStorage endpointStorage;
     private final StaticFileStorage staticFileStorage;
 
-    private StaticFileEndPointRegister() {
-        this.endpointStorage = EndPointStorage.getInstance();
-        this.staticFileStorage = StaticFileStorage.getInstance();
-    }
-
-    public static StaticFileEndPointRegister getInstance() {
-        return INSTANCE;
+    private StaticFileEndPointRegister(EndPointStorage endPointStorage,
+        StaticFileStorage staticFileStorage) {
+        this.endpointStorage = endPointStorage;
+        this.staticFileStorage = staticFileStorage;
     }
 
     @Override

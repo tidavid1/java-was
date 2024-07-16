@@ -18,6 +18,7 @@ public class ApplicationProperties {
         this.properties = init();
     }
 
+    @Deprecated(forRemoval = true)
     public static ApplicationProperties getInstance() {
         if (instance == null) {
             instance = new ApplicationProperties();

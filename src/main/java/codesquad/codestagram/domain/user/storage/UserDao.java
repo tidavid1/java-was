@@ -15,22 +15,14 @@ import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserStorage {
+public class UserDao {
 
-    private static final Logger log = LoggerFactory.getLogger(UserStorage.class);
-    private static UserStorage instance;
+    private static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
     private final H2ConnectManager h2ConnectManager;
 
-    private UserStorage() {
-        this.h2ConnectManager = H2ConnectManager.getInstance();
-    }
-
-    public static UserStorage getInstance() {
-        if (instance == null) {
-            instance = new UserStorage();
-        }
-        return instance;
+    private UserDao(H2ConnectManager h2ConnectManager) {
+        this.h2ConnectManager = h2ConnectManager;
     }
 
     public void save(User user) {

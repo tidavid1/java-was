@@ -2,4 +2,18 @@
 <beans>
   <bean class="codesquad.server.storage.StaticFileStorage"/>
   <bean class="codesquad.server.properties.ApplicationProperties"/>
+  <bean class="codesquad.server.endpoint.StaticFileEndPointRegister"/>
+  <bean class="codesquad.server.endpoint.EndPointStorage"/>
+  <bean class="codesquad.server.endpoint.handler.GetEndPointRegister"/>
+  <bean class="codesquad.server.endpoint.handler.PostEndPointRegister"/>
+  <bean class="codesquad.server.provider.StaticFileProvider"/>
+  <bean class="codesquad.server.http.filter.EndPointProvideFilter"/>
+  <bean class="codesquad.server.http.filter.AuthenticationFilter"/>
+  <bean class="codesquad.server.http.filter.ExceptionHandlerFilter"/>
+  <bean class="codesquad.server.http.filter.SessionContextClearFilter"/>
+  <bean class="codesquad.server.http.filter.UserLoginFilter"/>
+  <bean class="codesquad.codestagram.domain.article.storage.ArticleDao"/>
+  <bean class="codesquad.codestagram.domain.comment.storage.CommentDao"/>
+  <bean class="codesquad.codestagram.domain.user.storage.UserDao"/>
+  <bean class="codesquad.server.database.H2ConnectManager"/>
 </beans>
