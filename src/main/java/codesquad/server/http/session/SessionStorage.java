@@ -6,19 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionStorage {
 
-    private static SessionStorage instance;
-
     private final Map<String, Session> sessionMap;
 
     private SessionStorage() {
         this.sessionMap = new ConcurrentHashMap<>();
-    }
-
-    public static SessionStorage getInstance() {
-        if (instance == null) {
-            instance = new SessionStorage();
-        }
-        return instance;
     }
 
     public Session save(Session session) {

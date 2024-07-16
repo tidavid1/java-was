@@ -3,7 +3,9 @@ package codesquad.server.http.session;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import codesquad.server.util.RandomSessionIDGenerator;
+import java.lang.reflect.Constructor;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,15 +15,17 @@ class SessionStorageTest {
 
     private final String sessionId = RandomSessionIDGenerator.generate();
     private final Session session = new Session(sessionId, System.currentTimeMillis());
+    private static SessionStorage sessionStorage;
 
-    @Test
-    @DisplayName("싱글턴 객체로 가지고 온다")
-    void getSingletonObject() {
-        // Act
-        SessionStorage sessionStorage1 = SessionStorage.getInstance();
-        SessionStorage sessionStorage2 = SessionStorage.getInstance();
-        // Assert
-        assertThat(sessionStorage1).isEqualTo(sessionStorage2);
+    @BeforeAll
+    static void setup() {
+        try {
+            for (Constructor<?> constructor : SessionStorage.class.getDeclaredConstructors()) {
+                constructor.setAccessible(true);
+                sessionStorage = (SessionStorage) constructor.newInstance();
+            }
+        } catch (Exception ignore) {
+        }
     }
 
     @Nested
@@ -31,8 +35,6 @@ class SessionStorageTest {
         @Test
         @DisplayName("세션을 저장한다.")
         void saveSession() {
-            // Arrange
-            SessionStorage sessionStorage = SessionStorage.getInstance();
             // Act
             Session actualResult = sessionStorage.save(session);
             // Assert
@@ -47,7 +49,6 @@ class SessionStorageTest {
             @DisplayName("정상 조회한다.")
             void getSession() {
                 // Arrange
-                SessionStorage sessionStorage = SessionStorage.getInstance();
                 sessionStorage.save(session);
                 // Act
                 Optional<Session> actualResult = sessionStorage.getSession(sessionId);
@@ -59,7 +60,6 @@ class SessionStorageTest {
             @DisplayName("만료된 세션은 조회할 수 없다.")
             void getSessionWhenSessionIsExpired() {
                 // Arrange
-                SessionStorage sessionStorage = SessionStorage.getInstance();
                 Session expiredSession = new Session("test", 0);
                 sessionStorage.save(expiredSession);
                 // Act
@@ -73,7 +73,6 @@ class SessionStorageTest {
         @DisplayName("세션을 삭제한다.")
         void removeSession() {
             // Arrange
-            SessionStorage sessionStorage = SessionStorage.getInstance();
             sessionStorage.save(session);
             // Act
             sessionStorage.remove(sessionId);

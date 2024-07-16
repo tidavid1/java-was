@@ -68,7 +68,7 @@ public class PostEndPointRegister implements EndPointRegister {
                         String sessionId = RandomSessionIDGenerator.generate();
                         Session session = new Session(sessionId, System.currentTimeMillis());
                         session.setAttribute("user", user);
-                        SessionStorage.getInstance().save(session);
+                        BeanFactory.getInstance().getBean(SessionStorage.class).save(session);
                         HttpCookie cookie = generateCookie(sessionId);
                         httpServletResponse.setCookie(cookie);
                         httpServletResponse.sendRedirect("/index.html");
@@ -83,7 +83,7 @@ public class PostEndPointRegister implements EndPointRegister {
     void logout() {
         BiConsumer<HttpServletRequest, HttpServletResponse> biConsumer = (httpServletRequest, httpServletResponse) -> {
             Session session = SessionContext.getSession();
-            SessionStorage.getInstance().remove(session.getSessionId());
+            BeanFactory.getInstance().getBean(SessionStorage.class).remove(session.getSessionId());
             HttpCookie cookie = generateCookie(session.getSessionId(), 0);
             httpServletResponse.setCookie(cookie);
             httpServletResponse.sendRedirect("/index.html");

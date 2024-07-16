@@ -11,18 +11,10 @@ import java.util.stream.Collectors;
 
 public class StaticFileStorage {
 
-    @Deprecated(forRemoval = true)
-    private static final StaticFileStorage INSTANCE = new StaticFileStorage();
-
     private final Map<String, byte[]> staticFiles;
 
     private StaticFileStorage() {
         staticFiles = new HashMap<>();
-    }
-
-    @Deprecated(forRemoval = true)
-    public static StaticFileStorage getInstance() {
-        return INSTANCE;
     }
 
     public void putFileBytes(String path, byte[] bytes) {

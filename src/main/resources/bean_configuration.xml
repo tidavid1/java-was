@@ -16,4 +16,5 @@
   <bean class="codesquad.codestagram.domain.comment.storage.CommentDao"/>
   <bean class="codesquad.codestagram.domain.user.storage.UserDao"/>
   <bean class="codesquad.server.database.H2ConnectManager"/>
+  <bean class="codesquad.server.http.session.SessionStorage"/>
 </beans>
