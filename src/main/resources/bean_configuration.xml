@@ -20,4 +20,5 @@
   <bean class="codesquad.server.http.session.SessionStorage"/>
   <bean class="codesquad.server.template.TemplateFileStorage"/>
   <bean class="codesquad.server.template.TemplateHTMLFactory"/>
+  <bean class="codesquad.server.util.ImageFileManager"/>
 </beans>

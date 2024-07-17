@@ -23,7 +23,8 @@ public class ApplicationProperties {
     }
 
     public String getDBTcpBaseDir() {
-        return properties.getProperty("was.db.tcp.base_dir");
+        String property = properties.getProperty("was.db.tcp.base_dir");
+        return replaceHomePath(property);
     }
 
     public String getDBWebConsolePort() {
@@ -31,7 +32,8 @@ public class ApplicationProperties {
     }
 
     public String getDBFilePath() {
-        return properties.getProperty("was.db.file.path");
+        String property = properties.getProperty("was.db.file.path");
+        return replaceHomePath(property);
     }
 
     public String getDBCurrentUrl() {
@@ -46,6 +48,11 @@ public class ApplicationProperties {
         return properties.getProperty("was.db.current.password");
     }
 
+    public String getImageFolderPath() {
+        String property = properties.getProperty("was.image.folder.path");
+        return replaceHomePath(property);
+    }
+
     private Properties init() {
         Properties prop = new Properties();
         try (InputStream inputStream = getClass().getResourceAsStream("/application.properties")) {
@@ -58,4 +65,9 @@ public class ApplicationProperties {
         }
         return prop;
     }
+
+    private String replaceHomePath(String property) {
+        return property.replace("~", System.getProperty("user.home"));
+    }
+
 }
