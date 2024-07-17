@@ -12,18 +12,23 @@ import codesquad.server.endpoint.EndPointStorage;
 import codesquad.server.http.exception.HttpCommonException;
 import codesquad.server.http.servlet.HttpServletRequest;
 import codesquad.server.http.servlet.HttpServletResponse;
+import codesquad.server.http.servlet.MultiPartHttpRequest;
 import codesquad.server.http.servlet.SingleHttpRequest;
 import codesquad.server.http.servlet.enums.HttpMethod;
 import codesquad.server.http.servlet.enums.StatusCode;
+import codesquad.server.http.servlet.values.HttpHeaders;
+import codesquad.server.http.servlet.values.HttpRequestPart;
 import codesquad.server.http.session.Session;
 import codesquad.server.http.session.SessionContext;
 import codesquad.server.http.session.SessionStorage;
+import codesquad.server.util.ImageFileManager;
 import codesquad.server.util.RandomSessionIDGenerator;
 import java.net.HttpCookie;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public class PostEndPointRegister implements EndPointRegister {
@@ -33,14 +38,17 @@ public class PostEndPointRegister implements EndPointRegister {
     private final ArticleDao articleDao;
     private final CommentDao commentDao;
     private final SessionStorage sessionStorage;
+    private final ImageFileManager imageFileManager;
 
     private PostEndPointRegister(EndPointStorage endPointStorage, UserDao userDao,
-        ArticleDao articleDao, CommentDao commentDao, SessionStorage sessionStorage) {
+        ArticleDao articleDao, CommentDao commentDao, SessionStorage sessionStorage,
+        ImageFileManager imageFileManager) {
         this.endPointStorage = endPointStorage;
         this.userDao = userDao;
         this.articleDao = articleDao;
         this.commentDao = commentDao;
         this.sessionStorage = sessionStorage;
+        this.imageFileManager = imageFileManager;
     }
 
     @Override
@@ -98,12 +106,42 @@ public class PostEndPointRegister implements EndPointRegister {
         redirectToIndexHtml(response);
     }
 
-    public void handleWrite(HttpServletRequest request,
-        HttpServletResponse response) {
-        SingleHttpRequest httpRequest = (SingleHttpRequest) request.getRequest();
+    public void handleWrite(HttpServletRequest request, HttpServletResponse response) {
+        MultiPartHttpRequest httpRequest = (MultiPartHttpRequest) request.getRequest();
+        Map<String, String> body = new HashMap<>();
         try {
-            Map<String, String> body = parseBody(httpRequest.getBody());
-            Article article = new Article(body.get("title"), body.get("content"),
+            for (HttpRequestPart part : httpRequest.getRequestParts()) {
+                HttpHeaders httpHeaders = part.getHeaders();
+                httpHeaders.getHeader("Content-Type").ifPresentOrElse(
+                    contentType -> {
+                        String[] values = httpHeaders.getHeader("Content-Disposition").orElseThrow(
+                                () -> new IllegalArgumentException("Content-Disposition Not Found!"))
+                            .get(0).split("\\.");
+                        if (values.length == 1) {
+                            return;
+                        }
+                        String extension = values[values.length - 1].replace("\"", "");
+                        String fileName = imageFileManager.saveImage(
+                            UUID.randomUUID() + "." + extension, part.getBody());
+                        body.put("photo", fileName);
+                        endPointStorage.addEndpoint(HttpMethod.GET,
+                            EndPoint.of("/img/" + fileName, (req, res) -> {
+                                res.setStatus(StatusCode.OK);
+                                res.setContentType(contentType.get(0));
+                                res.setBody(imageFileManager.readImage(fileName));
+                            }));
+                    },
+                    () -> {
+                        String key = httpHeaders.getHeader("Content-Disposition").orElseThrow(
+                                () -> new IllegalArgumentException("Content-Disposition Not Found!"))
+                            .get(0);
+                        key = key.replace("form-data; name=\"", "");
+                        key = key.substring(0, key.indexOf("\""));
+                        body.put(key, new String(part.getBody()));
+                    }
+                );
+            }
+            Article article = new Article(body.get("title"), body.get("content"), body.get("photo"),
                 getUserInSessionContext());
             articleDao.save(article);
             redirectToIndexHtml(response);
