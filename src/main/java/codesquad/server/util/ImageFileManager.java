@@ -1,5 +1,9 @@
 package codesquad.server.util;
 
+import codesquad.server.endpoint.EndPoint;
+import codesquad.server.endpoint.EndPointStorage;
+import codesquad.server.http.servlet.enums.HttpMethod;
+import codesquad.server.http.servlet.enums.StatusCode;
 import codesquad.server.properties.ApplicationProperties;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,24 +15,34 @@ import java.util.Objects;
 public class ImageFileManager {
 
     private final String absoluteImagePath;
+    private final EndPointStorage endPointStorage;
 
-    public ImageFileManager(ApplicationProperties applicationProperties) {
+    public ImageFileManager(ApplicationProperties applicationProperties,
+        EndPointStorage endPointStorage) {
         absoluteImagePath = applicationProperties.getImageFolderPath();
+        this.endPointStorage = endPointStorage;
         init();
     }
 
     private void init() {
         File file = new File(absoluteImagePath);
         file.mkdir();
-        file = new File(absoluteImagePath + "/default.webp");
+        File imageFile = new File(absoluteImagePath + "/default.webp");
         try (InputStream inputStream = getClass().getResourceAsStream("/static/img/default.webp")) {
-            if (!file.exists()) {
+            if (!imageFile.exists()) {
                 saveImage("default.webp", Objects.requireNonNull(inputStream).readAllBytes());
             }
         } catch (IOException e) {
             throw new IllegalArgumentException("File Not Found!");
         }
-
+        for (File subFile : file.listFiles()) {
+            String path = subFile.getAbsolutePath().replace(absoluteImagePath, ".");
+            endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of(path, ((request, response) -> {
+                response.setStatus(StatusCode.OK);
+                response.setContentType("image/" + path.substring(path.lastIndexOf(".") + 1));
+                response.setBody(this.readImage(path.substring(2)));
+            })));
+        }
     }
 
     public String saveImage(String filename, byte[] imageBytes) {

@@ -56,9 +56,16 @@ public class HttpRequestParser {
         while (flag) {
             int value = bufferedInputStream.read();
             length += 1;
-            if (value == 0) {
+            if (value == -1) {
+                // Reset Marking
                 bufferedInputStream.reset();
-                bufferedInputStream.skip(length);
+                // set lineBuffer
+                byte[] lineBuffer = new byte[length];
+                // read n byte
+                int size = bufferedInputStream.read(lineBuffer, 0, length);
+                // convert byte to String
+                String line = new String(lineBuffer).trim();
+                queue.add(line);
                 flag = false;
             }
             if (value == '\n') {

@@ -119,7 +119,8 @@ class HttpRequestParserTest {
                     GET /index.html HTTP/1.1
                     Host: localhost:8080
                     Sec-Fetch-Site: none
-                    Content-Length: 10
+                    Content-Length: 10\r
+                    \r
                     """;
                 InputStream inputStream = new ByteArrayInputStream(inputStreamStr.getBytes());
                 HttpRequestParser httpRequestParser = new HttpRequestParser();
