@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class CommentTest {
 
     private final User expectedUser = User.of(1L, "user", "password", "name", "test@gmail.com");
-    private final Article expectedArticle = new Article(1L, "title", "content",
+    private final Article expectedArticle = new Article(1L, "title", "content", "",
         expectedUser.getId(),
         expectedUser.getName());
 

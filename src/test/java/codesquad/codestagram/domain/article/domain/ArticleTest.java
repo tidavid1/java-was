@@ -20,7 +20,7 @@ class ArticleTest {
         String expectedTitle = "제목";
         String expectedBody = "내용";
         // Act
-        Article actualResult = new Article(expectedTitle, expectedBody, expectedUser);
+        Article actualResult = new Article(expectedTitle, expectedBody, null, expectedUser);
         // Assert
         assertThat(actualResult)
             .extracting("title", "body", "userId", "username")
@@ -35,16 +35,17 @@ class ArticleTest {
         Long expectedId = 1L;
         String expectedTitle = "제목";
         String expectedBody = "내용";
+        String expectedImagePath = "./default.webp";
         Long expectedUserId = 1L;
         String expectedUsername = "사용자";
         // Act
-        Article actualResult = new Article(expectedId, expectedTitle, expectedBody, expectedUserId,
-            expectedUsername);
+        Article actualResult = new Article(expectedId, expectedTitle, expectedBody,
+            expectedImagePath, expectedUserId, expectedUsername);
         // Assert
         assertThat(actualResult)
-            .extracting("id", "title", "body", "userId", "username")
-            .containsExactly(expectedId, expectedTitle, expectedBody, expectedUserId,
-                expectedUsername);
+            .extracting("id", "title", "body", "imagePath", "userId", "username")
+            .containsExactly(expectedId, expectedTitle, expectedBody, expectedImagePath,
+                expectedUserId, expectedUsername);
     }
 
     @Nested
@@ -58,7 +59,7 @@ class ArticleTest {
             String expectedTitle = "";
             String expectedBody = "내용";
             // Act & Assert
-            assertThatThrownBy(() -> new Article(expectedTitle, expectedBody, expectedUser))
+            assertThatThrownBy(() -> new Article(expectedTitle, expectedBody, null, expectedUser))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("제목은 필수입니다.");
         }
@@ -69,7 +70,7 @@ class ArticleTest {
             // Arrange
             String expectedBody = "내용";
             // Act & Assert
-            assertThatThrownBy(() -> new Article(null, expectedBody, expectedUser))
+            assertThatThrownBy(() -> new Article(null, expectedBody, null, expectedUser))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("제목은 필수입니다.");
         }
