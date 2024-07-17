@@ -3,48 +3,69 @@ package codesquad.server.endpoint;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import codesquad.server.http.servlet.enums.HttpMethod;
+import java.lang.reflect.Constructor;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("EndPointStorage는")
 class EndPointStorageTest {
 
-    private EndPointStorage storage;
+    private EndPointStorage endPointStorage;
 
     @BeforeEach
-    void setUp() {
-        storage = EndPointStorage.getInstance();
+    void init() {
+        try {
+            for (Constructor<?> constructor : EndPointStorage.class.getDeclaredConstructors()) {
+                constructor.setAccessible(true);
+                endPointStorage = (EndPointStorage) constructor.newInstance();
+            }
+        } catch (Exception ignore) {
+
+        }
     }
 
     @Test
-    @DisplayName("Endpoint를 저장한다.")
-    void testAddEndpoint() {
+    @DisplayName("EndPoint를 추가할 수 있다.")
+    void testAddEndPoint() {
         // Arrange
-        String expectedPath = "/";
-        EndPoint expectedEndpoint = EndPoint.of(expectedPath,
-            (httpServletRequest, httpServletResponse) -> {
-            });
+        String expectedPath = "/test";
+        EndPoint expectedEndPoint = EndPoint.of(expectedPath, (request, response) -> {
+        });
+        HttpMethod expectedHttpMethod = HttpMethod.GET;
         // Act
-        storage.addEndpoint(HttpMethod.GET, expectedEndpoint);
+        endPointStorage.addEndpoint(expectedHttpMethod, expectedEndPoint);
         // Assert
-        assertThat(storage.getEndpoint(HttpMethod.GET, "/")).isPresent().get()
-            .isEqualTo(expectedEndpoint);
+        assertThat(endPointStorage.getEndpoint(expectedHttpMethod, expectedPath)).isPresent();
     }
 
     @Test
-    @DisplayName("등록된 Endpoint를 반환한다.")
-    void testGetEndpointSuccess() {
+    @DisplayName("EndPoint를 조회할 수 있다.")
+    void testGetEndPoint() {
         // Arrange
-        String expectedPath = "/";
-        EndPoint expectedEndpoint = EndPoint.of(expectedPath,
-            (httpServletRequest, httpServletResponse) -> {
-            });
-        storage.addEndpoint(HttpMethod.GET, expectedEndpoint);
+        String expectedPath = "/test";
+        EndPoint expectedEndPoint = EndPoint.of(expectedPath, (request, response) -> {
+        });
+        HttpMethod expectedHttpMethod = HttpMethod.GET;
+        endPointStorage.addEndpoint(expectedHttpMethod, expectedEndPoint);
         // Act
-        Optional<EndPoint> actualEndpoint = storage.getEndpoint(HttpMethod.GET, "/");
+        Optional<EndPoint> actualResult = endPointStorage.getEndpoint(expectedHttpMethod,
+            expectedPath);
         // Assert
-        assertThat(actualEndpoint).isPresent().get().isEqualTo(expectedEndpoint);
+        assertThat(actualResult).isPresent().get().isEqualTo(expectedEndPoint);
     }
 
+    @Test
+    @DisplayName("EndPoint가 없을 경우 빈 Optional을 반환한다.")
+    void testGetEndPointWhenEmpty() {
+        // Arrange
+        String expectedPath = "/test";
+        HttpMethod expectedHttpMethod = HttpMethod.GET;
+        // Act
+        Optional<EndPoint> actualResult = endPointStorage.getEndpoint(expectedHttpMethod,
+            expectedPath);
+        // Assert
+        assertThat(actualResult).isEmpty();
+    }
 }

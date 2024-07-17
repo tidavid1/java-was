@@ -1,8 +1,11 @@
 package codesquad.server;
 
-import codesquad.server.endpoint.handler.EndPointRegister;
-import codesquad.server.provider.StaticFileProvider;
+import codesquad.server.bean.BeanFactory;
+import codesquad.server.endpoint.EndPointRegister;
+import codesquad.server.properties.ApplicationProperties;
 import codesquad.server.runner.ConnectionRunner;
+import codesquad.server.statics.StaticFileProvider;
+import codesquad.server.template.TemplateFileProvider;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
@@ -16,11 +19,14 @@ public class SocketServer {
 
     private final int port;
     private final ExecutorService executorService;
+    private final BeanFactory beanFactory;
 
     public SocketServer(int port) {
         this.port = port;
         this.executorService = Executors.newCachedThreadPool();
-        StaticFileProvider.init();
+        this.beanFactory = BeanFactory.getInstance();
+        beanFactory.getBean(StaticFileProvider.class).init();
+        beanFactory.getBean(TemplateFileProvider.class).init();
         EndPointRegister.handleAllHandler();
     }
 
@@ -29,6 +35,7 @@ public class SocketServer {
     }
 
     public void start() {
+        startH2Thread();
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             log.debug("Listening for connection on port 8080 ....");
             while (true) {
@@ -38,6 +45,10 @@ public class SocketServer {
             log.error(e.getMessage());
             System.exit(-1);
         }
+    }
 
+    private void startH2Thread() {
+        Thread server = new Thread(new H2Server(beanFactory.getBean(ApplicationProperties.class)));
+        server.start();
     }
 }

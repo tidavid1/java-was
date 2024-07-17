@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="../reset.css" rel="stylesheet"/>
+  <link href="../global.css" rel="stylesheet"/>
+  <title>Codestagram</title>
+</head>
+<body>
+<div class="container">
+  {{header}}
+  <div class="page">
+    <h2 class="page-title">게시글 작성</h2>
+    <form class="form" method="post" action="/write">
+      <div class="textfield textfield_size_sm">
+        <p class="title_textfield">제목</p>
+        <textarea
+            class="input_textfield"
+            placeholder="제목을 입력하세요"
+            name="title"
+        ></textarea>
+      </div>
+      <div class="textfield textfield_size_m">
+        <p class="title_textfield">내용</p>
+        <textarea
+            class="input_textfield"
+            placeholder="글의 내용을 입력하세요"
+            name="content"
+        ></textarea>
+      </div>
+      <button
+          id="registration-btn"
+          class="btn btn_contained btn_size_m"
+          style="margin-top: 24px"
+          type="submit"
+      >
+        작성 완료
+      </button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

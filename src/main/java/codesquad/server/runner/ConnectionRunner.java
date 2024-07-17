@@ -1,7 +1,8 @@
 package codesquad.server.runner;
 
+import codesquad.server.bean.BeanFactory;
 import codesquad.server.http.filter.AuthenticationFilter;
-import codesquad.server.http.filter.EndPointProviderHandler;
+import codesquad.server.http.filter.EndPointProvideFilter;
 import codesquad.server.http.filter.ExceptionHandlerFilter;
 import codesquad.server.http.filter.FilterChain;
 import codesquad.server.http.filter.SecurityFilterChain;
@@ -24,11 +25,15 @@ public class ConnectionRunner implements Runnable {
     private final FilterChain filterChain;
 
     public ConnectionRunner(Socket clientSocket) {
+        BeanFactory beanFactory = BeanFactory.getInstance();
         this.clientSocket = clientSocket;
         this.httpRequestParser = new HttpRequestParser();
-        this.filterChain = new SecurityFilterChain(UserLoginFilter.getInstance(),
-            AuthenticationFilter.getInstance(), EndPointProviderHandler.getInstance(),
-            ExceptionHandlerFilter.getInstance(), SessionContextClearFilter.getInstance());
+        this.filterChain = new SecurityFilterChain(
+            beanFactory.getBean(UserLoginFilter.class),
+            beanFactory.getBean(AuthenticationFilter.class),
+            beanFactory.getBean(EndPointProvideFilter.class),
+            beanFactory.getBean(ExceptionHandlerFilter.class),
+            beanFactory.getBean(SessionContextClearFilter.class));
     }
 
     @Override

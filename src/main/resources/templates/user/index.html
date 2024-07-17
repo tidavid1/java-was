@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="../reset.css" rel="stylesheet"/>
+  <link href="../global.css" rel="stylesheet"/>
+  <link href="../main.css" rel="stylesheet"/>
+  <link href="../user_list.css" rel="stylesheet">
+  <title>Codestagram</title>
+</head>
+<body>
+<div class="container">
+  {{header}}
+  <div class="wrapper">
+    <table class="styled-table">
+      <tr>
+        <th class="btn btn_size_s btn_ghost">아이디</th>
+        <th class="btn btn_size_s btn_ghost">이름</th>
+      </tr>
+      {{users}}
+    </table>
+  </div>
+</div>
+</body>
+</html>

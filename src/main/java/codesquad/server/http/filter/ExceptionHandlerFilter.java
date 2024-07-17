@@ -1,8 +1,11 @@
 package codesquad.server.http.filter;
 
+import codesquad.codestagram.domain.user.domain.User;
 import codesquad.server.http.exception.HttpCommonException;
 import codesquad.server.http.servlet.HttpServletRequest;
 import codesquad.server.http.servlet.HttpServletResponse;
+import codesquad.server.http.session.SessionContext;
+import codesquad.server.template.TemplateHTMLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,16 +17,10 @@ import org.slf4j.LoggerFactory;
 public class ExceptionHandlerFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(ExceptionHandlerFilter.class);
-    private static ExceptionHandlerFilter instance;
+    private final TemplateHTMLFactory templateHTMLFactory;
 
-    private ExceptionHandlerFilter() {
-    }
-
-    public static ExceptionHandlerFilter getInstance() {
-        if (instance == null) {
-            instance = new ExceptionHandlerFilter();
-        }
-        return instance;
+    private ExceptionHandlerFilter(TemplateHTMLFactory templateHTMLFactory) {
+        this.templateHTMLFactory = templateHTMLFactory;
     }
 
     @Override
@@ -36,14 +33,16 @@ public class ExceptionHandlerFilter implements Filter {
                 commonException.getMessage());
             response.setStatus(commonException.getStatusCode());
             response.setHeader("Content-Type", "text/html;charset=utf-8");
-            response.setBody(generateErrorPage(commonException));
+            byte[] data;
+            if (SessionContext.getSession() == null) {
+                data = templateHTMLFactory.exceptionPage(commonException);
+            } else {
+                User user = (User) SessionContext.getSession().getAttribute("user");
+                data = templateHTMLFactory.exceptionPage(user, commonException);
+            }
+            response.setBody(data);
         }
         chain.doFilter(request, response);
     }
 
-    private String generateErrorPage(HttpCommonException hce) {
-        return "<h1>" + hce.getStatusCode().getCode() + " " + hce.getStatusCode().getMessage()
-            + "</h1>\n" + "<h2>" + hce.getMessage() + "</h2>\n"
-            + "<button onclick=\"history.back()\">뒤로가기</button>";
-    }
 }

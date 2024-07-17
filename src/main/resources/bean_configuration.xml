@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+  <bean class="codesquad.server.statics.StaticFileStorage"/>
+  <bean class="codesquad.server.properties.ApplicationProperties"/>
+  <bean class="codesquad.server.endpoint.StaticFileEndPointRegister"/>
+  <bean class="codesquad.server.endpoint.EndPointStorage"/>
+  <bean class="codesquad.codestagram.endpoint.GetEndPointRegister"/>
+  <bean class="codesquad.codestagram.endpoint.PostEndPointRegister"/>
+  <bean class="codesquad.server.statics.StaticFileProvider"/>
+  <bean class="codesquad.server.template.TemplateFileProvider"/>
+  <bean class="codesquad.server.http.filter.EndPointProvideFilter"/>
+  <bean class="codesquad.server.http.filter.AuthenticationFilter"/>
+  <bean class="codesquad.server.http.filter.ExceptionHandlerFilter"/>
+  <bean class="codesquad.server.http.filter.SessionContextClearFilter"/>
+  <bean class="codesquad.server.http.filter.UserLoginFilter"/>
+  <bean class="codesquad.codestagram.domain.article.storage.ArticleDao"/>
+  <bean class="codesquad.codestagram.domain.comment.storage.CommentDao"/>
+  <bean class="codesquad.codestagram.domain.user.storage.UserDao"/>
+  <bean class="codesquad.server.database.H2ConnectManager"/>
+  <bean class="codesquad.server.http.session.SessionStorage"/>
+  <bean class="codesquad.server.template.TemplateFileStorage"/>
+  <bean class="codesquad.server.template.TemplateHTMLFactory"/>
+</beans>

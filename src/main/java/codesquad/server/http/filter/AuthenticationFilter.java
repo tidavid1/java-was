@@ -17,26 +17,18 @@ import org.slf4j.LoggerFactory;
 public class AuthenticationFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationFilter.class);
-    private static AuthenticationFilter instance;
-
     private final List<String> authenticationPathList;
 
     private AuthenticationFilter() {
-        this.authenticationPathList = List.of("/user/list", "/logout");
-    }
-
-    public static AuthenticationFilter getInstance() {
-        if (instance == null) {
-            instance = new AuthenticationFilter();
-        }
-        return instance;
+        this.authenticationPathList = List.of("/user/list", "/logout", "/write.html", "/write",
+            "/article", "/comment", "/comment/index.html");
     }
 
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response,
         FilterChain chain) {
         if (request.getRequest() != null) {
-            String path = request.getRequest().getUri().getPath();
+            String path = request.getRequest().getRequestLine().getPath();
             log.debug("path: {}", path);
             // 검증하기
             if (authenticationPathList.contains(path)) {

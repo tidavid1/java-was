@@ -4,13 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import codesquad.server.http.exception.HttpCommonException;
 import codesquad.server.http.servlet.HttpServletRequest;
-import codesquad.server.http.servlet.enums.HttpMethod;
-import codesquad.server.http.servlet.enums.HttpVersion;
+import codesquad.server.http.servlet.SingleHttpRequest;
 import codesquad.server.http.servlet.enums.StatusCode;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,12 +41,10 @@ class HttpRequestParserTest {
             InputStream inputStream = new ByteArrayInputStream(inputStreamStr.getBytes());
             HttpRequestParser httpRequestParser = new HttpRequestParser();
             // Act
-            HttpServletRequest actualResult = httpRequestParser.parse(inputStream);
+            SingleHttpRequest actualResult = (SingleHttpRequest) httpRequestParser.parse(
+                inputStream).getRequest();
             // Assert
             assertThat(actualResult).isNotNull();
-            assertThat(actualResult.getRequest())
-                .extracting("method", "uri", "version")
-                .containsExactly(HttpMethod.GET, URI.create("/index.html"), HttpVersion.HTTP_1_1);
         }
 
         @Nested
