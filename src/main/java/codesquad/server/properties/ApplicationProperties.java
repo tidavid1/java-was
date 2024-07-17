@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 public class ApplicationProperties {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationProperties.class);
-    private static ApplicationProperties instance;
 
     private final Properties properties;
 
@@ -18,13 +17,6 @@ public class ApplicationProperties {
         this.properties = init();
     }
 
-    @Deprecated(forRemoval = true)
-    public static ApplicationProperties getInstance() {
-        if (instance == null) {
-            instance = new ApplicationProperties();
-        }
-        return instance;
-    }
 
     public String getDBTcpPort() {
         return properties.getProperty("was.db.tcp.port");
