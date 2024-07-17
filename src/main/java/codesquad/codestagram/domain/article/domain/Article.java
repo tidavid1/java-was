@@ -4,7 +4,7 @@ import codesquad.codestagram.domain.user.domain.User;
 
 public class Article {
 
-    private static final String DEFAULT_IMAGE_PATH = "./default.webp";
+    private static final String DEFAULT_IMAGE_PATH = "./img/default.webp";
 
     private Long id;
     private String title;
@@ -16,7 +16,7 @@ public class Article {
     public Article(String title, String body, String imagePath, User user) {
         this.title = validateTitle(title);
         this.body = body;
-        this.imagePath = imagePath == null ? DEFAULT_IMAGE_PATH : imagePath;
+        this.imagePath = imagePath == null ? DEFAULT_IMAGE_PATH : "./img/" + imagePath;
         this.userId = user.getId();
         this.username = user.getName();
     }

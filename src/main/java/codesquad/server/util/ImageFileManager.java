@@ -36,11 +36,11 @@ public class ImageFileManager {
             throw new IllegalArgumentException("File Not Found!");
         }
         for (File subFile : file.listFiles()) {
-            String path = subFile.getAbsolutePath().replace(absoluteImagePath, ".");
+            String path = subFile.getAbsolutePath().replace(absoluteImagePath, "/img");
             endPointStorage.addEndpoint(HttpMethod.GET, EndPoint.of(path, ((request, response) -> {
                 response.setStatus(StatusCode.OK);
                 response.setContentType("image/" + path.substring(path.lastIndexOf(".") + 1));
-                response.setBody(this.readImage(path.substring(2)));
+                response.setBody(this.readImage(path.replace("/img/", "")));
             })));
         }
     }
