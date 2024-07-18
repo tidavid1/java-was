@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,19 +21,21 @@ public class UserDao {
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
     private final H2ConnectManager h2ConnectManager;
+    private final AtomicLong id = new AtomicLong(2);
 
     private UserDao(H2ConnectManager h2ConnectManager) {
         this.h2ConnectManager = h2ConnectManager;
     }
 
     public void save(User user) {
-        String insertSql = "INSERT INTO USERS (USER_ID, PASSWORD, NAME, EMAIL) VALUES ( ?, ?, ?, ? )";
+        String insertSql = "INSERT INTO USERS (ID, USER_ID, PASSWORD, NAME, EMAIL) VALUES ( ?, ?, ?, ?, ?)";
         try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             insertSql)) {
-            preparedStatement.setString(1, user.getUserId());
-            preparedStatement.setString(2, user.getPassword());
-            preparedStatement.setString(3, user.getName());
-            preparedStatement.setString(4, user.getEmail());
+            preparedStatement.setLong(1, id.getAndAdd(1));
+            preparedStatement.setString(2, user.getUserId());
+            preparedStatement.setString(3, user.getPassword());
+            preparedStatement.setString(4, user.getName());
+            preparedStatement.setString(5, user.getEmail());
             preparedStatement.executeUpdate();
         } catch (JdbcSQLIntegrityConstraintViolationException jsicve) {
             throw new IllegalArgumentException("이미 존재하는 사용자명입니다");

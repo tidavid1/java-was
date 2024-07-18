@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,19 +19,21 @@ public class CommentDao {
     private static final Logger log = LoggerFactory.getLogger(CommentDao.class);
 
     private final H2ConnectManager h2ConnectManager;
+    private final AtomicLong id = new AtomicLong(4);
 
     private CommentDao(H2ConnectManager h2ConnectManager) {
         this.h2ConnectManager = h2ConnectManager;
     }
 
     public void save(Comment comment) {
-        String insertSql = "INSERT INTO COMMENTS (BODY, USER_ID, USERNAME ,ARTICLE_ID) VALUES ( ?, ?, ?, ? )";
+        String insertSql = "INSERT INTO COMMENTS (ID, BODY, USER_ID, USERNAME ,ARTICLE_ID) VALUES ( ?, ?, ?, ?, ? )";
         try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             insertSql)) {
-            preparedStatement.setString(1, comment.getBody());
-            preparedStatement.setLong(2, comment.getUserId());
-            preparedStatement.setString(3, comment.getUsername());
-            preparedStatement.setLong(4, comment.getArticleId());
+            preparedStatement.setLong(1, id.getAndAdd(1));
+            preparedStatement.setString(2, comment.getBody());
+            preparedStatement.setLong(3, comment.getUserId());
+            preparedStatement.setString(4, comment.getUsername());
+            preparedStatement.setLong(5, comment.getArticleId());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());

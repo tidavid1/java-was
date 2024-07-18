@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,20 +20,22 @@ public class ArticleDao {
     private static final Logger log = LoggerFactory.getLogger(ArticleDao.class);
 
     private final H2ConnectManager h2ConnectManager;
+    private final AtomicLong id = new AtomicLong(2);
 
     private ArticleDao(H2ConnectManager h2ConnectManager) {
         this.h2ConnectManager = h2ConnectManager;
     }
 
     public void save(Article article) {
-        String insertSql = "INSERT INTO ARTICLES (title, body, image_path, user_id, username) VALUES (?, ?, ?, ?, ?)";
+        String insertSql = "INSERT INTO ARTICLES (id, title, body, image_path, user_id, username) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             insertSql)) {
-            preparedStatement.setString(1, article.getTitle());
-            preparedStatement.setString(2, article.getBody());
-            preparedStatement.setString(3, article.getImagePath());
-            preparedStatement.setLong(4, article.getUserId());
-            preparedStatement.setString(5, article.getUsername());
+            preparedStatement.setLong(1, id.getAndAdd(1));
+            preparedStatement.setString(2, article.getTitle());
+            preparedStatement.setString(3, article.getBody());
+            preparedStatement.setString(4, article.getImagePath());
+            preparedStatement.setLong(5, article.getUserId());
+            preparedStatement.setString(6, article.getUsername());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
