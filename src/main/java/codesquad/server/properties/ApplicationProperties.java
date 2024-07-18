@@ -53,6 +53,11 @@ public class ApplicationProperties {
         return replaceHomePath(property);
     }
 
+    public String getCsvFolderPath() {
+        String property = properties.getProperty("was.csv.folder.path");
+        return replaceHomePath(property);
+    }
+
     private Properties init() {
         Properties prop = new Properties();
         try (InputStream inputStream = getClass().getResourceAsStream("/application.properties")) {
