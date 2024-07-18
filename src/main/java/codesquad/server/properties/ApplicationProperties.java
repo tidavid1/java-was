@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 public class ApplicationProperties {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationProperties.class);
-    private static ApplicationProperties instance;
 
     private final Properties properties;
 
@@ -18,20 +17,14 @@ public class ApplicationProperties {
         this.properties = init();
     }
 
-    @Deprecated(forRemoval = true)
-    public static ApplicationProperties getInstance() {
-        if (instance == null) {
-            instance = new ApplicationProperties();
-        }
-        return instance;
-    }
 
     public String getDBTcpPort() {
         return properties.getProperty("was.db.tcp.port");
     }
 
     public String getDBTcpBaseDir() {
-        return properties.getProperty("was.db.tcp.base_dir");
+        String property = properties.getProperty("was.db.tcp.base_dir");
+        return replaceHomePath(property);
     }
 
     public String getDBWebConsolePort() {
@@ -39,7 +32,8 @@ public class ApplicationProperties {
     }
 
     public String getDBFilePath() {
-        return properties.getProperty("was.db.file.path");
+        String property = properties.getProperty("was.db.file.path");
+        return replaceHomePath(property);
     }
 
     public String getDBCurrentUrl() {
@@ -54,6 +48,11 @@ public class ApplicationProperties {
         return properties.getProperty("was.db.current.password");
     }
 
+    public String getImageFolderPath() {
+        String property = properties.getProperty("was.image.folder.path");
+        return replaceHomePath(property);
+    }
+
     private Properties init() {
         Properties prop = new Properties();
         try (InputStream inputStream = getClass().getResourceAsStream("/application.properties")) {
@@ -66,4 +65,9 @@ public class ApplicationProperties {
         }
         return prop;
     }
+
+    private String replaceHomePath(String property) {
+        return property.replace("~", System.getProperty("user.home"));
+    }
+
 }

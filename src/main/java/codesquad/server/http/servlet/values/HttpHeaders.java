@@ -3,6 +3,7 @@ package codesquad.server.http.servlet.values;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class HttpHeaders {
 
@@ -18,5 +19,9 @@ public class HttpHeaders {
 
     public Map<String, List<String>> getAllHeaders() {
         return Collections.unmodifiableMap(headers);
+    }
+
+    public Optional<List<String>> getHeader(String key) {
+        return Optional.ofNullable(headers.get(key));
     }
 }

@@ -25,13 +25,14 @@ public class ArticleDao {
     }
 
     public void save(Article article) {
-        String insertSql = "INSERT INTO ARTICLES (title, body, user_id, username) VALUES (?, ?, ?, ?)";
+        String insertSql = "INSERT INTO ARTICLES (title, body, image_path, user_id, username) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             insertSql)) {
             preparedStatement.setString(1, article.getTitle());
             preparedStatement.setString(2, article.getBody());
-            preparedStatement.setLong(3, article.getUserId());
-            preparedStatement.setString(4, article.getUsername());
+            preparedStatement.setString(3, article.getImagePath());
+            preparedStatement.setLong(4, article.getUserId());
+            preparedStatement.setString(5, article.getUsername());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             log.error(e.getMessage());
@@ -39,7 +40,7 @@ public class ArticleDao {
     }
 
     public Optional<Article> findById(Long id) {
-        String findByIdSql = "SELECT ARTICLES.ID, ARTICLES.TITLE, ARTICLES.BODY, ARTICLES.USER_ID, ARTICLES.USERNAME FROM ARTICLES WHERE id = ?";
+        String findByIdSql = "SELECT ARTICLES.ID, ARTICLES.TITLE, ARTICLES.BODY, ARTICLES.IMAGE_PATH ,ARTICLES.USER_ID, ARTICLES.USERNAME FROM ARTICLES WHERE id = ?";
         try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             findByIdSql)) {
             preparedStatement.setLong(1, id);
@@ -49,6 +50,7 @@ public class ArticleDao {
                     resultSet.getLong("id"),
                     resultSet.getString("title"),
                     resultSet.getString("body"),
+                    resultSet.getString("image_path"),
                     resultSet.getLong("user_id"),
                     resultSet.getString("username"));
                 return Optional.of(article);
@@ -61,7 +63,7 @@ public class ArticleDao {
 
     public List<Article> findAll() {
         List<Article> articles = new ArrayList<>();
-        String findAllSql = "SELECT ARTICLES.ID, ARTICLES.TITLE, ARTICLES.BODY, ARTICLES.USER_ID, ARTICLES.USERNAME FROM ARTICLES";
+        String findAllSql = "SELECT ARTICLES.ID, ARTICLES.TITLE, ARTICLES.BODY, ARTICLES.IMAGE_PATH ,ARTICLES.USER_ID, ARTICLES.USERNAME FROM ARTICLES";
         try (Connection connection = h2ConnectManager.getConnection(); Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(findAllSql);
             while (resultSet.next()) {
@@ -69,6 +71,7 @@ public class ArticleDao {
                     resultSet.getLong("id"),
                     resultSet.getString("title"),
                     resultSet.getString("body"),
+                    resultSet.getString("image_path"),
                     resultSet.getLong("user_id"),
                     resultSet.getString("username"));
                 articles.add(article);

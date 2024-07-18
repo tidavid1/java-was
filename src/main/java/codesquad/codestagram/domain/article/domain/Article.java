@@ -4,23 +4,29 @@ import codesquad.codestagram.domain.user.domain.User;
 
 public class Article {
 
+    private static final String DEFAULT_IMAGE_PATH = "./img/default.webp";
+
     private Long id;
     private String title;
     private String body;
+    private String imagePath;
     private Long userId;
     private String username;
 
-    public Article(String title, String body, User user) {
+    public Article(String title, String body, String imagePath, User user) {
         this.title = validateTitle(title);
         this.body = body;
+        this.imagePath = imagePath == null ? DEFAULT_IMAGE_PATH : "./img/" + imagePath;
         this.userId = user.getId();
         this.username = user.getName();
     }
 
-    public Article(Long id, String title, String body, Long userId, String username) {
+    public Article(Long id, String title, String body, String imagePath, Long userId,
+        String username) {
         this.id = id;
         this.title = validateTitle(title);
         this.body = body;
+        this.imagePath = imagePath;
         this.userId = userId;
         this.username = username;
     }
@@ -35,6 +41,10 @@ public class Article {
 
     public String getBody() {
         return body;
+    }
+
+    public String getImagePath() {
+        return imagePath;
     }
 
     public Long getUserId() {

@@ -40,7 +40,7 @@ class TemplateHTMLGeneratorTest {
         String expectedTitle = "test";
         String expectedContents = "contents";
         String expectedUsername = "사용자";
-        Article expectedArticle = new Article(1L, expectedTitle, expectedContents, 1L,
+        Article expectedArticle = new Article(1L, expectedTitle, expectedContents, "", 1L,
             expectedUsername);
         // Act
         String actualResult = TemplateHTMLGenerator.post(expectedArticle);
@@ -57,7 +57,7 @@ class TemplateHTMLGeneratorTest {
     void navigationBar() {
         // Arrange
         long expectedArticleId = 1L;
-        Article expectedArticle = new Article(expectedArticleId, "title", "content", 1L,
+        Article expectedArticle = new Article(expectedArticleId, "title", "content", "", 1L,
             "username");
         // Act
         String actualResult = TemplateHTMLGenerator.navigationBar(expectedArticle);

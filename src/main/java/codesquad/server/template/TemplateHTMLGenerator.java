@@ -60,7 +60,7 @@ public class TemplateHTMLGenerator {
             + "        <img class=\"post__account__img\"/>\n"
             + "        <p class=\"post__account__nickname\">" + article.getUsername() + "</p>\n"
             + "      </div>\n"
-            + "      <img class=\"post__img\"/>\n"
+            + "      <img class=\"post__img\" src=\"" + article.getImagePath() + "\"/>\n"
             + "      <div class=\"post__menu\">\n"
             + "        <ul class=\"post__menu__personal\">\n"
             + "          <li>\n"
