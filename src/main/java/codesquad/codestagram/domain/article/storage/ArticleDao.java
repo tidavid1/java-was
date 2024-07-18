@@ -2,7 +2,7 @@ package codesquad.codestagram.domain.article.storage;
 
 import codesquad.codestagram.domain.article.domain.Article;
 import codesquad.server.database.ConnectManager;
-import codesquad.server.database.H2ConnectManager;
+import codesquad.server.database.CsvConnectManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +23,7 @@ public class ArticleDao {
     private final ConnectManager connectManager;
     private final AtomicLong id = new AtomicLong(2);
 
-    private ArticleDao(H2ConnectManager connectManager) {
+    private ArticleDao(CsvConnectManager connectManager) {
         this.connectManager = connectManager;
     }
 
@@ -44,7 +44,7 @@ public class ArticleDao {
     }
 
     public Optional<Article> findById(Long id) {
-        String findByIdSql = "SELECT ARTICLES.ID, ARTICLES.TITLE, ARTICLES.BODY, ARTICLES.IMAGE_PATH ,ARTICLES.USER_ID, ARTICLES.USERNAME FROM ARTICLES WHERE id = ?";
+        String findByIdSql = "SELECT * FROM ARTICLES WHERE id = ?";
         try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             findByIdSql)) {
             preparedStatement.setLong(1, id);

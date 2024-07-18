@@ -20,7 +20,6 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
@@ -32,12 +31,6 @@ public class CsvResultSet implements ResultSet {
 
     public CsvResultSet(Queue<String[]> queue, String[] idxRow) {
         this.queue = queue;
-        this.idxRow = idxRow;
-    }
-
-    public CsvResultSet(String[] row, String[] idxRow) {
-        this.queue = new LinkedList<>();
-        queue.add(row);
         this.idxRow = idxRow;
     }
 
@@ -62,7 +55,11 @@ public class CsvResultSet implements ResultSet {
     @Override
     public String getString(String columnLabel) throws SQLException {
         try {
-            return currentRow[indexOf(columnLabel)];
+            String value = currentRow[indexOf(columnLabel)];
+            if (value.startsWith("\"") && value.endsWith("\"")) {
+                value = value.substring(1, value.length() - 1);
+            }
+            return value;
         } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
@@ -127,6 +124,7 @@ public class CsvResultSet implements ResultSet {
         return 0;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
         return null;
@@ -157,6 +155,7 @@ public class CsvResultSet implements ResultSet {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public InputStream getUnicodeStream(int columnIndex) throws SQLException {
         return null;
@@ -227,6 +226,7 @@ public class CsvResultSet implements ResultSet {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public InputStream getUnicodeStream(String columnLabel) throws SQLException {
         return null;
@@ -282,6 +282,7 @@ public class CsvResultSet implements ResultSet {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
         return null;

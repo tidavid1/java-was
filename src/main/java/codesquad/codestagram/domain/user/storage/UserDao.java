@@ -2,7 +2,7 @@ package codesquad.codestagram.domain.user.storage;
 
 import codesquad.codestagram.domain.user.domain.User;
 import codesquad.server.database.ConnectManager;
-import codesquad.server.database.H2ConnectManager;
+import codesquad.server.database.CsvConnectManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,7 +24,7 @@ public class UserDao {
     private final ConnectManager connectManager;
     private final AtomicLong id = new AtomicLong(2);
 
-    private UserDao(H2ConnectManager connectManager) {
+    private UserDao(CsvConnectManager connectManager) {
         this.connectManager = connectManager;
     }
 
@@ -46,7 +46,7 @@ public class UserDao {
     }
 
     public Optional<User> findById(String userId) {
-        String findByIdSql = "SELECT USERS.ID, USERS.USER_ID, USERS.PASSWORD, USERS.NAME, USERS.EMAIL FROM USERS WHERE USER_ID = ?";
+        String findByIdSql = "SELECT * FROM USERS WHERE USER_ID = ?";
         try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             findByIdSql)) {
             preparedStatement.setString(1, userId);
@@ -69,7 +69,7 @@ public class UserDao {
 
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        String findAllSql = "SELECT USERS.ID, USERS.USER_ID, USERS.PASSWORD, USERS.NAME, USERS.EMAIL FROM USERS";
+        String findAllSql = "SELECT * FROM USERS";
         try (Connection connection = connectManager.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(
             findAllSql)) {
             while (resultSet.next()) {

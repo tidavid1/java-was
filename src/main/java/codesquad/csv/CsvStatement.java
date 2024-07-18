@@ -19,7 +19,7 @@ public class CsvStatement implements Statement {
     @Override
     // Only Using for SELECT * FROM TABLE;
     public ResultSet executeQuery(String sql) throws SQLException {
-        Queue<String[]> table = getTableFromDB(sql);
+        Queue<String[]> table = getTableFromDB(sql.toLowerCase(Locale.ROOT));
         String[] indexRow = table.poll();
         return new CsvResultSet(table, indexRow);
     }
@@ -32,7 +32,7 @@ public class CsvStatement implements Statement {
     protected Queue<String[]> getTableFromDB(String sql) throws SQLException {
         String[] values = sql.split(" ");
         validateSelect(values[0]);
-        return csvManager.readCsv(values[values.length - 1]);
+        return csvManager.readCsv(values[3]);
     }
 
     protected void validateSelect(String queryPart) throws SQLException {

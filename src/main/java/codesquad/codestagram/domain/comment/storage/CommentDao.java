@@ -2,7 +2,7 @@ package codesquad.codestagram.domain.comment.storage;
 
 import codesquad.codestagram.domain.comment.domain.Comment;
 import codesquad.server.database.ConnectManager;
-import codesquad.server.database.H2ConnectManager;
+import codesquad.server.database.CsvConnectManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,7 +22,7 @@ public class CommentDao {
     private final ConnectManager connectManager;
     private final AtomicLong id = new AtomicLong(4);
 
-    private CommentDao(H2ConnectManager connectManager) {
+    private CommentDao(CsvConnectManager connectManager) {
         this.connectManager = connectManager;
     }
 
@@ -42,7 +42,7 @@ public class CommentDao {
     }
 
     public Optional<Comment> findById(Long id) {
-        String findByIdSql = "select COMMENTS.ID, COMMENTS.BODY, COMMENTS.USER_ID, COMMENTS.USERNAME, COMMENTS.ARTICLE_ID as AI from COMMENTS WHERE ID = ?";
+        String findByIdSql = "select * from COMMENTS WHERE ID = ?";
         try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             findByIdSql)) {
             preparedStatement.setLong(1, id);
@@ -64,7 +64,7 @@ public class CommentDao {
 
     public List<Comment> findAllByArticleId(Long articleId) {
         List<Comment> comments = new ArrayList<>();
-        String findAllByArticleIdSql = "select COMMENTS.ID, COMMENTS.BODY, COMMENTS.USER_ID, COMMENTS.USERNAME, COMMENTS.ARTICLE_ID as AI from COMMENTS WHERE ARTICLE_ID = ?";
+        String findAllByArticleIdSql = "select * from COMMENTS WHERE ARTICLE_ID = ?";
         try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             findAllByArticleIdSql)) {
             preparedStatement.setLong(1, articleId);

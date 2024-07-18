@@ -32,7 +32,7 @@ public class CsvPreparedStatement extends CsvStatement implements PreparedStatem
 
     public CsvPreparedStatement(CsvManager csvManager, String sql) {
         super(csvManager);
-        this.sql = verifyInsert(sql);
+        this.sql = verifyValues(sql);
     }
 
     @Override
@@ -42,19 +42,23 @@ public class CsvPreparedStatement extends CsvStatement implements PreparedStatem
             Queue<String[]> table = getTableFromDB(sql);
             String[] sqlParts = sql.split(" ");
             String key = sqlParts[sqlParts.length - 3];
-            String value = sqlParts[sqlParts.length - 1];
+            String value = values[0];
             String[] indexRow = table.poll();
             int idx = indexOf(indexRow, key);
-            while (!table.isEmpty()) {
+            int n = table.size();
+            while (n-- > 0) {
                 String[] row = table.poll();
                 if (row[idx].equals(value)) {
-                    return new CsvResultSet(row, indexRow);
+                    table.add(row);
                 }
             }
+            if (table.isEmpty()) {
+                throw new SQLException("No Such Element Found");
+            }
+            return new CsvResultSet(table, indexRow);
         } catch (Exception e) {
             throw new SQLException(e.getMessage());
         }
-        throw new SQLException("No Such Element Found");
     }
 
     @Override
@@ -88,11 +92,9 @@ public class CsvPreparedStatement extends CsvStatement implements PreparedStatem
         }
     }
 
-    private String verifyInsert(String sql) {
+    private String verifyValues(String sql) {
         sql = sql.toLowerCase(Locale.ROOT);
-        if (sql.startsWith("insert")) {
-            values = new String[countValues(sql)];
-        }
+        values = new String[countValues(sql)];
         return sql;
     }
 

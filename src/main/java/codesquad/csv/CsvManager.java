@@ -30,14 +30,9 @@ public class CsvManager {
         Queue<String[]> data = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
             new FileInputStream(folderPath + "/" + fileName + CSV_EXTENSION)))) {
-            StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
-                stringBuilder.append(line);
-                if (line.charAt(line.length() - 2) == '\r') {
-                    data.add(parseRow(stringBuilder.toString()));
-                    stringBuilder.setLength(0);
-                }
+                data.add(parseRow(line));
             }
         } catch (IOException | NullPointerException e) {
             throw new IllegalArgumentException(e.getMessage());
