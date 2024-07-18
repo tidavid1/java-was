@@ -1,6 +1,5 @@
 package codesquad.csv;
 
-import codesquad.server.properties.ApplicationProperties;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,10 +7,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-// BEAN
 public class CsvManager {
 
     private static final String COLUMN_DELIMITER = "\r\n";
@@ -22,13 +21,13 @@ public class CsvManager {
 
     // id, title, body, something
     // 1, 안녕, "안녕 나는, ""누구""야!", 안녕
-    private CsvManager(ApplicationProperties properties) {
-        folderPath = properties.getCsvFolderPath();
+    public CsvManager(String folderPath) {
+        this.folderPath = folderPath;
         init();
     }
 
-    public List<String[]> readCsv(String fileName) {
-        List<String[]> data = new ArrayList<>();
+    public Queue<String[]> readCsv(String fileName) {
+        Queue<String[]> data = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
             new FileInputStream(folderPath + "/" + fileName + CSV_EXTENSION)))) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -47,7 +46,8 @@ public class CsvManager {
     }
 
     public void writeCsv(String fileName, Queue<String> queue) {
-        try (FileWriter fileWriter = new FileWriter(fileName, true)) {
+        try (FileWriter fileWriter = new FileWriter(folderPath + "/" + fileName + CSV_EXTENSION,
+            true)) {
             while (queue.size() != 1 && !queue.isEmpty()) {
                 String value = queue.poll();
                 fileWriter.append(value).append(ROW_DELIMITER);
