@@ -1,5 +1,6 @@
 package codesquad.server;
 
+import codesquad.csv.CsvDriver;
 import codesquad.server.bean.BeanFactory;
 import codesquad.server.endpoint.EndPointRegister;
 import codesquad.server.properties.ApplicationProperties;
@@ -8,6 +9,8 @@ import codesquad.server.statics.StaticFileProvider;
 import codesquad.server.template.TemplateFileProvider;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -25,6 +28,11 @@ public class SocketServer {
         this.port = port;
         this.executorService = Executors.newCachedThreadPool();
         this.beanFactory = BeanFactory.getInstance();
+        try {
+            DriverManager.registerDriver(beanFactory.getBean(CsvDriver.class));
+        } catch (SQLException e) {
+            throw new IllegalStateException(e.getMessage());
+        }
         beanFactory.getBean(StaticFileProvider.class).init();
         beanFactory.getBean(TemplateFileProvider.class).init();
         EndPointRegister.handleAllHandler();

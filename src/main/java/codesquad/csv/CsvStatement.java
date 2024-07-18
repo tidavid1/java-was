@@ -25,7 +25,6 @@ public class CsvStatement implements Statement {
     }
 
     @Override
-    // TODO: 아마 init.sql Script Execute 하는 친구일겁니다..
     public boolean execute(String sql) throws SQLException {
         return false;
     }

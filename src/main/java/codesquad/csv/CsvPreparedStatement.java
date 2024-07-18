@@ -174,6 +174,7 @@ public class CsvPreparedStatement extends CsvStatement implements PreparedStatem
 
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setUnicodeStream(int parameterIndex, InputStream x, int length)
         throws SQLException {

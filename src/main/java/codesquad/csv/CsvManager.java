@@ -50,6 +50,11 @@ public class CsvManager {
             true)) {
             while (queue.size() != 1 && !queue.isEmpty()) {
                 String value = queue.poll();
+                if (value.contains("\"")) {
+                    value = "\"\"" + value + "\"\"";
+                } else if (value.contains(",")) {
+                    value = "\"" + value + "\"";
+                }
                 fileWriter.append(value).append(ROW_DELIMITER);
             }
             String value = queue.poll();
@@ -77,12 +82,12 @@ public class CsvManager {
                 idx = -1;
             }
         }
-        values.add(row.trim());
+        values.add(row.trim().replace("\"", ""));
         return values.toArray(new String[0]);
     }
 
     private boolean validatePart(String part) {
-        return (part.length() - part.replace("\"", "").length()) % 2 == 0;
+        return (part.length() - part.replaceAll("(?<!\")\"(?!\")", "").length()) % 2 == 0;
     }
 
 }
