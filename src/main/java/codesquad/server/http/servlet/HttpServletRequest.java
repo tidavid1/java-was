@@ -1,6 +1,7 @@
 package codesquad.server.http.servlet;
 
 import java.net.HttpCookie;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +25,13 @@ public class HttpServletRequest {
     }
 
     public Optional<HttpCookie> getCookie(String name) {
-        List<String> cookies = request.getHeader("Cookie");
-        return cookies.stream()
-            .flatMap(cookie -> HttpCookie.parse(cookie).stream())
+        List<String> values = request.getHeader("Cookie");
+        if (values.isEmpty()) {
+            return Optional.empty();
+        }
+        String[] cookies = request.getHeader("Cookie").get(0).split(";");
+        return Arrays.stream(cookies)
+            .flatMap(cookie -> HttpCookie.parse(cookie.trim()).stream())
             .filter(httpCookie -> httpCookie.getName().equals(name))
             .findFirst();
     }

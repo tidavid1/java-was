@@ -24,6 +24,7 @@ public class HttpRequestParser {
     private static final Logger log = LoggerFactory.getLogger(HttpRequestParser.class);
     private static final String REQUEST_LINE_DELIMITER = " ";
     private static final String HEADER_DELIMITER = ":";
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 8;
 
     public HttpServletRequest parse(InputStream inputStream) throws IOException {
         HttpServletRequest servletRequest = new HttpServletRequest();
@@ -112,7 +113,9 @@ public class HttpRequestParser {
                 throw new HttpCommonException("헤더가 올바르지 않습니다.", StatusCode.BAD_REQUEST);
             }
             String key = line.substring(0, idx).trim();
-            String[] values = line.substring(idx + 1).trim().split(",");
+            String[] values = key.equals("Content-Disposition") ? new String[]{
+                line.substring(idx + 1).replace("\"", "").trim()}
+                : line.substring(idx + 1).trim().split(",");
             for (String value : values) {
                 headers.computeIfAbsent(key, k -> new ArrayList<>()).add(value.trim());
             }
@@ -131,21 +134,27 @@ public class HttpRequestParser {
 
     private List<HttpRequestPart> parseMultiPart(BufferedInputStream bufferedInputStream,
         List<String> contentTypeValue, int contentLength) throws IOException {
-        bufferedInputStream.mark(1024);
-        bufferedInputStream.reset();
         String bounder = contentTypeValue.get(0);
         bounder = "--" + bounder.substring(bounder.indexOf("boundary=") + 9);
-        byte[] buffer = new byte[contentLength];
-        if (bufferedInputStream.read(buffer, 0, contentLength) == -1) {
-            throw new HttpCommonException("요청 바디가 없습니다.", StatusCode.BAD_REQUEST);
+        byte[] multiPartBody = new byte[contentLength];
+        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        int offset = 0;
+        while (offset < contentLength) {
+            int size;
+            if ((size = bufferedInputStream.read(buffer, 0, DEFAULT_BUFFER_SIZE)) == -1) {
+                throw new HttpCommonException("요청 바디가 없습니다.", StatusCode.BAD_REQUEST);
+            }
+            System.arraycopy(buffer, 0, multiPartBody, offset, size);
+            offset += size;
         }
+
         List<HttpRequestPart> parts = new ArrayList<>();
         int start = 0;
         Queue<String> queue = new LinkedList<>();
-        for (int i = 0; i < buffer.length; i++) {
-            if (buffer[i] == '\n') {
+        for (int i = 0; i < multiPartBody.length; i++) {
+            if (multiPartBody[i] == '\n') {
                 byte[] temp = new byte[i - start + 1];
-                System.arraycopy(buffer, start, temp, 0, temp.length);
+                System.arraycopy(multiPartBody, start, temp, 0, temp.length);
                 String value = new String(temp).trim();
                 start = i++ + 1;
                 if (value.isBlank()) {
@@ -154,9 +163,9 @@ public class HttpRequestParser {
                         throw new HttpCommonException("잘못된 바운더리 요청입니다", StatusCode.BAD_REQUEST);
                     }
                     Map<String, List<String>> subHeader = parseHeaders(queue);
-                    i = indexOfBounder(bounder, buffer, i);
-                    byte[] body = new byte[(i - start) - (buffer[i - 2] == '\r' ? 2 : 1)];
-                    System.arraycopy(buffer, start, body, 0, body.length);
+                    i = indexOfBounder(bounder, multiPartBody, i);
+                    byte[] body = new byte[(i - start) - (multiPartBody[i - 2] == '\r' ? 2 : 1)];
+                    System.arraycopy(multiPartBody, start, body, 0, body.length);
                     parts.add(HttpRequestPart.from(subHeader, body));
                     start = i;
                     continue;

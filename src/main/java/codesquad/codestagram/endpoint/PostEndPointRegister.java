@@ -108,39 +108,8 @@ public class PostEndPointRegister implements EndPointRegister {
 
     public void handleWrite(HttpServletRequest request, HttpServletResponse response) {
         MultiPartHttpRequest httpRequest = (MultiPartHttpRequest) request.getRequest();
-        Map<String, String> body = new HashMap<>();
         try {
-            for (HttpRequestPart part : httpRequest.getRequestParts()) {
-                HttpHeaders httpHeaders = part.getHeaders();
-                httpHeaders.getHeader("Content-Type").ifPresentOrElse(
-                    contentType -> {
-                        String[] values = httpHeaders.getHeader("Content-Disposition").orElseThrow(
-                                () -> new IllegalArgumentException("Content-Disposition Not Found!"))
-                            .get(0).split("\\.");
-                        if (values.length == 1) {
-                            return;
-                        }
-                        String extension = values[values.length - 1].replace("\"", "");
-                        String fileName = imageFileManager.saveImage(
-                            UUID.randomUUID() + "." + extension, part.getBody());
-                        body.put("photo", fileName);
-                        endPointStorage.addEndpoint(HttpMethod.GET,
-                            EndPoint.of("/img/" + fileName, (req, res) -> {
-                                res.setStatus(StatusCode.OK);
-                                res.setContentType(contentType.get(0));
-                                res.setBody(imageFileManager.readImage(fileName));
-                            }));
-                    },
-                    () -> {
-                        String key = httpHeaders.getHeader("Content-Disposition").orElseThrow(
-                                () -> new IllegalArgumentException("Content-Disposition Not Found!"))
-                            .get(0);
-                        key = key.replace("form-data; name=\"", "");
-                        key = key.substring(0, key.indexOf("\""));
-                        body.put(key, new String(part.getBody()));
-                    }
-                );
-            }
+            Map<String, String> body = processRequestParts(httpRequest);
             Article article = new Article(body.get("title"), body.get("content"), body.get("photo"),
                 getUserInSessionContext());
             articleDao.save(article);
@@ -216,5 +185,44 @@ public class PostEndPointRegister implements EndPointRegister {
     private void setExceptionAttribute(HttpServletRequest request, String message,
         StatusCode statusCode) {
         request.setAttribute("exception", new HttpCommonException(message, statusCode));
+    }
+
+    private Map<String, String> processRequestParts(MultiPartHttpRequest request) {
+        Map<String, String> body = new HashMap<>();
+        for (HttpRequestPart part : request.getRequestParts()) {
+            parseRequestPart(part, body);
+        }
+        return body;
+    }
+
+    private void parseRequestPart(HttpRequestPart httpRequestPart, Map<String, String> body) {
+        HttpHeaders httpHeaders = httpRequestPart.getHeaders();
+        httpHeaders.getHeader("Content-Type").ifPresentOrElse(
+            contentType -> {
+                String extension = httpHeaders.getHeader("Content-Disposition").orElseThrow(
+                    () -> new IllegalArgumentException("Content-Disposition Not Found!")).get(0);
+                extension = extension.replace("form-data; name=photo; filename=", "");
+                if (extension.isBlank()) {
+                    return;
+                }
+                extension = extension.substring(extension.lastIndexOf(".") + 1);
+                String fileName = imageFileManager.saveImage(
+                    UUID.randomUUID() + "." + extension, httpRequestPart.getBody());
+                body.put("photo", fileName);
+                endPointStorage.addEndpoint(HttpMethod.GET,
+                    EndPoint.of("/img/" + fileName, (req, res) -> {
+                        res.setStatus(StatusCode.OK);
+                        res.setContentType(contentType.get(0));
+                        res.setBody(imageFileManager.readImage(fileName));
+                    }));
+            },
+            () -> {
+                String key = httpHeaders.getHeader("Content-Disposition").orElseThrow(
+                        () -> new IllegalArgumentException("Content-Disposition Not Found!"))
+                    .get(0);
+                key = key.replace("form-data; name=", "");
+                body.put(key, new String(httpRequestPart.getBody()));
+            }
+        );
     }
 }
