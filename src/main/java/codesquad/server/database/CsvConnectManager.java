@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CsvConnectManager {
+public class CsvConnectManager implements ConnectManager {
 
     private static final String[] INIT_CSV_PATHS = {"/sql/users.csv", "/sql/comments.csv",
         "/sql/articles.csv"};
@@ -25,6 +25,7 @@ public class CsvConnectManager {
         init(csvFolderPath);
     }
 
+    @Override
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(jdbcUrl);
     }

@@ -14,8 +14,8 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class H2ConnectManager {
-    
+public class H2ConnectManager implements ConnectManager {
+
     private static final String INIT_SQL_PATH = "/sql/init.sql";
     private static final Logger log = LoggerFactory.getLogger(H2ConnectManager.class);
 
@@ -31,6 +31,7 @@ public class H2ConnectManager {
 
     }
 
+    @Override
     public Connection getConnection() throws SQLException {
         return jdbcConnectionPool.getConnection();
     }

@@ -1,6 +1,7 @@
 package codesquad.codestagram.domain.user.storage;
 
 import codesquad.codestagram.domain.user.domain.User;
+import codesquad.server.database.ConnectManager;
 import codesquad.server.database.H2ConnectManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,16 +21,16 @@ public class UserDao {
 
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
-    private final H2ConnectManager h2ConnectManager;
+    private final ConnectManager connectManager;
     private final AtomicLong id = new AtomicLong(2);
 
-    private UserDao(H2ConnectManager h2ConnectManager) {
-        this.h2ConnectManager = h2ConnectManager;
+    private UserDao(H2ConnectManager connectManager) {
+        this.connectManager = connectManager;
     }
 
     public void save(User user) {
         String insertSql = "INSERT INTO USERS (ID, USER_ID, PASSWORD, NAME, EMAIL) VALUES ( ?, ?, ?, ?, ?)";
-        try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
+        try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             insertSql)) {
             preparedStatement.setLong(1, id.getAndAdd(1));
             preparedStatement.setString(2, user.getUserId());
@@ -46,7 +47,7 @@ public class UserDao {
 
     public Optional<User> findById(String userId) {
         String findByIdSql = "SELECT USERS.ID, USERS.USER_ID, USERS.PASSWORD, USERS.NAME, USERS.EMAIL FROM USERS WHERE USER_ID = ?";
-        try (Connection connection = h2ConnectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
+        try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             findByIdSql)) {
             preparedStatement.setString(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -69,7 +70,7 @@ public class UserDao {
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
         String findAllSql = "SELECT USERS.ID, USERS.USER_ID, USERS.PASSWORD, USERS.NAME, USERS.EMAIL FROM USERS";
-        try (Connection connection = h2ConnectManager.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(
+        try (Connection connection = connectManager.getConnection(); Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(
             findAllSql)) {
             while (resultSet.next()) {
                 User user = User.of(
