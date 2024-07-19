@@ -7,10 +7,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,13 +20,14 @@ public class CommentDao {
     private static final Logger log = LoggerFactory.getLogger(CommentDao.class);
 
     private final ConnectManager connectManager;
-    private final AtomicLong id = new AtomicLong(4);
+    private AtomicLong id;
 
     private CommentDao(CsvConnectManager connectManager) {
         this.connectManager = connectManager;
     }
 
     public void save(Comment comment) {
+        verifyId();
         String insertSql = "INSERT INTO COMMENTS (ID, BODY, USER_ID, USERNAME ,ARTICLE_ID) VALUES ( ?, ?, ?, ?, ? )";
         try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             insertSql)) {
@@ -41,25 +42,24 @@ public class CommentDao {
         }
     }
 
-    public Optional<Comment> findById(Long id) {
-        String findByIdSql = "select * from COMMENTS WHERE ID = ?";
-        try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
-            findByIdSql)) {
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
+    public List<Comment> findAll() {
+        List<Comment> comments = new ArrayList<>();
+        String findAllSql = "select * from COMMENTS";
+        try (Connection connection = connectManager.getConnection(); Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(findAllSql);
+            while (resultSet.next()) {
                 Comment comment = new Comment(
                     resultSet.getLong("id"),
                     resultSet.getString("body"),
                     resultSet.getLong("user_id"),
                     resultSet.getString("username"),
                     resultSet.getLong("article_id"));
-                return Optional.of(comment);
+                comments.add(comment);
             }
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-        return Optional.empty();
+        return Collections.unmodifiableList(comments);
     }
 
     public List<Comment> findAllByArticleId(Long articleId) {
@@ -84,5 +84,10 @@ public class CommentDao {
         return Collections.unmodifiableList(comments);
     }
 
+    private void verifyId() {
+        if (id == null) {
+            id = new AtomicLong(findAll().size() + 1L);
+        }
+    }
 
 }

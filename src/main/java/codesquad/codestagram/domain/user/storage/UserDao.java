@@ -22,13 +22,14 @@ public class UserDao {
     private static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
     private final ConnectManager connectManager;
-    private final AtomicLong id = new AtomicLong(2);
+    private AtomicLong id;
 
     private UserDao(CsvConnectManager connectManager) {
         this.connectManager = connectManager;
     }
 
     public void save(User user) {
+        verifyId();
         String insertSql = "INSERT INTO USERS (ID, USER_ID, PASSWORD, NAME, EMAIL) VALUES ( ?, ?, ?, ?, ?)";
         try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             insertSql)) {
@@ -87,5 +88,11 @@ public class UserDao {
         }
 
         return Collections.unmodifiableList(users);
+    }
+
+    private void verifyId() {
+        if (id == null) {
+            id = new AtomicLong(findAll().size() + 1L);
+        }
     }
 }
