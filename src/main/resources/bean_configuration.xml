@@ -13,9 +13,6 @@
   <bean class="codesquad.server.http.filter.ExceptionHandlerFilter"/>
   <bean class="codesquad.server.http.filter.SessionContextClearFilter"/>
   <bean class="codesquad.server.http.filter.UserLoginFilter"/>
-  <bean class="codesquad.codestagram.domain.article.storage.ArticleDao"/>
-  <bean class="codesquad.codestagram.domain.comment.storage.CommentDao"/>
-  <bean class="codesquad.codestagram.domain.user.storage.UserDao"/>
   <bean class="codesquad.server.database.H2ConnectManager"/>
   <bean class="codesquad.server.http.session.SessionStorage"/>
   <bean class="codesquad.server.template.TemplateFileStorage"/>
@@ -23,4 +20,7 @@
   <bean class="codesquad.server.util.ImageFileManager"/>
   <bean class="codesquad.server.database.csv.CsvDriver"/>
   <bean class="codesquad.server.database.CsvConnectManager"/>
+  <bean class="codesquad.codestagram.domain.article.storage.ArticleDao"/>
+  <bean class="codesquad.codestagram.domain.comment.storage.CommentDao"/>
+  <bean class="codesquad.codestagram.domain.user.storage.UserDao"/>
 </beans>

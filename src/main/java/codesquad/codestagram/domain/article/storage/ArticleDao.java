@@ -21,13 +21,14 @@ public class ArticleDao {
     private static final Logger log = LoggerFactory.getLogger(ArticleDao.class);
 
     private final ConnectManager connectManager;
-    private final AtomicLong id = new AtomicLong(2);
+    private AtomicLong id;
 
     private ArticleDao(CsvConnectManager connectManager) {
         this.connectManager = connectManager;
     }
 
     public void save(Article article) {
+        verifyId();
         String insertSql = "INSERT INTO ARTICLES (id, title, body, image_path, user_id, username) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection connection = connectManager.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(
             insertSql)) {
@@ -67,7 +68,7 @@ public class ArticleDao {
 
     public List<Article> findAll() {
         List<Article> articles = new ArrayList<>();
-        String findAllSql = "SELECT ARTICLES.ID, ARTICLES.TITLE, ARTICLES.BODY, ARTICLES.IMAGE_PATH ,ARTICLES.USER_ID, ARTICLES.USERNAME FROM ARTICLES";
+        String findAllSql = "SELECT * FROM ARTICLES";
         try (Connection connection = connectManager.getConnection(); Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(findAllSql);
             while (resultSet.next()) {
@@ -84,6 +85,12 @@ public class ArticleDao {
             log.error(e.getMessage());
         }
         return Collections.unmodifiableList(articles);
+    }
+
+    private void verifyId() {
+        if (id == null) {
+            id = new AtomicLong(findAll().size() + 1L);
+        }
     }
 
 }
