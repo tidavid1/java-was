@@ -1,4 +1,4 @@
-package codesquad.csv;
+package codesquad.server.database.csv;
 
 import codesquad.server.properties.ApplicationProperties;
 import java.sql.Connection;

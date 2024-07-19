@@ -1,7 +1,7 @@
 package codesquad.server;
 
-import codesquad.csv.CsvDriver;
 import codesquad.server.bean.BeanFactory;
+import codesquad.server.database.csv.CsvDriver;
 import codesquad.server.endpoint.EndPointRegister;
 import codesquad.server.properties.ApplicationProperties;
 import codesquad.server.runner.ConnectionRunner;

@@ -1,4 +1,4 @@
-package codesquad.csv;
+package codesquad.server.database.csv;
 
 import java.sql.Array;
 import java.sql.Blob;

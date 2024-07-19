@@ -1,4 +1,4 @@
-package codesquad.csv;
+package codesquad.server.database.csv;
 
 import java.io.InputStream;
 import java.io.Reader;
