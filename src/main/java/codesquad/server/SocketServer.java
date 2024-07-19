@@ -35,7 +35,7 @@ public class SocketServer {
         }
         beanFactory.getBean(StaticFileProvider.class).init();
         beanFactory.getBean(TemplateFileProvider.class).init();
-        EndPointRegister.handleAllHandler();
+        EndPointRegister.registerAll();
     }
 
     public SocketServer() {

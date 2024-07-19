@@ -13,20 +13,33 @@
 ![img.png](img.png)
 
 - `Main` 클래스에서 원하는 포트를 갖는 `ServerSocket`을 생성합니다.
-- `ServerSocket`이 생성되면서 구현된 모든 `EndPointHandler`를 핸들링해 `EndPoint`를 생성 및 저장합니다.
+- `ServerSocket`은 생성 직후 `BeanFactory`를 통해 Bean을 생성 및 저장합니다.
+- 이후 H2 TCP 서버를 개별 스레드로 실행시킵니다.
+- `ServerSocket`이 생성되면서 작성된 모든 `EndPointRegister`들을 핸들링해 `EndPoint`를 생성 및 저장합니다.
     - 예시 이미지에서는 `8080` 포트를 사용합니다.
 - HTTP 요청이 들어오면 `ServerSocket`은 요청에 대한 `ConnectionRunner`를 스레드로 실행합니다.
-    - `ConnectionRunner`는 HTTP 요청 `InputStream`을 `HttpRequestHandler`에 위임합니다.
     - `ConnectionHandler`는 `HttpRequestParser`로 `HttpServletRequest` 객체를 생성합니다.
     - `ConnectionHandler`는 응답을 담기 위한 `HttpServletResponse` 객체를 생성한 후 `HttpServletRequest`
       객체와 `HttpServletResponse`객체를 `FilterChain`에 전달합니다.
     - `FilterChain`을 통과하며 `HttpServletResponse` 객체에 응답을 담습니다.
-        - `FilterChain`의 필터 중 `EndPointProviderFilter`는 `HttpServletRequest` 객체의 Path를 통해 `EndPoint`
+        - `FilterChain`의 필터 중 `EndPointProvidFilter`는 `HttpServletRequest` 객체의 Path를 통해 `EndPoint`
           를 찾아 결과값을 `HttpServletResponse` 객체에 응답을 담습니다.
-        - 동적인 HTML 파일을 응답하기 위해 특정 `EndPoint`는 `HTMLConvertor` 를 활용해 동적으로 값을 전달합니다.
 - `ConnectionRunner`는 완성된 `HttpServletResponse` 객체에 `OutputStream`을 위임해 응답을 전송합니다.
 
-### 🔍 `Filter`, `FilterChain` 살펴보기
+## 💡 구현 포인트 살펴보기
+
+### 🔍 `BeanFactory`
+
+![img_4.png](img_4.png)
+
+- `BeanFactory`는 `Bean`을 생성하고 `BeanStorage`에 저장하는 역할을 합니다.
+- `BeanFactory`는 `Bean`을 생성하기 위해 `/resourse/bean_configuration.xml`을 참조합니다.
+    - `bean_configuration.xml`은 `Bean`의 클래스 경로를 가지고 있습니다.
+    - `Bean`의 클래스 경로를 와 리플랙션을 활용해 `Bean`을 생성 및 저장합니다.
+    - 다른 `Bean`을 참조해 생성되는 `Bean`은(Autowire) Post Processing을 통해 참조된 `Bean`을 주입합니다.
+- 순환 참조 발생시 `Bean` 생성을 실패하도록 구현했습니다.
+
+### 🔍 `Filter`, `FilterChain`
 
 - `Filter` 인터페이스는 `HttpServletRequest` 객체와 `HttpServletResponse` 객체를 인자로 받아 동작합니다.
 - `FilterChain`은 `Filter` 인터페이스를 구현한 객체를 저장하고 순차적으로 실행합니다.
@@ -54,7 +67,7 @@
 - `EndPointProviderFilter`는 `EndPoint`를 찾아 `HttpServletResponse` 객체에 응답을 담습니다.
 - `ExceptionHandlerFilter`는 예외가 발생했을 때 `HttpServletResponse` 객체에 예외에 따른 응답을 담습니다.
 
-### 🔍 `EndPoint` 살펴보기
+### 🔍 `EndPoint`
 
 ```java
 
