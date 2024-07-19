@@ -21,4 +21,6 @@
   <bean class="codesquad.server.template.TemplateFileStorage"/>
   <bean class="codesquad.server.template.TemplateHTMLFactory"/>
   <bean class="codesquad.server.util.ImageFileManager"/>
+  <bean class="codesquad.server.database.csv.CsvDriver"/>
+  <bean class="codesquad.server.database.CsvConnectManager"/>
 </beans>

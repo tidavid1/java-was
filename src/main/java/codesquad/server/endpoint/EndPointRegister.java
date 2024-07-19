@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface EndPointRegister {
 
-    static void handleAllHandler() {
+    static void registerAll() {
         List<EndPointRegister> handlers = List.of(
             BeanFactory.getInstance().getBean(StaticFileEndPointRegister.class),
             BeanFactory.getInstance().getBean(GetEndPointRegister.class),
